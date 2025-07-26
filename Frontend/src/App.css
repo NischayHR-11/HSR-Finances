@@ -1,4 +1,79 @@
 .App {
   min-height: 100vh;
   background-color: var(--bg-primary);
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Grid lines for gamified sci-fi UI effect */
+.App::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    linear-gradient(rgba(78, 234, 255, 0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 234, 255, 0.05) 1px, transparent 1px);
+  background-size: 30px 30px;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Animation for elements entering the view */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease-out forwards;
+}
+
+/* XP Bar Styling */
+.xp-bar-container {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 200px;
+  z-index: 1000;
+  background-color: var(--bg-card);
+  border-radius: 20px;
+  padding: 10px;
+  border: 1px solid var(--accent-primary);
+  box-shadow: 0 0 15px rgba(78, 234, 255, 0.2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.xp-bar {
+  width: 100%;
+  height: 6px;
+  background-color: var(--bg-secondary);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 5px;
+}
+
+.xp-progress {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-primary));
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.xp-text {
+  font-size: 10px;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
 }

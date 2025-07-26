@@ -1,0 +1,332 @@
+/* Gamified UI Animations and Elements */
+@keyframes float {
+  0% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+  100% {
+    transform: translateY(0);
+  }
+}
+
+@keyframes glow {
+  0% {
+    box-shadow: 0 0 5px var(--accent-primary-glow);
+  }
+  50% {
+    box-shadow: 0 0 15px var(--accent-primary-glow), 0 0 30px var(--accent-primary-glow);
+  }
+  100% {
+    box-shadow: 0 0 5px var(--accent-primary-glow);
+  }
+}
+
+@keyframes border-flow {
+  0% {
+    background-position: 0% 0%;
+  }
+  100% {
+    background-position: 100% 0%;
+  }
+}
+
+/* Gamified elements */
+.crystal {
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  animation: float 6s ease-in-out infinite, glow 3s ease-in-out infinite;
+  opacity: 0.7;
+  z-index: -1;
+}
+
+.progress-bar {
+  height: 8px;
+  width: 100%;
+  background-color: var(--bg-secondary);
+  border-radius: 4px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  border-radius: 4px;
+  background: linear-gradient(90deg, var(--accent-tertiary), var(--accent-primary));
+  background-size: 200% 100%;
+  animation: border-flow 2s linear infinite;
+  transition: width 0.5s ease;
+}
+
+.progress-value {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--accent-primary);
+}
+
+.stat-card {
+  padding: 15px;
+  border-radius: 8px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  border-color: var(--accent-primary);
+  box-shadow: var(--neon-shadow);
+}
+
+.stat-icon {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: var(--bg-highlight);
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-value {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Experience Level */
+.level-indicator {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background-color: var(--bg-highlight);
+  border-radius: 20px;
+  border: 1px solid var(--accent-primary);
+  box-shadow: var(--neon-shadow);
+}
+
+.level-badge {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #000;
+  font-size: 12px;
+}
+
+.level-text {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+/* Achievement Badge */
+.achievement {
+  position: relative;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 10px;
+  transition: all 0.3s ease;
+}
+
+.achievement:hover {
+  transform: scale(1.05);
+}
+
+.achievement-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  background-color: var(--bg-highlight);
+  border: 2px solid var(--accent-primary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: var(--neon-shadow);
+}
+
+.achievement-icon::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: conic-gradient(transparent, var(--accent-primary), transparent 30%);
+  animation: rotate 4s linear infinite;
+}
+
+.achievement-icon::after {
+  content: '';
+  position: absolute;
+  inset: 5px;
+  background-color: var(--bg-highlight);
+  border-radius: 50%;
+  z-index: 2;
+}
+
+.achievement-title {
+  font-size: 12px;
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: center;
+}
+
+@keyframes rotate {
+  100% {
+    transform: rotate(1turn);
+  }
+}
+
+/* Custom Scrollbar */
+*::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--bg-secondary);
+}
+
+*::-webkit-scrollbar-thumb {
+  background: linear-gradient(var(--accent-primary), var(--accent-tertiary));
+  border-radius: 3px;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(var(--accent-tertiary), var(--accent-primary));
+}
+
+/* Glassmorphism Elements */
+.glass-card {
+  background-color: rgba(30, 37, 58, 0.7);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(78, 234, 255, 0.1);
+  border-radius: 12px;
+}
+
+/* Data Grid/Table Styling */
+.data-grid {
+  width: 100%;
+  border-spacing: 0;
+  border-collapse: separate;
+  border-radius: 8px;
+  overflow: hidden;
+  margin: 20px 0;
+}
+
+.data-grid th {
+  background-color: var(--bg-highlight);
+  color: var(--text-primary);
+  font-weight: 600;
+  text-align: left;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  font-size: 12px;
+}
+
+.data-grid td {
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--border-color);
+  color: var(--text-secondary);
+}
+
+.data-grid tr:last-child td {
+  border-bottom: none;
+}
+
+.data-grid tr {
+  transition: all 0.2s ease;
+}
+
+.data-grid tr:hover td {
+  background-color: var(--bg-highlight);
+  color: var(--text-primary);
+}
+
+.data-grid tr.active td {
+  background-color: rgba(78, 234, 255, 0.1);
+  color: var(--accent-primary);
+}
+
+/* Interactive Elements */
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 24px;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: var(--bg-secondary);
+  transition: .4s;
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 16px;
+  width: 16px;
+  left: 4px;
+  bottom: 3px;
+  background-color: var(--text-secondary);
+  transition: .4s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: var(--accent-tertiary-glow);
+  border-color: var(--accent-tertiary);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(26px);
+  background-color: var(--accent-tertiary);
+}

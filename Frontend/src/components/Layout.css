@@ -2,12 +2,87 @@
   display: flex;
   min-height: 100vh;
   background-color: var(--bg-primary);
+  position: relative;
 }
 
 .main-content {
   flex: 1;
   margin-left: 260px;
   min-height: 100vh;
+  padding: 20px;
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Gamified UI Notifications */
+.level-up-notification,
+.achievement-notification {
+  position: fixed;
+  top: 30px;
+  right: 30px;
+  background: rgba(30, 37, 58, 0.9);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--accent-primary);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  z-index: 1000;
+  animation: fadeInRight 0.5s ease-out forwards, fadeOutRight 0.5s ease-in forwards 2.5s;
+  box-shadow: var(--neon-shadow), 0 10px 20px rgba(0, 0, 0, 0.3);
+  max-width: 300px;
+}
+
+.level-up-icon,
+.achievement-icon {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  color: var(--bg-primary);
+}
+
+.level-up-text h3,
+.achievement-text h3 {
+  margin: 0 0 8px;
+  color: var(--accent-primary);
+  font-size: 18px;
+  font-weight: 600;
+  text-shadow: 0 0 10px var(--accent-primary-glow);
+}
+
+.level-up-text p,
+.achievement-text p {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: 14px;
+}
+
+@keyframes fadeInRight {
+  from {
+    opacity: 0;
+    transform: translateX(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fadeOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(50px);
+  }
 }
 
 @media (max-width: 1024px) {
@@ -18,5 +93,18 @@
   /* Hide sidebar on mobile - navigation will be handled by mobile menu */
   .layout .sidebar {
     display: none;
+  }
+  
+  /* Adjust XP bar for mobile */
+  .xp-bar-container {
+    bottom: 70px;
+  }
+  
+  /* Adjust notifications for mobile */
+  .level-up-notification,
+  .achievement-notification {
+    top: 70px;
+    right: 20px;
+    max-width: calc(100% - 40px);
   }
 }

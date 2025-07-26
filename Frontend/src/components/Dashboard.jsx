@@ -1,38 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import './Dashboard.css';
 
-const Dashboard = () => {
+const Dashboard = ({ userLevel = 1 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [animateStats, setAnimateStats] = useState(false);
+  const [activeAchievement, setActiveAchievement] = useState(null);
+
+  // Trigger animations when component mounts
+  useEffect(() => {
+    setAnimateStats(true);
+  }, []);
 
   const stats = [
     {
       title: 'Total Money Lent',
       value: '$125,000',
       change: '+8.2% from last month',
-      icon: '$',
-      positive: true
+      icon: '💰',
+      positive: true,
+      color: 'var(--accent-primary)'
     },
     {
       title: 'Monthly Interest',
       value: '$8,750',
       change: '+12.5% from last month',
       icon: '📈',
-      positive: true
+      positive: true,
+      color: 'var(--accent-tertiary)'
     },
     {
       title: 'Active Loans',
       value: '12',
       change: '2 new this month',
       icon: '👥',
-      positive: true
+      positive: true,
+      color: 'var(--accent-secondary)'
     },
     {
       title: 'On-Time Rate',
       value: '95%',
       change: 'Excellent performance',
       icon: '🏆',
-      positive: true
+      positive: true,
+      color: 'var(--accent-warning)'
     }
   ];
 
@@ -44,7 +55,10 @@ const Dashboard = () => {
       monthlyInterest: '$177.08',
       progress: 65,
       status: 'current',
-      dueDate: '2024-02-15'
+      dueDate: '2024-02-15',
+      avatar: 'JS',
+      level: 3,
+      streak: 12
     },
     {
       name: 'Sarah Johnson',
@@ -53,7 +67,10 @@ const Dashboard = () => {
       monthlyInterest: '$115',
       progress: 40,
       status: 'due',
-      dueDate: '2024-02-12'
+      dueDate: '2024-02-12',
+      avatar: 'SJ',
+      level: 2,
+      streak: 5
     }
   ];
 
@@ -61,19 +78,32 @@ const Dashboard = () => {
     {
       title: 'Perfect Month',
       description: '100% on-time payments',
-      icon: '🏆'
+      icon: '🏆',
+      xp: 50,
+      unlocked: true,
+      color: 'var(--accent-primary)'
     },
     {
       title: 'Growth Master',
       description: 'Portfolio over $100K',
-      icon: '🎯'
+      icon: '📊',
+      xp: 100,
+      unlocked: true,
+      color: 'var(--accent-tertiary)'
     },
     {
       title: 'Consistency King',
       description: '6 months streak',
-      icon: '👑'
+      icon: '👑',
+      xp: 75,
+      unlocked: false,
+      color: 'var(--accent-warning)'
     }
   ];
+  
+  const handleAchievementHover = (index) => {
+    setActiveAchievement(index);
+  };
 
   return (
     <div className="dashboard">
@@ -146,17 +176,39 @@ const Dashboard = () => {
           <h1>Dashboard</h1>
           <p>Welcome back! Here's your lending overview.</p>
         </div>
-        <div className="month-indicator">
-          📈 +12% this month
+        <div className="month-indicator glass-card">
+          <span className="indicator-icon">📈</span> 
+          <span className="indicator-text">+12% this month</span>
+          <div className="indicator-glow"></div>
         </div>
       </div>
 
       <div className="stats-grid">
         {stats.map((stat, index) => (
-          <div key={index} className="stat-card">
-            <div className="stat-header">
+          <div 
+            key={index} 
+            className={`stat-card ${animateStats ? 'animate-in' : ''}`} 
+            style={{ 
+              animationDelay: `${index * 0.1}s`,
+              borderColor: stat.positive ? stat.color : 'var(--accent-danger)'
+            }}
+          >
+            <div 
+              className="stat-header"
+              style={{
+                borderBottom: `1px solid ${stat.color}40`
+              }}
+            >
               <span className="stat-title">{stat.title}</span>
-              <span className="stat-icon">{stat.icon}</span>
+              <span 
+                className="stat-icon" 
+                style={{ 
+                  background: `linear-gradient(135deg, ${stat.color}, ${stat.color}80)`,
+                  boxShadow: `0 0 15px ${stat.color}40`
+                }}
+              >
+                {stat.icon}
+              </span>
             </div>
             <div className="stat-value">{stat.value}</div>
             <div className={`stat-change ${stat.positive ? 'positive' : 'negative'}`}>
@@ -169,22 +221,40 @@ const Dashboard = () => {
       <div className="dashboard-content">
         <div className="recent-borrowers-section">
           <div className="section-header">
-            <h2>Recent Borrowers</h2>
+            <h2>
+              <span className="section-icon">👥</span>
+              Active Borrowers
+            </h2>
             <button className="view-all-btn">View All</button>
           </div>
           
           <div className="borrowers-list">
             {recentBorrowers.map((borrower, index) => (
-              <div key={index} className="borrower-card">
+              <div 
+                key={index} 
+                className={`borrower-card ${animateStats ? 'animate-in' : ''}`}
+                style={{ 
+                  animationDelay: `${0.3 + index * 0.1}s`
+                }}
+              >
                 <div className="borrower-info">
                   <div className="borrower-header">
-                    <h3>{borrower.name}</h3>
-                    <span className={`status-badge status-${borrower.status}`}>
-                      {borrower.status}
-                    </span>
+                    <div className="borrower-avatar-container">
+                      <div className="borrower-avatar">{borrower.avatar}</div>
+                      <div className="borrower-level">Lvl {borrower.level}</div>
+                    </div>
+                    <div>
+                      <h3>{borrower.name}</h3>
+                      <span className={`status-badge status-${borrower.status}`}>
+                        {borrower.status}
+                      </span>
+                    </div>
                   </div>
                   <div className="borrower-amount">{borrower.amount} @ {borrower.rate}</div>
                   <div className="borrower-due">Due: {borrower.dueDate}</div>
+                  <div className="borrower-streak">
+                    <span className="streak-icon">🔥</span> {borrower.streak} day streak
+                  </div>
                 </div>
                 
                 <div className="borrower-details">
@@ -208,17 +278,57 @@ const Dashboard = () => {
 
         <div className="achievements-section">
           <div className="section-header">
-            <h2>🏆 Achievements</h2>
+            <h2>
+              <span className="section-icon">🏆</span>
+              Achievements
+            </h2>
           </div>
           
           <div className="achievements-list">
             {achievements.map((achievement, index) => (
-              <div key={index} className="achievement-card">
-                <span className="achievement-icon">{achievement.icon}</span>
+              <div 
+                key={index} 
+                className={`achievement-card ${achievement.unlocked ? 'unlocked' : 'locked'} ${animateStats ? 'animate-in' : ''}`}
+                style={{ 
+                  animationDelay: `${0.5 + index * 0.1}s`,
+                  borderColor: achievement.unlocked ? achievement.color : 'var(--border-color)'
+                }}
+                onMouseEnter={() => handleAchievementHover(index)}
+                onMouseLeave={() => handleAchievementHover(null)}
+              >
+                <div 
+                  className="achievement-icon-container"
+                  style={{
+                    background: achievement.unlocked 
+                      ? `linear-gradient(135deg, ${achievement.color}, ${achievement.color}80)` 
+                      : 'var(--bg-highlight)',
+                    boxShadow: achievement.unlocked ? `0 0 15px ${achievement.color}40` : 'none'
+                  }}
+                >
+                  <span className="achievement-icon">{achievement.icon}</span>
+                </div>
                 <div className="achievement-info">
                   <h4>{achievement.title}</h4>
                   <p>{achievement.description}</p>
+                  {achievement.unlocked ? (
+                    <div className="achievement-xp">+{achievement.xp} XP</div>
+                  ) : (
+                    <div className="achievement-locked">Locked</div>
+                  )}
                 </div>
+                {activeAchievement === index && achievement.unlocked && (
+                  <div className="achievement-tooltip">
+                    <div className="tooltip-header">
+                      <span className="tooltip-icon">{achievement.icon}</span>
+                      <h4>{achievement.title}</h4>
+                    </div>
+                    <p>{achievement.description}</p>
+                    <div className="tooltip-xp">
+                      <span className="xp-icon">⭐</span> 
+                      Awarded {achievement.xp} XP
+                    </div>
+                  </div>
+                )}
               </div>
             ))}
           </div>
