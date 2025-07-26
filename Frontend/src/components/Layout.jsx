@@ -10,7 +10,6 @@ import './Layout.css';
 const Layout = ({ onLogout, userLevel, xpPoints }) => {
   const location = useLocation();
   const [showLevelUp, setShowLevelUp] = useState(false);
-  const [achievements, setAchievements] = useState([]);
   
   // XP percentage calculation
   const maxXp = userLevel * 100;
@@ -23,22 +22,6 @@ const Layout = ({ onLogout, userLevel, xpPoints }) => {
       setTimeout(() => setShowLevelUp(false), 3000);
     }
   }, [userLevel, xpPoints]);
-  
-  // Simulate achievement unlock
-  useEffect(() => {
-    const pageVisits = {
-      '/dashboard': 'Finance Master',
-      '/borrowers': 'Borrower Manager',
-      '/notifications': 'Always Updated',
-      '/settings': 'Customization Expert'
-    };
-    
-    if (pageVisits[location.pathname] && !achievements.includes(pageVisits[location.pathname])) {
-      setTimeout(() => {
-        setAchievements(prev => [...prev, pageVisits[location.pathname]]);
-      }, 2000);
-    }
-  }, [location.pathname, achievements]);
 
   return (
     <div className="layout">
@@ -56,16 +39,6 @@ const Layout = ({ onLogout, userLevel, xpPoints }) => {
             <div className="level-up-text">
               <h3>Level Up!</h3>
               <p>You've reached level {userLevel}</p>
-            </div>
-          </div>
-        )}
-        
-        {achievements.length > 0 && achievements.slice(-1)[0] && (
-          <div className="achievement-notification">
-            <div className="achievement-icon">🏆</div>
-            <div className="achievement-text">
-              <h3>Achievement Unlocked!</h3>
-              <p>{achievements.slice(-1)[0]}</p>
             </div>
           </div>
         )}

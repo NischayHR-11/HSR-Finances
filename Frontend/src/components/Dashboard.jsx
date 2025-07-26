@@ -6,11 +6,17 @@ const Dashboard = ({ userLevel = 1 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
+  const [showWelcome, setShowWelcome] = useState(true);
   const navigate = useNavigate();
 
   // Trigger animations when component mounts
   useEffect(() => {
     setAnimateStats(true);
+    // Auto-hide welcome message after 3 seconds
+    const timer = setTimeout(() => {
+      setShowWelcome(false);
+    }, 3000);
+    return () => clearTimeout(timer);
   }, []);
 
   const stats = [
@@ -161,11 +167,25 @@ const Dashboard = ({ userLevel = 1 }) => {
             </div>
             <nav className="mobile-nav">
               <Link to="/dashboard" className="mobile-nav-item active" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">📊</span>
+                <span className="nav-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="7" height="7"/>
+                    <rect x="14" y="3" width="7" height="7"/>
+                    <rect x="14" y="14" width="7" height="7"/>
+                    <rect x="3" y="14" width="7" height="7"/>
+                  </svg>
+                </span>
                 <span>Dashboard</span>
               </Link>
               <Link to="/borrowers" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">👥</span>
+                <span className="nav-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                  </svg>
+                </span>
                 <span>Borrowers</span>
               </Link>
               <Link to="/notifications" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
@@ -178,7 +198,12 @@ const Dashboard = ({ userLevel = 1 }) => {
                 <span className="nav-badge">3</span>
               </Link>
               <Link to="/settings" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">⚙️</span>
+                <span className="nav-icon">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <circle cx="12" cy="12" r="3"/>
+                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m21-3a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9 21a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
+                  </svg>
+                </span>
                 <span>Settings</span>
               </Link>
             </nav>
@@ -213,7 +238,7 @@ const Dashboard = ({ userLevel = 1 }) => {
       <div className="dashboard-header">
         <div>
           <h1>Dashboard</h1>
-          <p>Welcome back! Here's your lending overview.</p>
+          <p>Welcome John Doe !!</p>
         </div>
         <div className="month-indicator glass-card">
           <span className="indicator-icon">📈</span> 
@@ -373,6 +398,22 @@ const Dashboard = ({ userLevel = 1 }) => {
           </div>
         </div>
       </div>
+
+      {/* Welcome Popup */}
+      {showWelcome && (
+        <div className="welcome-popup">
+          <div className="welcome-content">
+            <div className="welcome-icon">
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 12l2 2 4-4"/>
+                <circle cx="12" cy="12" r="10"/>
+              </svg>
+            </div>
+            <h3>Welcome John Doe !!</h3>
+            <p>Ready to manage your finances</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
