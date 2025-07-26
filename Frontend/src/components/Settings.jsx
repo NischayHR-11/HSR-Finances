@@ -63,7 +63,7 @@ const Settings = () => {
         
         <Link to="/dashboard" className="mobile-logo">
           <div className="logo-icon">$</div>
-          <span>LendTracker</span>
+          <span>HSR-Finances</span>
         </Link>
         
         <div className="mobile-actions">
@@ -82,7 +82,7 @@ const Settings = () => {
             <div className="mobile-menu-header">
               <Link to="/dashboard" className="logo" onClick={() => setIsMobileMenuOpen(false)}>
                 <div className="logo-icon">$</div>
-                <span>LendTracker</span>
+                <span>HSR-Finances</span>
               </Link>
               <button 
                 className="close-menu"

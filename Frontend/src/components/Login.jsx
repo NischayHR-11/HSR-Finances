@@ -19,7 +19,7 @@ const Login = ({ onLogin }) => {
           <div className="logo" onClick={handleSubmit}>
             <div className="logo-icon">$</div>
           </div>
-          <h1 onClick={handleSubmit} style={{ cursor: 'pointer' }}>LendTracker Pro</h1>
+          <h1 onClick={handleSubmit} style={{ cursor: 'pointer' }}>HSR-FINANCES</h1>
           <p>Manage your lending portfolio with confidence</p>
         </div>
         

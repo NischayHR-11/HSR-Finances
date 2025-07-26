@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import './Dashboard.css';
 
 const Dashboard = ({ userLevel = 1 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
+  const navigate = useNavigate();
 
   // Trigger animations when component mounts
   useEffect(() => {
@@ -105,6 +106,12 @@ const Dashboard = ({ userLevel = 1 }) => {
     setActiveAchievement(index);
   };
 
+  const handleNotificationClick = (e) => {
+    e.stopPropagation();
+    console.log('Notification clicked - redirecting to notifications');
+    navigate('/notifications');
+  };
+
   return (
     <div className="dashboard">
       {/* Mobile Header */}
@@ -120,7 +127,7 @@ const Dashboard = ({ userLevel = 1 }) => {
         
         <Link to="/dashboard" className="mobile-logo">
           <div className="logo-icon">$</div>
-          <span>LendTracker</span>
+          <span>HSR-Finances</span>
         </Link>
         
         <div className="mobile-actions">
@@ -139,7 +146,7 @@ const Dashboard = ({ userLevel = 1 }) => {
             <div className="mobile-menu-header">
               <Link to="/dashboard" className="logo" onClick={() => setIsMobileMenuOpen(false)}>
                 <div className="logo-icon">$</div>
-                <span>LendTracker</span>
+                <span>HSR-Finances</span>
               </Link>
               <button 
                 className="close-menu"
@@ -170,6 +177,26 @@ const Dashboard = ({ userLevel = 1 }) => {
           </div>
         </div>
       )}
+
+      {/* Desktop Top Navigation */}
+      <div className="desktop-top-nav">
+        <div className="desktop-navbar">
+          <button 
+            className="navbar-item notification-btn"
+            onClick={handleNotificationClick}
+            type="button"
+          >
+            <span className="navbar-icon">🔔</span>
+            <span className="notification-badge">3</span>
+            <span className="navbar-tooltip">Notifications</span>
+          </button>
+          
+          <div className="navbar-item profile-section">
+            <div className="user-avatar desktop-avatar">JD</div>
+            <span className="profile-name">John Doe</span>
+          </div>
+        </div>
+      </div>
 
       <div className="dashboard-header">
         <div>

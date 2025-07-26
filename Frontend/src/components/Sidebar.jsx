@@ -64,7 +64,7 @@ const Sidebar = ({ currentPath, onLogout, userLevel }) => {
       <div className="sidebar-header">
         <Link to="/dashboard" className="logo">
           <div className="logo-icon">$</div>
-          <span className="logo-text">LendTracker</span>
+          <span className="logo-text">HSR-Finances</span>
           <div className="logo-glow"></div>
         </Link>
       </div>
