@@ -132,7 +132,11 @@ const Dashboard = ({ userLevel = 1 }) => {
         
         <div className="mobile-actions">
           <Link to="/notifications" className="notification-btn">
-            <span className="notification-icon">🔔</span>
+            <span className="notification-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
+              </svg>
+            </span>
             <span className="notification-badge">3</span>
           </Link>
           <div className="user-avatar mobile-avatar">JD</div>
@@ -165,7 +169,11 @@ const Dashboard = ({ userLevel = 1 }) => {
                 <span>Borrowers</span>
               </Link>
               <Link to="/notifications" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">🔔</span>
+                <span className="nav-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
+                  </svg>
+                </span>
                 <span>Notifications</span>
                 <span className="nav-badge">3</span>
               </Link>
@@ -186,7 +194,11 @@ const Dashboard = ({ userLevel = 1 }) => {
             onClick={handleNotificationClick}
             type="button"
           >
-            <span className="navbar-icon">🔔</span>
+            <span className="navbar-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
+              </svg>
+            </span>
             <span className="notification-badge">3</span>
             <span className="navbar-tooltip">Notifications</span>
           </button>
