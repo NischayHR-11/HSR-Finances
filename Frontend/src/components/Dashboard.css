@@ -1,0 +1,370 @@
+@import './MobileHeader.css';
+
+.dashboard {
+  padding: 32px;
+  background-color: var(--bg-primary);
+  min-height: 100vh;
+}
+
+.dashboard-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 32px;
+}
+
+.dashboard-header h1 {
+  font-size: 32px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 8px 0;
+}
+
+.dashboard-header p {
+  color: var(--text-secondary);
+  margin: 0;
+  font-size: 16px;
+}
+
+.month-indicator {
+  background-color: var(--accent-green);
+  color: white;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
+}
+
+.stat-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+}
+
+.stat-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.stat-title {
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-icon {
+  font-size: 20px;
+}
+
+.stat-value {
+  font-size: 36px;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.stat-change {
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.stat-change.positive {
+  color: var(--accent-green);
+}
+
+.stat-change.negative {
+  color: var(--accent-red);
+}
+
+.dashboard-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 32px;
+}
+
+.section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.section-header h2 {
+  font-size: 24px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.view-all-btn {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 1px solid var(--border-color);
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-all-btn:hover {
+  background-color: var(--hover-bg);
+}
+
+.borrowers-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.borrower-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 24px;
+  transition: transform 0.2s ease;
+}
+
+.borrower-card:hover {
+  transform: translateY(-1px);
+}
+
+.borrower-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.borrower-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.status-badge {
+  padding: 4px 12px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: lowercase;
+}
+
+.status-current {
+  background-color: rgba(34, 197, 94, 0.1);
+  color: var(--accent-green);
+}
+
+.status-due {
+  background-color: rgba(245, 158, 11, 0.1);
+  color: var(--accent-yellow);
+}
+
+.borrower-amount {
+  font-size: 16px;
+  color: var(--text-secondary);
+  margin-bottom: 4px;
+}
+
+.borrower-due {
+  font-size: 14px;
+  color: var(--text-muted);
+  margin-bottom: 16px;
+}
+
+.monthly-interest {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin-bottom: 12px;
+}
+
+.amount-green {
+  color: var(--accent-green);
+  font-weight: 600;
+}
+
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8px;
+  background-color: var(--bg-input);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-green), var(--accent-green-dark));
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: 14px;
+  color: var(--text-secondary);
+  min-width: 60px;
+}
+
+.achievements-list {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.achievement-card {
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  transition: transform 0.2s ease;
+}
+
+.achievement-card:hover {
+  transform: translateY(-1px);
+}
+
+.achievement-icon {
+  font-size: 24px;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--accent-green), var(--accent-green-dark));
+  border-radius: 12px;
+}
+
+.achievement-info h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin: 0 0 4px 0;
+}
+
+.achievement-info p {
+  font-size: 14px;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+@media (max-width: 1024px) {
+  .dashboard-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .stats-grid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .dashboard {
+    padding-top: 80px; /* Account for fixed mobile header */
+  }
+}
+
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 80px 16px 16px 16px; /* Top padding for mobile header */
+  }
+  
+  .dashboard-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+  
+  .dashboard-header h1 {
+    font-size: 28px;
+  }
+  
+  .month-indicator {
+    align-self: stretch;
+    text-align: center;
+  }
+  
+  .stats-grid {
+    grid-template-columns: 1fr;
+    gap: 16px;
+    margin-bottom: 32px;
+  }
+
+  .stat-card {
+    padding: 20px;
+  }
+
+  .stat-value {
+    font-size: 28px;
+  }
+
+  .dashboard-content {
+    gap: 24px;
+  }
+
+  .section-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+  }
+
+  .section-header h2 {
+    font-size: 20px;
+  }
+
+  .view-all-btn {
+    align-self: stretch;
+    text-align: center;
+  }
+
+  .borrower-card {
+    padding: 20px;
+  }
+
+  .borrower-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .progress-section {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .progress-text {
+    align-self: flex-end;
+  }
+
+  .achievement-card {
+    padding: 16px;
+  }
+
+  .achievement-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 20px;
+  }
+}

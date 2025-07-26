@@ -1,0 +1,22 @@
+.layout {
+  display: flex;
+  min-height: 100vh;
+  background-color: var(--bg-primary);
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 260px;
+  min-height: 100vh;
+}
+
+@media (max-width: 1024px) {
+  .main-content {
+    margin-left: 0;
+  }
+  
+  /* Hide sidebar on mobile - navigation will be handled by mobile menu */
+  .layout .sidebar {
+    display: none;
+  }
+}
