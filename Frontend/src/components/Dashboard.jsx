@@ -6,17 +6,25 @@ const Dashboard = ({ userLevel = 1 }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
-  const [showWelcome, setShowWelcome] = useState(true);
+  const [showWelcome, setShowWelcome] = useState(false);
   const navigate = useNavigate();
 
   // Trigger animations when component mounts
   useEffect(() => {
     setAnimateStats(true);
-    // Auto-hide welcome message after 3 seconds
-    const timer = setTimeout(() => {
-      setShowWelcome(false);
-    }, 3000);
-    return () => clearTimeout(timer);
+    
+    // Check if user has already seen the welcome message
+    const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
+    
+    if (!hasSeenWelcome) {
+      setShowWelcome(true);
+      // Mark as seen and auto-hide welcome message after 3 seconds
+      const timer = setTimeout(() => {
+        setShowWelcome(false);
+        localStorage.setItem('hasSeenWelcome', 'true');
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
   }, []);
 
   const stats = [
