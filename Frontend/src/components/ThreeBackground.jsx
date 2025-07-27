@@ -45,10 +45,54 @@ const ThreeBackground = () => {
       // Clear canvas
       context.clearRect(0, 0, 256, 256);
       
-      // Check if it's a currency note emoji
+      // Check if it's a currency note emoji or golden coin
       const isCurrencyNote = ['💵', '💴', '💶', '💷', '💳', '💰'].includes(text);
+      const isGoldenCoin = ['🪙', '🥇', '⭐', '💰', '🏆'].includes(text);
+      const isDollarSymbol = text === '$';
       
-      if (isCurrencyNote) {
+      if (isDollarSymbol) {
+        // Special styling for $ symbols (most prominent)
+        context.fillStyle = color;
+        context.font = 'bold 160px Arial';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        
+        // Enhanced golden glow for $ symbols
+        context.shadowColor = color;
+        context.shadowBlur = 40;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 0;
+        
+        // Draw with multiple glow layers for extra prominence
+        context.fillText(text, 128, 128);
+        
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 50;
+        context.fillText(text, 128, 128);
+        
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 25;
+        context.fillText(text, 128, 128);
+      } else if (isGoldenCoin) {
+        // Special styling for golden coins
+        context.fillStyle = color;
+        context.font = 'bold 130px Arial';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        
+        // Golden sparkle effect
+        context.shadowColor = color;
+        context.shadowBlur = 35;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 0;
+        
+        // Draw with golden glow
+        context.fillText(text, 128, 128);
+        
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 45;
+        context.fillText(text, 128, 128);
+      } else if (isCurrencyNote) {
         // Special styling for currency notes
         context.fillStyle = color;
         context.font = 'bold 120px Arial';
@@ -85,14 +129,14 @@ const ThreeBackground = () => {
       return texture;
     };
 
-    // Financial symbols including currency notes
-    const symbols = ['$', '+', '-', '₹', '€', '¥', '100', '500', '1K', '5K', '10K', '💵', '💴', '💶', '💷', '💳', '🪙', '📊', '📈', '💰'];
+    // Financial symbols with more $ symbols for prominence
+    const symbols = ['$', '$', '$', '$', '$', '+', '-', '₹', '€', '¥', '100', '500', '1K', '5K', '10K'];
     
-    // Enhanced color palette with more green variations for currency notes
+    // Enhanced color palette with golden colors for coins
     const colors = [
       '#4EEAFF',  // Cyan
       '#22C55E',  // Green
-      '#16A34A',  // Dark Green (currency note green)
+      '#16A34A',  // Dark Green
       '#15803D',  // Forest Green  
       '#166534',  // Deep Green
       '#10B981',  // Emerald
@@ -101,12 +145,64 @@ const ThreeBackground = () => {
       '#EF4444',  // Red
       '#F59E0B',  // Yellow
       '#8B5CF6',  // Purple
-      '#EC4899'   // Pink
+      '#EC4899',  // Pink
+      '#FFD700',  // Gold
+      '#FFA500',  // Orange Gold
+      '#FF8C00',  // Dark Orange
+      '#DAA520'   // Goldenrod
     ];
+    
+    // Golden colors specifically for coins and $ symbols
+    const goldenColors = ['#FFD700', '#FFA500', '#FF8C00', '#DAA520', '#FFDF00', '#F7DC6F'];
+    
     const particles = [];
 
-    // Create fewer floating particles for calmer effect
-    for (let i = 0; i < 40; i++) { // Reduced from 80 to 40
+    // Create more $ symbols with golden colors (prominent elements)
+    for (let i = 0; i < 25; i++) { // 25 $ symbols
+      const goldenColor = goldenColors[Math.floor(Math.random() * goldenColors.length)];
+      const texture = createTextTexture('$', goldenColor);
+      
+      const geometry = new THREE.PlaneGeometry(5, 5); // Larger size for $ symbols
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.8, // More opaque for prominence
+        side: THREE.DoubleSide
+      });
+      
+      const mesh = new THREE.Mesh(geometry, material);
+      
+      // Position $ symbols
+      mesh.position.set(
+        (Math.random() - 0.5) * 120,
+        Math.random() * 120 - 60,
+        (Math.random() - 0.5) * 60
+      );
+      
+      // Random rotation
+      mesh.rotation.set(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
+      );
+      
+      // Animation data for $ symbols
+      mesh.userData = {
+        speedY: 0.06 + Math.random() * 0.10,
+        speedX: (Math.random() - 0.5) * 0.025,
+        rotSpeed: (Math.random() - 0.5) * 0.004,
+        originalX: mesh.position.x,
+        oscillationSpeed: 0.01 + Math.random() * 0.02,
+        oscillationAmplitude: 1.5 + Math.random() * 2.5,
+        isDollarSymbol: true
+      };
+      
+      scene.add(mesh);
+      particles.push(mesh);
+    }
+
+    // Create fewer floating particles for other symbols
+    for (let i = 0; i < 20; i++) { // Reduced from 40 to 20
       const symbol = symbols[Math.floor(Math.random() * symbols.length)];
       const color = colors[Math.floor(Math.random() * colors.length)];
       const texture = createTextTexture(symbol, color);
@@ -148,6 +244,53 @@ const ThreeBackground = () => {
       
       scene.add(mesh);
       particles.push(mesh);
+    }
+
+    // Create golden coin elements
+    const coinSymbols = ['🪙', '🥇', '⭐', '💰', '🏆'];
+    
+    for (let i = 0; i < 12; i++) { // Add 12 golden coin elements
+      const coin = coinSymbols[Math.floor(Math.random() * coinSymbols.length)];
+      const goldenColor = goldenColors[Math.floor(Math.random() * goldenColors.length)];
+      const texture = createTextTexture(coin, goldenColor);
+      
+      const geometry = new THREE.PlaneGeometry(5.5, 5.5); // Larger size for coins
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.85, // High opacity for golden prominence
+        side: THREE.DoubleSide
+      });
+      
+      const coinMesh = new THREE.Mesh(geometry, material);
+      
+      // Position golden coins
+      coinMesh.position.set(
+        (Math.random() - 0.5) * 110,
+        Math.random() * 120 - 60,
+        (Math.random() - 0.5) * 55
+      );
+      
+      // Random rotation
+      coinMesh.rotation.set(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
+      );
+      
+      // Golden coin animation (slightly different for sparkle effect)
+      coinMesh.userData = {
+        speedY: 0.04 + Math.random() * 0.07, // Slow majestic movement
+        speedX: (Math.random() - 0.5) * 0.02,
+        rotSpeed: (Math.random() - 0.5) * 0.006, // Slightly faster rotation for sparkle
+        originalX: coinMesh.position.x,
+        oscillationSpeed: 0.008 + Math.random() * 0.015,
+        oscillationAmplitude: 2.5 + Math.random() * 3.5,
+        isGoldenCoin: true
+      };
+      
+      scene.add(coinMesh);
+      particles.push(coinMesh);
     }
 
     // Create special currency note elements (larger, greener, more prominent)
