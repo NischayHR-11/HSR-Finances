@@ -11,8 +11,34 @@ const MobileNav = ({ onLogout, userLevel }) => {
   };
 
   const handleLogout = () => {
+    // Clear all authentication data from localStorage
+    localStorage.removeItem('hasSeenWelcome');
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('jwt');
+    
+    // Clear all authentication data from sessionStorage
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('jwt');
+    
+    // Close mobile menu
     setIsMobileMenuOpen(false);
-    onLogout();
+    
+    // Call parent logout function if provided
+    if (onLogout) {
+      onLogout();
+    }
+    
+    console.log('User logged out successfully - All tokens cleared from web storage');
   };
 
   const menuItems = [
@@ -118,15 +144,18 @@ const MobileNav = ({ onLogout, userLevel }) => {
             </nav>
 
             <div className="mobile-menu-footer">
-              <button 
-                className="mobile-logout-button"
+              <div 
+                className="mobile-nav-item mobile-logout-item"
                 onClick={handleLogout}
+                style={{ cursor: 'pointer' }}
               >
-                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                  <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"/>
-                </svg>
-                <span>Logout</span>
-              </button>
+                <span className="mobile-nav-icon">
+                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                    <path d="M16,17V14H9V10H16V7L21,12L16,17M14,2A2,2 0 0,1 16,4V6H14V4H5V20H14V18H16V20A2,2 0 0,1 14,22H5A2,2 0 0,1 3,20V4A2,2 0 0,1 5,2H14Z"/>
+                  </svg>
+                </span>
+                <span className="mobile-nav-label">Logout</span>
+              </div>
             </div>
           </div>
         </div>

@@ -3,10 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import apiService from '../services/apiService';
 import suppressChartErrors from '../utils/chartErrorHandler';
+import MobileNavigation from './MobileNavigation';
 import './Dashboard.css';
 
 const Dashboard = ({ userLevel = 1, lenderData }) => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -239,120 +239,32 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
 
   return (
     <div className="dashboard">
-      {/* Mobile Header */}
-      <div className="mobile-header">
-        <button 
-          className="menu-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-        </button>
-        
-        <Link to="/dashboard" className="mobile-logo">
-          <div className="logo-icon">$</div>
-          <span>HSR-Finances</span>
-        </Link>
-        
-        <div className="mobile-actions">
-          <Link to="/notifications" className="notification-btn">
-            <span className="notification-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
-              </svg>
-            </span>
-            <span className="notification-badge">3</span>
-          </Link>
-          <div className="user-avatar mobile-avatar">JD</div>
-        </div>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-menu-header">
-              <Link to="/dashboard" className="logo" onClick={() => setIsMobileMenuOpen(false)}>
-                <div className="logo-icon">$</div>
-                <span>HSR-Finances</span>
-              </Link>
-              <button 
-                className="close-menu"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                ✕
-              </button>
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      
+      <div className="page-content">
+        {/* Desktop Top Navigation */}
+        <div className="desktop-top-nav">
+          <div className="desktop-navbar">
+            <button 
+              className="navbar-item notification-btn"
+              onClick={handleNotificationClick}
+              type="button"
+            >
+              <span className="navbar-icon">
+                <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
+                  <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
+                </svg>
+              </span>
+              <span className="notification-badge">3</span>
+              <span className="navbar-tooltip">Notifications</span>
+            </button>
+            
+            <div className="navbar-item profile-section">
+              <div className="user-avatar desktop-avatar">JD</div>
+              <span className="profile-name">John Doe</span>
             </div>
-            <nav className="mobile-nav">
-              <Link to="/dashboard" className="mobile-nav-item active" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <rect x="3" y="3" width="7" height="7"/>
-                    <rect x="14" y="3" width="7" height="7"/>
-                    <rect x="14" y="14" width="7" height="7"/>
-                    <rect x="3" y="14" width="7" height="7"/>
-                  </svg>
-                </span>
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/borrowers" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/>
-                    <circle cx="9" cy="7" r="4"/>
-                    <path d="M22 21v-2a4 4 0 0 0-3-3.87"/>
-                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
-                  </svg>
-                </span>
-                <span>Borrowers</span>
-              </Link>
-              <Link to="/notifications" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">
-                  <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                    <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
-                  </svg>
-                </span>
-                <span>Notifications</span>
-                <span className="nav-badge">3</span>
-              </Link>
-              <Link to="/settings" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                    <circle cx="12" cy="12" r="3"/>
-                    <path d="M12 1v6m0 6v6m11-7h-6m-6 0H1m21-3a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9 21a3 3 0 1 1-6 0 3 3 0 0 1 6 0ZM9 3a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"/>
-                  </svg>
-                </span>
-                <span>Settings</span>
-              </Link>
-            </nav>
           </div>
         </div>
-      )}
-
-      {/* Desktop Top Navigation */}
-      <div className="desktop-top-nav">
-        <div className="desktop-navbar">
-          <button 
-            className="navbar-item notification-btn"
-            onClick={handleNotificationClick}
-            type="button"
-          >
-            <span className="navbar-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="20" height="20">
-                <path d="M21,19V20H3V19L5,17V11C5,7.9 7.03,5.17 10,4.29C10,4.19 10,4.1 10,4A2,2 0 0,1 12,2A2,2 0 0,1 14,4C14,4.1 14,4.19 14,4.29C16.97,5.17 19,7.9 19,11V17L21,19M14,21A2,2 0 0,1 12,23A2,2 0 0,1 10,21"/>
-              </svg>
-            </span>
-            <span className="notification-badge">3</span>
-            <span className="navbar-tooltip">Notifications</span>
-          </button>
-          
-          <div className="navbar-item profile-section">
-            <div className="user-avatar desktop-avatar">JD</div>
-            <span className="profile-name">John Doe</span>
-          </div>
-        </div>
-      </div>
 
       <div className="dashboard-header">
         <div>
@@ -712,6 +624,7 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
           </div>
         </div>
       )}
+      </div>
     </div>
   );
 };

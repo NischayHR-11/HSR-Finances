@@ -1,11 +1,11 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import MobileNavigation from './MobileNavigation';
 import './Borrowers.css';
 
-const Borrowers = () => {
+const Borrowers = ({ userLevel = 1, lenderData }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const borrowers = [
     {
@@ -106,160 +106,100 @@ const Borrowers = () => {
 
   return (
     <div className="borrowers">
-      {/* Mobile Header */}
-      <div className="mobile-header">
-        <button 
-          className="menu-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-        </button>
-        
-        <Link to="/dashboard" className="mobile-logo">
-          <div className="logo-icon">$</div>
-          <span>HSR-Finances</span>
-        </Link>
-        
-        <div className="mobile-actions">
-          <Link to="/notifications" className="notification-btn">
-            <span className="notification-icon">🔔</span>
-            <span className="notification-badge">3</span>
-          </Link>
-          <div className="user-avatar mobile-avatar">JD</div>
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      
+      <div className="page-content">
+        <div className="borrowers-header">
+          <div>
+            <h1>Borrowers</h1>
+            <p>Manage your lending portfolio and track payments</p>
+          </div>
+          <button className="add-borrower-btn">
+            + Add Borrower
+          </button>
         </div>
-      </div>
 
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-menu-header">
-              <Link to="/dashboard" className="logo" onClick={() => setIsMobileMenuOpen(false)}>
-                <div className="logo-icon">$</div>
-                <span>HSR-Finances</span>
-              </Link>
-              <button 
-                className="close-menu"
-                onClick={() => setIsMobileMenuOpen(false)}
+        <div className="borrowers-controls">
+          <div className="search-container">
+            <input
+              type="text"
+              placeholder="Search borrowers..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="search-input"
+            />
+          </div>
+          
+          <div className="filter-buttons">
+            {filterOptions.map((option) => (
+              <button
+                key={option}
+                className={`filter-btn ${filterStatus === option ? 'active' : ''}`}
+                onClick={() => setFilterStatus(option)}
               >
-                ✕
+                {option}
               </button>
-            </div>
-            <nav className="mobile-nav">
-              <Link to="/dashboard" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">📊</span>
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/borrowers" className="mobile-nav-item active" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">👥</span>
-                <span>Borrowers</span>
-              </Link>
-              <Link to="/notifications" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">🔔</span>
-                <span>Notifications</span>
-                <span className="nav-badge">3</span>
-              </Link>
-              <Link to="/settings" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">⚙️</span>
-                <span>Settings</span>
-              </Link>
-            </nav>
+            ))}
           </div>
         </div>
-      )}
 
-      <div className="borrowers-header">
-        <div>
-          <h1>Borrowers</h1>
-          <p>Manage your lending portfolio and track payments</p>
-        </div>
-        <button className="add-borrower-btn">
-          + Add Borrower
-        </button>
-      </div>
+        <div className="borrowers-grid">
+          {filteredBorrowers.map((borrower) => (
+            <div key={borrower.id} className="borrower-card">
+              <div className="borrower-header">
+                <div className="borrower-info">
+                  <h3>{borrower.name}</h3>
+                  <p>{borrower.email}</p>
+                </div>
+                <span className={`status-badge ${getStatusClass(borrower.status)}`}>
+                  {borrower.status}
+                </span>
+              </div>
 
-      <div className="borrowers-controls">
-        <div className="search-container">
-          <input
-            type="text"
-            placeholder="Search borrowers..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="search-input"
-          />
-        </div>
-        
-        <div className="filter-buttons">
-          {filterOptions.map((option) => (
-            <button
-              key={option}
-              className={`filter-btn ${filterStatus === option ? 'active' : ''}`}
-              onClick={() => setFilterStatus(option)}
-            >
-              {option}
-            </button>
+              <div className="borrower-details">
+                <div className="detail-row">
+                  <div className="detail-group">
+                    <span className="detail-label">Loan Amount</span>
+                    <span className="detail-value">{borrower.loanAmount}</span>
+                  </div>
+                  <div className="detail-group">
+                    <span className="detail-label">Interest Rate</span>
+                    <span className="detail-value">{borrower.interestRate}</span>
+                  </div>
+                </div>
+
+                <div className="detail-row">
+                  <div className="detail-group">
+                    <span className="detail-label">Monthly Interest</span>
+                    <span className="detail-value green">{borrower.monthlyInterest}</span>
+                  </div>
+                  <div className="detail-group">
+                    <span className="detail-label">Total Earned</span>
+                    <span className="detail-value green">{borrower.totalEarned}</span>
+                  </div>
+                </div>
+
+                <div className="progress-section">
+                  <div className="progress-header">
+                    <span className="progress-label">Progress</span>
+                    <span className="progress-percentage">{borrower.progress}%</span>
+                  </div>
+                  <div className="progress-bar">
+                    <div 
+                      className="progress-fill" 
+                      style={{ width: `${borrower.progress}%` }}
+                    ></div>
+                  </div>
+                </div>
+
+                <div className="next-due">
+                  <span className="due-label">Next Due:</span>
+                  <span className="due-date">📅 {borrower.nextDue}</span>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
-      </div>
-
-      <div className="borrowers-grid">
-        {filteredBorrowers.map((borrower) => (
-          <div key={borrower.id} className="borrower-card">
-            <div className="borrower-header">
-              <div className="borrower-info">
-                <h3>{borrower.name}</h3>
-                <p>{borrower.email}</p>
-              </div>
-              <span className={`status-badge ${getStatusClass(borrower.status)}`}>
-                {borrower.status}
-              </span>
-            </div>
-
-            <div className="borrower-details">
-              <div className="detail-row">
-                <div className="detail-group">
-                  <span className="detail-label">Loan Amount</span>
-                  <span className="detail-value">{borrower.loanAmount}</span>
-                </div>
-                <div className="detail-group">
-                  <span className="detail-label">Interest Rate</span>
-                  <span className="detail-value">{borrower.interestRate}</span>
-                </div>
-              </div>
-
-              <div className="detail-row">
-                <div className="detail-group">
-                  <span className="detail-label">Monthly Interest</span>
-                  <span className="detail-value green">{borrower.monthlyInterest}</span>
-                </div>
-                <div className="detail-group">
-                  <span className="detail-label">Total Earned</span>
-                  <span className="detail-value green">{borrower.totalEarned}</span>
-                </div>
-              </div>
-
-              <div className="progress-section">
-                <div className="progress-header">
-                  <span className="progress-label">Progress</span>
-                  <span className="progress-percentage">{borrower.progress}%</span>
-                </div>
-                <div className="progress-bar">
-                  <div 
-                    className="progress-fill" 
-                    style={{ width: `${borrower.progress}%` }}
-                  ></div>
-                </div>
-              </div>
-
-              <div className="next-due">
-                <span className="due-label">Next Due:</span>
-                <span className="due-date">📅 {borrower.nextDue}</span>
-              </div>
-            </div>
-          </div>
-        ))}
       </div>
     </div>
   );

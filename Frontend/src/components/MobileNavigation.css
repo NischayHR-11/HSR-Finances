@@ -1,4 +1,4 @@
-/* Mobile Header Styles - Gamified Theme */
+/* Mobile Navigation Styles - Reusable Component */
 .mobile-header {
   display: none;
   position: fixed;
@@ -115,6 +115,7 @@
   border-radius: 8px;
   text-decoration: none;
   transition: all 0.3s ease;
+  cursor: pointer;
 }
 
 .notification-btn:hover {
@@ -319,6 +320,9 @@
   position: relative;
   border: 1px solid transparent;
   overflow: hidden;
+  background: none;
+  width: 100%;
+  cursor: pointer;
 }
 
 .mobile-nav-item:hover {
@@ -383,61 +387,6 @@
   animation: pulse 2s infinite;
 }
 
-/* Mobile Menu Footer - Gamified Style */
-.mobile-menu-footer {
-  border-top: 1px solid var(--border-color);
-  padding: 16px;
-  margin-top: auto;
-}
-
-.mobile-logout-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-radius: 8px;
-  color: var(--text-secondary);
-  text-decoration: none;
-  transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
-  position: relative;
-  border: 1px solid transparent;
-  overflow: hidden;
-  background: none;
-  width: 100%;
-  cursor: pointer;
-}
-
-.mobile-logout-item:hover {
-  background-color: var(--hover-bg);
-  color: var(--text-primary);
-  border-color: var(--accent-primary);
-  transform: translateX(4px);
-  box-shadow: 0 0 10px rgba(78, 234, 255, 0.2);
-}
-
-.mobile-logout-item .mobile-nav-icon {
-  font-size: 18px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 8px;
-  background-color: var(--bg-highlight);
-  transition: all 0.3s ease;
-}
-
-.mobile-logout-item:hover .mobile-nav-icon {
-  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
-  color: black;
-  box-shadow: 0 0 10px rgba(78, 234, 255, 0.3);
-}
-
-.mobile-logout-item .mobile-nav-label {
-  font-size: 16px;
-  font-weight: 500;
-}
-
 /* Animations */
 @keyframes rotate {
   100% {
@@ -471,5 +420,10 @@
 @media (max-width: 1024px) {
   .mobile-header {
     display: flex;
+  }
+  
+  /* Add top padding to page content to account for fixed mobile header */
+  .page-content {
+    padding-top: 80px;
   }
 }

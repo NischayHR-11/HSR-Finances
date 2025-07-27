@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import MobileNavigation from './MobileNavigation';
 import './Notifications.css';
 
-const Notifications = () => {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+const Notifications = ({ userLevel = 1, lenderData }) => {
 
   const notificationSummary = [
     {
@@ -125,79 +125,18 @@ const Notifications = () => {
 
   return (
     <div className="notifications">
-      {/* Mobile Header */}
-      <div className="mobile-header">
-        <button 
-          className="menu-toggle"
-          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        >
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-          <span className="hamburger-line"></span>
-        </button>
-        
-        <Link to="/dashboard" className="mobile-logo">
-          <div className="logo-icon">$</div>
-          <span>HSR-Finances</span>
-        </Link>
-        
-        <div className="mobile-actions">
-          <Link to="/notifications" className="notification-btn">
-            <span className="notification-icon">🔔</span>
-            <span className="notification-badge">3</span>
-          </Link>
-          <div className="user-avatar mobile-avatar">JD</div>
-        </div>
-      </div>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div className="mobile-menu-overlay" onClick={() => setIsMobileMenuOpen(false)}>
-          <div className="mobile-menu" onClick={(e) => e.stopPropagation()}>
-            <div className="mobile-menu-header">
-              <Link to="/dashboard" className="logo" onClick={() => setIsMobileMenuOpen(false)}>
-                <div className="logo-icon">$</div>
-                <span>HSR-Finances</span>
-              </Link>
-              <button 
-                className="close-menu"
-                onClick={() => setIsMobileMenuOpen(false)}
-              >
-                ✕
-              </button>
-            </div>
-            <nav className="mobile-nav">
-              <Link to="/dashboard" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">📊</span>
-                <span>Dashboard</span>
-              </Link>
-              <Link to="/borrowers" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">👥</span>
-                <span>Borrowers</span>
-              </Link>
-              <Link to="/notifications" className="mobile-nav-item active" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">🔔</span>
-                <span>Notifications</span>
-                <span className="nav-badge">3</span>
-              </Link>
-              <Link to="/settings" className="mobile-nav-item" onClick={() => setIsMobileMenuOpen(false)}>
-                <span className="nav-icon">⚙️</span>
-                <span>Settings</span>
-              </Link>
-            </nav>
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      
+      <div className="page-content">
+        <div className="notifications-header">
+          <div>
+            <h1>Notifications</h1>
+            <p>Stay updated on payment schedules and activities</p>
+          </div>
+          <div className="unread-count">
+            3 unread
           </div>
         </div>
-      )}
-
-      <div className="notifications-header">
-        <div>
-          <h1>Notifications</h1>
-          <p>Stay updated on payment schedules and activities</p>
-        </div>
-        <div className="unread-count">
-          3 unread
-        </div>
-      </div>
 
       <div className="notification-summary">
         {notificationSummary.map((item, index) => (
@@ -268,6 +207,7 @@ const Notifications = () => {
             </div>
           ))}
         </div>
+      </div>
       </div>
     </div>
   );
