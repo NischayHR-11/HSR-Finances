@@ -134,12 +134,23 @@
   text-align: center;
   z-index: 10;
   animation: fadeInUp 1.2s ease-out;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  max-width: 500px;
+  margin: 0 auto;
 }
 
 .loading-logo-wrapper {
   position: relative;
-  display: inline-block;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   margin-bottom: 2rem;
+  width: 100%;
 }
 
 .loading-logo-icon {
@@ -183,25 +194,26 @@
   font-size: 3rem;
   font-weight: 800;
   color: var(--text-primary);
-  margin-bottom: 0.5rem;
+  margin: 1rem 0 0.5rem 0;
   text-shadow: 0 0 30px rgba(78, 234, 255, 0.6);
   animation: textGlow 3s ease-in-out infinite alternate;
   letter-spacing: 2px;
+  width: 100%;
 }
 
 .loading-tagline {
   font-size: 1.1rem;
   color: var(--text-secondary);
-  margin-bottom: 3rem;
+  margin: 0 0 3rem 0;
   opacity: 0.9;
   font-weight: 300;
+  width: 100%;
 }
 
 .loading-progress-wrapper {
-  margin-bottom: 2rem;
+  margin: 0 0 2rem 0;
   width: 350px;
-  margin-left: auto;
-  margin-right: auto;
+  max-width: 90%;
 }
 
 .loading-bar {
@@ -241,10 +253,12 @@
 }
 
 .loading-dots {
-  margin-bottom: 2rem;
+  margin: 0 0 2rem 0;
   display: flex;
   justify-content: center;
+  align-items: center;
   gap: 12px;
+  width: 100%;
 }
 
 .loading-dot {
@@ -269,6 +283,8 @@
   color: var(--text-secondary);
   opacity: 0.8;
   font-weight: 400;
+  width: 100%;
+  margin: 0;
 }
 
 .status-indicator {
