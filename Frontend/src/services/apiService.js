@@ -4,6 +4,7 @@
 const getApiBaseUrl = () => {
   // First try to use environment variable if available
   if (import.meta.env.VITE_API_BASE_URL) {
+    console.log('🔧 Using environment variable:', import.meta.env.VITE_API_BASE_URL);
     return import.meta.env.VITE_API_BASE_URL;
   }
   
@@ -13,8 +14,10 @@ const getApiBaseUrl = () => {
                        window.location.hostname === '127.0.0.1';
   
   if (isDevelopment) {
+    console.log('🔧 Auto-detected: Development environment');
     return 'http://localhost:5000/api';
   } else {
+    console.log('🔧 Auto-detected: Production environment');
     return 'https://hsr-finances.onrender.com/api';
   }
 };

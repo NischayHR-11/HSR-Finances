@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import apiService from '../services/apiService';
@@ -9,6 +9,14 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const [filterStatus, setFilterStatus] = useState('All');
   const [showAddBorrowerModal, setShowAddBorrowerModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [borrowers, setBorrowers] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const [pagination, setPagination] = useState({
+    current: 1,
+    pages: 1,
+    total: 0
+  });
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -19,82 +27,66 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     dueDate: ''
   });
 
-  const borrowers = [
-    {
-      id: 1,
-      name: 'John Smith',
-      email: 'john.smith@email.com',
-      loanAmount: '$25,000',
-      interestRate: '8.5%',
-      monthlyInterest: '$177.08',
-      totalEarned: '$1416.64',
-      progress: 65,
-      nextDue: '2024-02-15',
-      status: 'Current'
-    },
-    {
-      id: 2,
-      name: 'Sarah Johnson',
-      email: 'sarah.johnson@email.com',
-      loanAmount: '$15,000',
-      interestRate: '9.2%',
-      monthlyInterest: '$115',
-      totalEarned: '$920',
-      progress: 40,
-      nextDue: '2024-02-12',
-      status: 'Due Soon'
-    },
-    {
-      id: 3,
-      name: 'Mike Davis',
-      email: 'mike.davis@email.com',
-      loanAmount: '$30,000',
-      interestRate: '7.8%',
-      monthlyInterest: '$195',
-      totalEarned: '$2340',
-      progress: 80,
-      nextDue: '2024-02-20',
-      status: 'Current'
-    },
-    {
-      id: 4,
-      name: 'Emily Wilson',
-      email: 'emily.wilson@email.com',
-      loanAmount: '$20,000',
-      interestRate: '9.5%',
-      monthlyInterest: '$158.33',
-      totalEarned: '$950',
-      progress: 25,
-      nextDue: '2024-02-08',
-      status: 'Overdue'
-    },
-    {
-      id: 5,
-      name: 'David Brown',
-      email: 'david.brown@email.com',
-      loanAmount: '$18,000',
-      interestRate: '8.2%',
-      monthlyInterest: '$123',
-      totalEarned: '$1476',
-      progress: 75,
-      nextDue: '2024-02-18',
-      status: 'Current'
-    },
-    {
-      id: 6,
-      name: 'Lisa Anderson',
-      email: 'lisa.anderson@email.com',
-      loanAmount: '$22,000',
-      interestRate: '8.8%',
-      monthlyInterest: '$161.33',
-      totalEarned: '$1936',
-      progress: 90,
-      nextDue: '2024-02-22',
-      status: 'Current'
-    }
-  ];
+  const filterOptions = ['All', 'current', 'due', 'overdue'];
 
-  const filterOptions = ['All', 'Current', 'Due', 'Overdue'];
+  // Fetch borrowers from API
+  const fetchBorrowers = async (params = {}) => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      
+      // Map frontend filter to backend status
+      const apiParams = {
+        ...params,
+        limit: 50 // Get more records for better UX
+      };
+      
+      // Map filter status to backend format
+      if (filterStatus !== 'All') {
+        apiParams.status = filterStatus.toLowerCase();
+      }
+      
+      // Add search term if present
+      if (searchTerm.trim()) {
+        apiParams.search = searchTerm.trim();
+      }
+
+      console.log('🔍 Fetching borrowers with params:', apiParams);
+      const response = await apiService.getBorrowers(apiParams);
+      
+      if (response.success) {
+        console.log('✅ Borrowers fetched successfully:', response.data);
+        setBorrowers(response.data.borrowers || []);
+        setPagination(response.data.pagination || {
+          current: 1,
+          pages: 1,
+          total: response.data.borrowers?.length || 0
+        });
+      } else {
+        console.error('❌ Failed to fetch borrowers:', response.message);
+        setError(response.message || 'Failed to fetch borrowers');
+      }
+    } catch (error) {
+      console.error('❌ Error fetching borrowers:', error);
+      setError('Unable to load borrowers. Please try again.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Load borrowers on component mount
+  useEffect(() => {
+    fetchBorrowers();
+  }, []);
+
+  // Refetch when filter or search changes
+  useEffect(() => {
+    const debounceTimer = setTimeout(() => {
+      fetchBorrowers();
+    }, 300); // Debounce search
+
+    return () => clearTimeout(debounceTimer);
+  }, [filterStatus, searchTerm]);
 
   // Form handling functions
   const handleInputChange = (e) => {
@@ -150,7 +142,8 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
       if (response.success) {
         console.log('✅ Borrower created successfully:', response.data);
         handleCloseModal();
-        // TODO: Refresh borrowers list or add to local state
+        // Refresh borrowers list
+        await fetchBorrowers();
       } else {
         console.error('❌ Failed to create borrower:', response.message);
       }
@@ -161,23 +154,64 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     }
   };
 
-  const filteredBorrowers = borrowers.filter(borrower => {
-    const matchesSearch = borrower.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         borrower.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesFilter = filterStatus === 'All' || borrower.status === filterStatus;
-    return matchesSearch && matchesFilter;
-  });
+  // Format currency values
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(amount);
+  };
+
+  // Format percentage
+  const formatPercentage = (rate) => {
+    return `${rate}%`;
+  };
+
+  // Format date
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  // Calculate total earned (this would ideally come from backend)
+  const calculateTotalEarned = (amount, interestRate, progress) => {
+    const monthlyInterest = (amount * interestRate) / 100 / 12;
+    const monthsElapsed = Math.floor((progress / 100) * 12); // Assuming 1 year term
+    return monthlyInterest * monthsElapsed;
+  };
 
   const getStatusClass = (status) => {
-    switch (status) {
-      case 'Current':
+    switch (status?.toLowerCase()) {
+      case 'current':
         return 'status-current';
-      case 'Due Soon':
+      case 'due':
         return 'status-due';
-      case 'Overdue':
+      case 'overdue':
         return 'status-overdue';
+      case 'paid':
+        return 'status-paid';
       default:
         return '';
+    }
+  };
+
+  const getStatusDisplay = (status) => {
+    switch (status?.toLowerCase()) {
+      case 'current':
+        return 'Current';
+      case 'due':
+        return 'Due Soon';
+      case 'overdue':
+        return 'Overdue';
+      case 'paid':
+        return 'Paid';
+      default:
+        return status;
     }
   };
 
@@ -221,61 +255,105 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
         </div>
 
         <div className="borrowers-grid">
-          {filteredBorrowers.map((borrower) => (
-            <div key={borrower.id} className="borrower-card">
-              <div className="borrower-header">
-                <div className="borrower-info">
-                  <h3>{borrower.name}</h3>
-                  <p>{borrower.email}</p>
-                </div>
-                <span className={`status-badge ${getStatusClass(borrower.status)}`}>
-                  {borrower.status}
-                </span>
-              </div>
-
-              <div className="borrower-details">
-                <div className="detail-row">
-                  <div className="detail-group">
-                    <span className="detail-label">Loan Amount</span>
-                    <span className="detail-value">{borrower.loanAmount}</span>
-                  </div>
-                  <div className="detail-group">
-                    <span className="detail-label">Interest Rate</span>
-                    <span className="detail-value">{borrower.interestRate}</span>
-                  </div>
-                </div>
-
-                <div className="detail-row">
-                  <div className="detail-group">
-                    <span className="detail-label">Monthly Interest</span>
-                    <span className="detail-value green">{borrower.monthlyInterest}</span>
-                  </div>
-                  <div className="detail-group">
-                    <span className="detail-label">Total Earned</span>
-                    <span className="detail-value green">{borrower.totalEarned}</span>
-                  </div>
-                </div>
-
-                <div className="progress-section">
-                  <div className="progress-header">
-                    <span className="progress-label">Progress</span>
-                    <span className="progress-percentage">{borrower.progress}%</span>
-                  </div>
-                  <div className="progress-bar">
-                    <div 
-                      className="progress-fill" 
-                      style={{ width: `${borrower.progress}%` }}
-                    ></div>
-                  </div>
-                </div>
-
-                <div className="next-due">
-                  <span className="due-label">Next Due:</span>
-                  <span className="due-date">📅 {borrower.nextDue}</span>
-                </div>
+          {isLoading ? (
+            // Loading skeleton
+            <div className="loading-container">
+              <div className="loading-message">
+                <div className="loading-spinner"></div>
+                <p>Loading borrowers...</p>
               </div>
             </div>
-          ))}
+          ) : error ? (
+            // Error state
+            <div className="error-container">
+              <div className="error-message">
+                <span className="error-icon">⚠️</span>
+                <p>{error}</p>
+                <button className="retry-btn" onClick={() => fetchBorrowers()}>
+                  Try Again
+                </button>
+              </div>
+            </div>
+          ) : borrowers.length === 0 ? (
+            // Empty state
+            <div className="empty-container">
+              <div className="empty-message">
+                <span className="empty-icon">👥</span>
+                <h3>No borrowers found</h3>
+                <p>
+                  {searchTerm || filterStatus !== 'All' 
+                    ? 'Try adjusting your search or filter criteria'
+                    : 'Start by adding your first borrower'
+                  }
+                </p>
+                {(!searchTerm && filterStatus === 'All') && (
+                  <button className="add-first-borrower-btn" onClick={handleAddBorrower}>
+                    + Add Your First Borrower
+                  </button>
+                )}
+              </div>
+            </div>
+          ) : (
+            // Borrowers list
+            borrowers.map((borrower) => {
+              const totalEarned = calculateTotalEarned(borrower.amount, borrower.interestRate, borrower.progress);
+              return (
+                <div key={borrower._id} className="borrower-card">
+                  <div className="borrower-header">
+                    <div className="borrower-info">
+                      <h3>{borrower.name}</h3>
+                      <p>{borrower.email}</p>
+                    </div>
+                    <span className={`status-badge ${getStatusClass(borrower.status)}`}>
+                      {getStatusDisplay(borrower.status)}
+                    </span>
+                  </div>
+
+                  <div className="borrower-details">
+                    <div className="detail-row">
+                      <div className="detail-group">
+                        <span className="detail-label">Loan Amount</span>
+                        <span className="detail-value">{formatCurrency(borrower.amount)}</span>
+                      </div>
+                      <div className="detail-group">
+                        <span className="detail-label">Interest Rate</span>
+                        <span className="detail-value">{formatPercentage(borrower.interestRate)}</span>
+                      </div>
+                    </div>
+
+                    <div className="detail-row">
+                      <div className="detail-group">
+                        <span className="detail-label">Monthly Interest</span>
+                        <span className="detail-value green">{formatCurrency(borrower.monthlyInterest)}</span>
+                      </div>
+                      <div className="detail-group">
+                        <span className="detail-label">Total Earned</span>
+                        <span className="detail-value green">{formatCurrency(totalEarned)}</span>
+                      </div>
+                    </div>
+
+                    <div className="progress-section">
+                      <div className="progress-header">
+                        <span className="progress-label">Progress</span>
+                        <span className="progress-percentage">{borrower.progress}%</span>
+                      </div>
+                      <div className="progress-bar">
+                        <div 
+                          className="progress-fill" 
+                          style={{ width: `${borrower.progress}%` }}
+                        ></div>
+                      </div>
+                    </div>
+
+                    <div className="next-due">
+                      <span className="due-label">Next Due:</span>
+                      <span className="due-date">📅 {formatDate(borrower.dueDate)}</span>
+                    </div>
+                  </div>
+                </div>
+              );
+            })
+          )}
         </div>
       </div>
 

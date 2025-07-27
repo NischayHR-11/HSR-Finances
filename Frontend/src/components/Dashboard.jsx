@@ -17,6 +17,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
     return 1024; // Default fallback
   });
   const [dashboardData, setDashboardData] = useState(null);
+  const [topBorrowers, setTopBorrowers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
   const navigate = useNavigate();
@@ -39,6 +40,32 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
     };
 
     fetchDashboardData();
+  }, []);
+
+  // Fetch top 2 borrowers by loan amount
+  useEffect(() => {
+    const fetchTopBorrowers = async () => {
+      try {
+        const response = await apiService.getBorrowers({
+          limit: 50, // Get more to filter properly
+          status: 'current' // Only show active/current borrowers
+        });
+        
+        if (response.success && response.data.borrowers) {
+          // Sort by loan amount (descending) and take top 2
+          const sortedBorrowers = response.data.borrowers
+            .sort((a, b) => b.amount - a.amount)
+            .slice(0, 2);
+          
+          setTopBorrowers(sortedBorrowers);
+          console.log('✅ Top borrowers fetched:', sortedBorrowers);
+        }
+      } catch (error) {
+        console.error('Failed to fetch top borrowers:', error);
+      }
+    };
+
+    fetchTopBorrowers();
   }, []);
 
   // Trigger animations when component mounts
@@ -151,8 +178,8 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
     }
   ];
 
-  // Recent borrowers data (mix of real data from API and placeholder)
-  const recentBorrowers = dashboardData?.recentBorrowers || [];
+  // Use top 2 borrowers with highest loan amounts instead of recent borrowers
+  const recentBorrowers = topBorrowers;
 
   const achievements = [
     {
@@ -324,50 +351,81 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
           </div>
           
           <div className="borrowers-list">
-            {recentBorrowers.map((borrower, index) => (
-              <div 
-                key={index} 
-                className={`borrower-card ${animateStats ? 'animate-in' : ''}`}
-                style={{ 
-                  animationDelay: `${0.3 + index * 0.1}s`
-                }}
-              >
-                <div className="borrower-info">
-                  <div className="borrower-header">
-                    <div className="borrower-avatar-container">
-                      <div className="borrower-avatar">{borrower.avatar}</div>
-                      <div className="borrower-level">Lvl {borrower.level}</div>
-                    </div>
-                    <div>
-                      <h3>{borrower.name}</h3>
-                      <span className={`status-badge status-${borrower.status}`}>
-                        {borrower.status}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="borrower-amount">{borrower.amount} @ {borrower.rate}</div>
-                  <div className="borrower-due">Due: {borrower.dueDate}</div>
-                  <div className="borrower-streak">
-                    <span className="streak-icon">🔥</span> {borrower.streak} day streak
-                  </div>
-                </div>
-                
-                <div className="borrower-details">
-                  <div className="monthly-interest">
-                    Monthly Interest: <span className="amount-green">{borrower.monthlyInterest}</span>
-                  </div>
-                  <div className="progress-section">
-                    <div className="progress-bar">
-                      <div 
-                        className="progress-fill" 
-                        style={{ width: `${borrower.progress}%` }}
-                      ></div>
-                    </div>
-                    <span className="progress-text">{borrower.progress}% paid</span>
-                  </div>
-                </div>
+            {recentBorrowers.length === 0 ? (
+              <div className="no-borrowers">
+                <p>No active borrowers yet</p>
+                <button className="add-borrower-btn" onClick={() => navigate('/borrowers')}>
+                  Add Your First Borrower
+                </button>
               </div>
-            ))}
+            ) : (
+              recentBorrowers.map((borrower, index) => {
+                // Format currency
+                const formatCurrency = (amount) => {
+                  return new Intl.NumberFormat('en-US', {
+                    style: 'currency',
+                    currency: 'USD',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                  }).format(amount);
+                };
+
+                // Format date
+                const formatDate = (dateString) => {
+                  return new Date(dateString).toLocaleDateString('en-US', {
+                    month: 'short',
+                    day: 'numeric'
+                  });
+                };
+
+                return (
+                  <div 
+                    key={borrower._id || index} 
+                    className={`borrower-card ${animateStats ? 'animate-in' : ''}`}
+                    style={{ 
+                      animationDelay: `${0.3 + index * 0.1}s`
+                    }}
+                  >
+                    <div className="borrower-info">
+                      <div className="borrower-header">
+                        <div className="borrower-avatar-container">
+                          <div className="borrower-avatar">{borrower.avatar || borrower.name?.charAt(0) || 'B'}</div>
+                          <div className="borrower-level">Top {index + 1}</div>
+                        </div>
+                        <div>
+                          <h3>{borrower.name}</h3>
+                          <span className={`status-badge status-${borrower.status}`}>
+                            {borrower.status}
+                          </span>
+                        </div>
+                      </div>
+                      <div className="borrower-amount">
+                        {formatCurrency(borrower.amount)} @ {borrower.interestRate}%
+                      </div>
+                      <div className="borrower-due">Due: {formatDate(borrower.dueDate)}</div>
+                      <div className="borrower-streak">
+                        <span className="streak-icon">🔥</span> {borrower.streak || 0} day streak
+                      </div>
+                    </div>
+                    
+                    <div className="borrower-details">
+                      <div className="monthly-interest">
+                        Monthly Interest: <span className="amount-green">{formatCurrency(borrower.monthlyInterest)}</span>
+                      </div>
+                      <div className="progress-section">
+                        <div className="progress-bar">
+                          <div 
+                            className="progress-fill" 
+                            style={{ width: `${borrower.progress}%` }}
+                          ></div>
+                        </div>
+                        <span className="progress-text">{borrower.progress}% paid</span>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })
+            )}
           </div>
         </div>
 

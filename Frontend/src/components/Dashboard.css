@@ -507,6 +507,38 @@
   gap: 16px;
 }
 
+.no-borrowers {
+  text-align: center;
+  padding: 40px 20px;
+  background-color: var(--bg-card);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  color: var(--text-secondary);
+}
+
+.no-borrowers p {
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+
+.add-borrower-btn {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  color: black;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(78, 234, 255, 0.3);
+}
+
+.add-borrower-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 234, 255, 0.4);
+}
+
 .borrower-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
