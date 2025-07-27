@@ -6,7 +6,7 @@ import suppressChartErrors from '../utils/chartErrorHandler';
 import MobileNavigation from './MobileNavigation';
 import './Dashboard.css';
 
-const Dashboard = ({ userLevel = 1, lenderData }) => {
+const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
@@ -239,7 +239,7 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
 
   return (
     <div className="dashboard">
-      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />
       
       <div className="page-content">
         {/* Desktop Top Navigation */}

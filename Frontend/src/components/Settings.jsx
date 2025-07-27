@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import './Settings.css';
 
-const Settings = ({ userLevel = 1, lenderData }) => {
+const Settings = ({ userLevel = 1, lenderData, onLogout }) => {
   const [activeTab, setActiveTab] = useState('Profile');
   const [personalInfo, setPersonalInfo] = useState({
     fullName: 'John Doe',
@@ -82,7 +82,7 @@ const Settings = ({ userLevel = 1, lenderData }) => {
 
   return (
     <div className="settings">
-      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />
       
       <div className="page-content">
         <div className="settings-header">

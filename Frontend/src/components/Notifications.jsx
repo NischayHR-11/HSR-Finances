@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import './Notifications.css';
 
-const Notifications = ({ userLevel = 1, lenderData }) => {
+const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
 
   const notificationSummary = [
     {
@@ -125,7 +125,7 @@ const Notifications = ({ userLevel = 1, lenderData }) => {
 
   return (
     <div className="notifications">
-      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />
       
       <div className="page-content">
         <div className="notifications-header">

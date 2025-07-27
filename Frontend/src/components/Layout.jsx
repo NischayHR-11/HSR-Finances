@@ -27,15 +27,15 @@ const Layout = ({ onLogout, userLevel, xpPoints, lenderData }) => {
   const renderCurrentComponent = () => {
     switch (location.pathname) {
       case '/dashboard':
-        return <Dashboard userLevel={userLevel} lenderData={lenderData} />;
+        return <Dashboard userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />;
       case '/borrowers':
-        return <Borrowers userLevel={userLevel} lenderData={lenderData} />;
+        return <Borrowers userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />;
       case '/notifications':
-        return <Notifications userLevel={userLevel} lenderData={lenderData} />;
+        return <Notifications userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />;
       case '/settings':
-        return <Settings userLevel={userLevel} lenderData={lenderData} />;
+        return <Settings userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />;
       default:
-        return <Dashboard userLevel={userLevel} lenderData={lenderData} />;
+        return <Dashboard userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />;
     }
   };
 

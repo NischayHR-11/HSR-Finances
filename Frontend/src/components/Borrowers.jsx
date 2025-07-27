@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
 import './Borrowers.css';
 
-const Borrowers = ({ userLevel = 1, lenderData }) => {
+const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
 
@@ -106,7 +106,7 @@ const Borrowers = ({ userLevel = 1, lenderData }) => {
 
   return (
     <div className="borrowers">
-      <MobileNavigation userLevel={userLevel} lenderData={lenderData} />
+      <MobileNavigation userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />
       
       <div className="page-content">
         <div className="borrowers-header">

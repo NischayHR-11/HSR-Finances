@@ -3,20 +3,17 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/apiService';
 import './MobileNavigation.css';
 
-const MobileNavigation = ({ userLevel = 1, lenderData }) => {
+const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const navigate = useNavigate();
   const location = useLocation();
 
   const handleLogout = () => {
-    // Use centralized logout method
-    apiService.logout();
-    
-    // Close mobile menu
+    // Close mobile menu first
     setIsMobileMenuOpen(false);
     
-    // Navigate to authentication page (root)
-    navigate('/');
+    // Use the parent's logout handler (same as desktop)
+    onLogout();
     
     console.log('User logged out successfully');
   };
