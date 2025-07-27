@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
 import apiService from '../services/apiService';
+import suppressChartErrors from '../utils/chartErrorHandler';
 import './Dashboard.css';
 
 const Dashboard = ({ userLevel = 1, lenderData }) => {
@@ -9,7 +10,12 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
-  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [windowWidth, setWindowWidth] = useState(() => {
+    if (typeof window !== 'undefined') {
+      return Math.max(window.innerWidth, 320); // Ensure minimum width
+    }
+    return 1024; // Default fallback
+  });
   const [dashboardData, setDashboardData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -37,6 +43,9 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
 
   // Trigger animations when component mounts
   useEffect(() => {
+    // Suppress chart-related errors in production
+    suppressChartErrors();
+    
     setAnimateStats(true);
     
     // Check if user has already seen the welcome message
@@ -56,7 +65,8 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
   // Handle window resize for responsive chart
   useEffect(() => {
     const handleResize = () => {
-      setWindowWidth(window.innerWidth);
+      const newWidth = Math.max(window.innerWidth, 320); // Ensure minimum width
+      setWindowWidth(newWidth);
     };
 
     window.addEventListener('resize', handleResize);
@@ -171,7 +181,7 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
     }
   ];
 
-  // Monthly statistics data for Nivo chart
+  // Monthly statistics data for Nivo chart - ensure all values are valid numbers
   const monthlyStatsData = [
     {
       id: 'Interest Earned',
@@ -189,7 +199,10 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
         { x: 'Oct', y: 9800 },
         { x: 'Nov', y: 10200 },
         { x: 'Dec', y: 10500 }
-      ]
+      ].map(item => ({ 
+        x: item.x, 
+        y: isNaN(item.y) || item.y === null || item.y === undefined ? 0 : Number(item.y) 
+      }))
     },
     {
       id: 'Money Lent',
@@ -207,7 +220,10 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
         { x: 'Oct', y: 135000 },
         { x: 'Nov', y: 142000 },
         { x: 'Dec', y: 150000 }
-      ]
+      ].map(item => ({ 
+        x: item.x, 
+        y: isNaN(item.y) || item.y === null || item.y === undefined ? 0 : Number(item.y) 
+      }))
     }
   ];
   
@@ -522,13 +538,14 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
         
         <div className="chart-container">
           <div className="chart-wrapper">
-            <ResponsiveLine
+            {windowWidth > 0 && (
+              <ResponsiveLine
                 data={monthlyStatsData}
                 margin={{ 
                   top: 50, 
-                  right: windowWidth <= 768 ? 20 : 120, 
-                  bottom: windowWidth <= 768 ? 60 : 80, 
-                  left: windowWidth <= 768 ? 40 : 80 
+                  right: Math.max(windowWidth <= 768 ? 20 : 120, 20), 
+                  bottom: Math.max(windowWidth <= 768 ? 60 : 80, 60), 
+                  left: Math.max(windowWidth <= 768 ? 40 : 80, 40) 
                 }}
                 xScale={{ type: 'point' }}
                 yScale={{
@@ -564,7 +581,7 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
                   tickColor: '#8B949E',
                   textColor: '#8B949E'
                 }}
-                pointSize={windowWidth <= 768 ? 6 : 8}
+                pointSize={Math.max(windowWidth <= 768 ? 6 : 8, 4)}
                 pointColor={{ theme: 'background' }}
                 pointBorderWidth={2}
                 pointBorderColor={{ from: 'serieColor' }}
@@ -675,7 +692,8 @@ const Dashboard = ({ userLevel = 1, lenderData }) => {
                   </div>
                 )}
               />
-            </div>
+            )}
+          </div>
           </div>
         </div>
 
