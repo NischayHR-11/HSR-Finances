@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import './Login.css';
+import ThreeBackground from './ThreeBackground';
 
 const Login = ({ onLogin }) => {
   const [email, setEmail] = useState('');
@@ -38,6 +39,7 @@ const Login = ({ onLogin }) => {
 
   return (
     <div className="login-container">
+      <ThreeBackground />
       <div className="login-card">
         <div className="login-header">
           <div className="logo" onClick={handleSubmit}>

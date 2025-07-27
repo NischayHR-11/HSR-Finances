@@ -3,18 +3,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: var(--bg-primary);
+  background: rgba(15, 23, 42, 0.3); /* More transparent to show 3D background */
   padding: 24px;
+  position: relative;
+  overflow: hidden;
 }
 
 .login-card {
-  background-color: var(--bg-card);
+  background-color: rgba(30, 41, 59, 0.75); /* Slightly more transparent */
+  backdrop-filter: blur(15px); /* Reduced blur to see more of background */
   border-radius: 16px;
   padding: 48px;
   width: 100%;
   max-width: 480px;
-  border: 1px solid var(--border-color);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.4);
+  border: 1px solid rgba(78, 234, 255, 0.3);
+  box-shadow: 
+    0 20px 25px -5px rgba(0, 0, 0, 0.4),
+    0 0 50px rgba(78, 234, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  z-index: 10;
 }
 
 .login-header {
