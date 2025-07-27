@@ -11,17 +11,23 @@ const app = express();
 // CORS Configuration
 const corsOptions = {
   origin: [
-    'http://localhost:5173', // Vite default port
-    'http://localhost:3000', // React default port
-    'http://127.0.0.1:5173',
-    'https://hsr-finances.nischay.tech', // deployed port
-    'http://127.0.0.1:3000'
+    'http://localhost:5173', // Vite default port (development)
+    'http://localhost:3000', // React default port (development)
+    'http://127.0.0.1:5173', // Alternative localhost (development)
+    'http://127.0.0.1:3000', // Alternative localhost (development)
+    'https://hsr-finances.nischay.tech', // Production frontend URL
+    'https://hsr-finances.nischay.tech/', // Production frontend URL with trailing slash
   ],
   credentials: true,
   optionsSuccessStatus: 200,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With']
 };
+
+// Log CORS configuration in development
+if (process.env.NODE_ENV === 'development') {
+  console.log('🔧 CORS Origins allowed:', corsOptions.origin);
+}
 
 // Middleware
 app.use(cors(corsOptions));
