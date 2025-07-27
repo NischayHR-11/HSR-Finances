@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
+import { ResponsiveLine } from '@nivo/line';
 import './Dashboard.css';
 
 const Dashboard = ({ userLevel = 1 }) => {
@@ -7,6 +8,7 @@ const Dashboard = ({ userLevel = 1 }) => {
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
   const navigate = useNavigate();
 
   // Trigger animations when component mounts
@@ -25,6 +27,16 @@ const Dashboard = ({ userLevel = 1 }) => {
       }, 3000);
       return () => clearTimeout(timer);
     }
+  }, []);
+
+  // Handle window resize for responsive chart
+  useEffect(() => {
+    const handleResize = () => {
+      setWindowWidth(window.innerWidth);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, []);
 
   const stats = [
@@ -113,6 +125,46 @@ const Dashboard = ({ userLevel = 1 }) => {
       xp: 75,
       unlocked: false,
       color: 'var(--accent-warning)'
+    }
+  ];
+
+  // Monthly statistics data for Nivo chart
+  const monthlyStatsData = [
+    {
+      id: 'Interest Earned',
+      color: '#22C55E',
+      data: [
+        { x: 'Jan', y: 6500 },
+        { x: 'Feb', y: 7200 },
+        { x: 'Mar', y: 7800 },
+        { x: 'Apr', y: 8100 },
+        { x: 'May', y: 8400 },
+        { x: 'Jun', y: 8750 },
+        { x: 'Jul', y: 9200 },
+        { x: 'Aug', y: 8900 },
+        { x: 'Sep', y: 9500 },
+        { x: 'Oct', y: 9800 },
+        { x: 'Nov', y: 10200 },
+        { x: 'Dec', y: 10500 }
+      ]
+    },
+    {
+      id: 'Money Lent',
+      color: '#4EEAFF',
+      data: [
+        { x: 'Jan', y: 85000 },
+        { x: 'Feb', y: 92000 },
+        { x: 'Mar', y: 98000 },
+        { x: 'Apr', y: 105000 },
+        { x: 'May', y: 112000 },
+        { x: 'Jun', y: 118000 },
+        { x: 'Jul', y: 125000 },
+        { x: 'Aug', y: 121000 },
+        { x: 'Sep', y: 128000 },
+        { x: 'Oct', y: 135000 },
+        { x: 'Nov', y: 142000 },
+        { x: 'Dec', y: 150000 }
+      ]
     }
   ];
   
@@ -406,6 +458,183 @@ const Dashboard = ({ userLevel = 1 }) => {
           </div>
         </div>
       </div>
+
+      {/* Monthly Statistics Chart - Full Width */}
+      <div className="statistics-section" style={{ marginTop: '2rem' }}>
+        <div className="section-header">
+          <h2>
+            <span className="section-icon" style={{ marginRight: '12px' }}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M3 3v18h18"/>
+                <path d="M7 16l4-4 4 4 6-6"/>
+                <circle cx="7" cy="16" r="1"/>
+                <circle cx="11" cy="12" r="1"/>
+                <circle cx="15" cy="16" r="1"/>
+                <circle cx="21" cy="10" r="1"/>
+              </svg>
+            </span>
+            Monthly Statistics
+          </h2>
+        </div>
+        
+        <div className="chart-container">
+          <div className="chart-wrapper">
+            <ResponsiveLine
+                data={monthlyStatsData}
+                margin={{ 
+                  top: 50, 
+                  right: windowWidth <= 768 ? 20 : 120, 
+                  bottom: windowWidth <= 768 ? 60 : 80, 
+                  left: windowWidth <= 768 ? 40 : 80 
+                }}
+                xScale={{ type: 'point' }}
+                yScale={{
+                  type: 'linear',
+                  min: 'auto',
+                  max: 'auto',
+                  stacked: false,
+                  reverse: false
+                }}
+                yFormat=" >-.2f"
+                curve="cardinal"
+                axisTop={null}
+                axisRight={null}
+                axisBottom={{
+                  orient: 'bottom',
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: windowWidth <= 480 ? -45 : 0,
+                  legend: 'Month',
+                  legendOffset: 36,
+                  legendPosition: 'middle',
+                  tickColor: '#8B949E',
+                  textColor: '#8B949E'
+                }}
+                axisLeft={{
+                  orient: 'left',
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  legend: windowWidth <= 768 ? '' : 'Amount ($)',
+                  legendOffset: -40,
+                  legendPosition: 'middle',
+                  tickColor: '#8B949E',
+                  textColor: '#8B949E'
+                }}
+                pointSize={windowWidth <= 768 ? 6 : 8}
+                pointColor={{ theme: 'background' }}
+                pointBorderWidth={2}
+                pointBorderColor={{ from: 'serieColor' }}
+                pointLabelYOffset={-12}
+                useMesh={true}
+                legends={windowWidth <= 768 ? [] : [
+                  {
+                    anchor: 'bottom-right',
+                    direction: 'column',
+                    justify: false,
+                    translateX: 100,
+                    translateY: 0,
+                    itemsSpacing: 0,
+                    itemDirection: 'left-to-right',
+                    itemWidth: 80,
+                    itemHeight: 20,
+                    itemOpacity: 0.75,
+                    symbolSize: 12,
+                    symbolShape: 'circle',
+                    symbolBorderColor: 'rgba(0, 0, 0, .5)',
+                    itemTextColor: '#8B949E',
+                    effects: [
+                      {
+                        on: 'hover',
+                        style: {
+                          itemBackground: 'rgba(0, 0, 0, .03)',
+                          itemOpacity: 1
+                        }
+                      }
+                    ]
+                  }
+                ]}
+                theme={{
+                  background: 'transparent',
+                  text: {
+                    fontSize: 12,
+                    fill: '#8B949E',
+                    outlineWidth: 0,
+                    outlineColor: 'transparent'
+                  },
+                  axis: {
+                    domain: {
+                      line: {
+                        stroke: '#30363D',
+                        strokeWidth: 1
+                      }
+                    },
+                    legend: {
+                      text: {
+                        fontSize: 12,
+                        fill: '#8B949E',
+                        fontWeight: 600
+                      }
+                    },
+                    ticks: {
+                      line: {
+                        stroke: '#30363D',
+                        strokeWidth: 1
+                      },
+                      text: {
+                        fontSize: 11,
+                        fill: '#8B949E'
+                      }
+                    }
+                  },
+                  grid: {
+                    line: {
+                      stroke: '#30363D',
+                      strokeWidth: 1,
+                      strokeOpacity: 0.3
+                    }
+                  },
+                  crosshair: {
+                    line: {
+                      stroke: '#4EEAFF',
+                      strokeWidth: 1,
+                      strokeOpacity: 0.75,
+                      strokeDasharray: '6 6'
+                    }
+                  },
+                  tooltip: {
+                    container: {
+                      background: 'rgba(30, 41, 59, 0.95)',
+                      color: '#E2E8F0',
+                      fontSize: '12px',
+                      border: '1px solid rgba(78, 234, 255, 0.3)',
+                      borderRadius: '8px',
+                      boxShadow: '0 4px 6px rgba(0, 0, 0, 0.1)'
+                    }
+                  }
+                }}
+                enableSlices="x"
+                sliceTooltip={({ slice }) => (
+                  <div className="chart-tooltip">
+                    <div className="tooltip-header">
+                      <strong>{slice.points[0].data.x}</strong>
+                    </div>
+                    {slice.points.map((point) => (
+                      <div key={point.id} className="tooltip-item">
+                        <div 
+                          className="tooltip-color" 
+                          style={{ backgroundColor: point.serieColor }}
+                        ></div>
+                        <span>{point.serieId}: </span>
+                        <strong>${point.data.y.toLocaleString()}</strong>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              />
+            </div>
+          </div>
+        </div>
 
       {/* Welcome Popup */}
       {showWelcome && (
