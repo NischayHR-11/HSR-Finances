@@ -320,7 +320,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
               <span className="section-icon">👥</span>
               Active Borrowers
             </h2>
-            <button className="view-all-btn">View All</button>
+            <button className="view-all-btn" onClick={() => navigate('/borrowers')}>View All</button>
           </div>
           
           <div className="borrowers-list">

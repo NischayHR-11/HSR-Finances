@@ -1,11 +1,23 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
+import apiService from '../services/apiService';
 import './Borrowers.css';
 
 const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const [searchTerm, setSearchTerm] = useState('');
   const [filterStatus, setFilterStatus] = useState('All');
+  const [showAddBorrowerModal, setShowAddBorrowerModal] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    phone: '',
+    address: '',
+    amount: '',
+    interestRate: '',
+    dueDate: ''
+  });
 
   const borrowers = [
     {
@@ -84,6 +96,71 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
 
   const filterOptions = ['All', 'Current', 'Due', 'Overdue'];
 
+  // Form handling functions
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleAddBorrower = () => {
+    setShowAddBorrowerModal(true);
+    // Reset form data
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      amount: '',
+      interestRate: '',
+      dueDate: ''
+    });
+  };
+
+  const handleCloseModal = () => {
+    setShowAddBorrowerModal(false);
+    setFormData({
+      name: '',
+      email: '',
+      phone: '',
+      address: '',
+      amount: '',
+      interestRate: '',
+      dueDate: ''
+    });
+  };
+
+  const handleSubmitBorrower = async (e) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      // Convert amount and interestRate to numbers
+      const borrowerData = {
+        ...formData,
+        amount: parseFloat(formData.amount),
+        interestRate: parseFloat(formData.interestRate),
+        dueDate: new Date(formData.dueDate).toISOString()
+      };
+
+      const response = await apiService.createBorrower(borrowerData);
+      
+      if (response.success) {
+        console.log('✅ Borrower created successfully:', response.data);
+        handleCloseModal();
+        // TODO: Refresh borrowers list or add to local state
+      } else {
+        console.error('❌ Failed to create borrower:', response.message);
+      }
+    } catch (error) {
+      console.error('❌ Error creating borrower:', error);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   const filteredBorrowers = borrowers.filter(borrower => {
     const matchesSearch = borrower.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          borrower.email.toLowerCase().includes(searchTerm.toLowerCase());
@@ -114,7 +191,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
             <h1>Borrowers</h1>
             <p>Manage your lending portfolio and track payments</p>
           </div>
-          <button className="add-borrower-btn">
+          <button className="add-borrower-btn" onClick={handleAddBorrower}>
             + Add Borrower
           </button>
         </div>
@@ -201,6 +278,127 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
           ))}
         </div>
       </div>
+
+      {/* Add Borrower Modal */}
+      {showAddBorrowerModal && (
+        <div className="modal-overlay" onClick={handleCloseModal}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h2>Add New Borrower</h2>
+              <button className="modal-close" onClick={handleCloseModal}>
+                ✕
+              </button>
+            </div>
+            
+            <form onSubmit={handleSubmitBorrower} className="borrower-form">
+              <div className="form-grid">
+                <div className="form-group">
+                  <label htmlFor="name">Name *</label>
+                  <input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={formData.name}
+                    onChange={handleInputChange}
+                    placeholder="John Smith"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="email">Email *</label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    placeholder="john.smith@example.com"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="phone">Phone *</label>
+                  <input
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
+                    onChange={handleInputChange}
+                    placeholder="+1-555-0123"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="address">Address</label>
+                  <input
+                    type="text"
+                    id="address"
+                    name="address"
+                    value={formData.address}
+                    onChange={handleInputChange}
+                    placeholder="123 Main St, City, State 12345"
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="amount">Loan Amount *</label>
+                  <input
+                    type="number"
+                    id="amount"
+                    name="amount"
+                    value={formData.amount}
+                    onChange={handleInputChange}
+                    placeholder="10000"
+                    min="0"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div className="form-group">
+                  <label htmlFor="interestRate">Interest Rate (%) *</label>
+                  <input
+                    type="number"
+                    id="interestRate"
+                    name="interestRate"
+                    value={formData.interestRate}
+                    onChange={handleInputChange}
+                    placeholder="12"
+                    min="0"
+                    max="100"
+                    step="0.01"
+                    required
+                  />
+                </div>
+
+                <div className="form-group full-width">
+                  <label htmlFor="dueDate">Due Date *</label>
+                  <input
+                    type="datetime-local"
+                    id="dueDate"
+                    name="dueDate"
+                    value={formData.dueDate}
+                    onChange={handleInputChange}
+                    required
+                  />
+                </div>
+              </div>
+
+              <div className="form-actions">
+                <button type="button" className="btn-secondary" onClick={handleCloseModal}>
+                  Cancel
+                </button>
+                <button type="submit" className="btn-primary" disabled={isSubmitting}>
+                  {isSubmitting ? 'Creating...' : 'Create Borrower'}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
