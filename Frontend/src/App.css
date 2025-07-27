@@ -77,3 +77,313 @@
   text-transform: uppercase;
   letter-spacing: 1px;
 }
+
+/* Enhanced Website Loading Screen */
+.website-loading-screen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100vh;
+  background: linear-gradient(135deg, #0f172a 0%, #1e293b 30%, #334155 70%, #475569 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+  overflow: hidden;
+}
+
+.loading-bg-pattern {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-image: 
+    linear-gradient(rgba(78, 234, 255, 0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(78, 234, 255, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: patternMove 20s linear infinite;
+}
+
+.loading-crystals {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+}
+
+.crystal-1 {
+  top: 15%;
+  left: 10%;
+  animation: crystalFloat 6s ease-in-out infinite;
+}
+
+.crystal-2 {
+  top: 70%;
+  right: 20%;
+  animation: crystalFloat 4s ease-in-out infinite reverse;
+}
+
+.crystal-3 {
+  bottom: 25%;
+  left: 75%;
+  animation: crystalFloat 5s ease-in-out infinite;
+}
+
+.loading-container {
+  text-align: center;
+  z-index: 10;
+  animation: fadeInUp 1.2s ease-out;
+}
+
+.loading-logo-wrapper {
+  position: relative;
+  display: inline-block;
+  margin-bottom: 2rem;
+}
+
+.loading-logo-icon {
+  width: 100px;
+  height: 100px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48px;
+  font-weight: bold;
+  color: black;
+  margin: 0 auto;
+  box-shadow: 
+    0 15px 35px rgba(78, 234, 255, 0.4),
+    0 5px 15px rgba(78, 234, 255, 0.2);
+  animation: logoSpin 4s ease-in-out infinite;
+  position: relative;
+  z-index: 3;
+}
+
+.logo-pulse-ring {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 120px;
+  height: 120px;
+  border: 2px solid rgba(78, 234, 255, 0.6);
+  border-radius: 50%;
+  animation: pulseRing 2s ease-out infinite;
+}
+
+.pulse-delay {
+  animation-delay: 1s;
+  border-color: rgba(16, 185, 129, 0.6);
+}
+
+.loading-brand {
+  font-size: 3rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin-bottom: 0.5rem;
+  text-shadow: 0 0 30px rgba(78, 234, 255, 0.6);
+  animation: textGlow 3s ease-in-out infinite alternate;
+  letter-spacing: 2px;
+}
+
+.loading-tagline {
+  font-size: 1.1rem;
+  color: var(--text-secondary);
+  margin-bottom: 3rem;
+  opacity: 0.9;
+  font-weight: 300;
+}
+
+.loading-progress-wrapper {
+  margin-bottom: 2rem;
+  width: 350px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.loading-bar {
+  position: relative;
+  width: 100%;
+  height: 6px;
+  background-color: rgba(30, 41, 59, 0.8);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(78, 234, 255, 0.2);
+}
+
+.loading-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--accent-primary), var(--accent-tertiary), var(--accent-secondary));
+  border-radius: 3px;
+  animation: progressAnimation 3s ease-in-out infinite;
+}
+
+.loading-shine {
+  position: absolute;
+  top: 0;
+  left: -100px;
+  height: 100%;
+  width: 100px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.8), transparent);
+  animation: shineEffect 2s linear infinite;
+}
+
+.loading-text {
+  font-size: 1rem;
+  color: var(--text-secondary);
+  text-align: center;
+  display: block;
+  font-weight: 500;
+}
+
+.loading-dots {
+  margin-bottom: 2rem;
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.loading-dot {
+  width: 12px;
+  height: 12px;
+  background: var(--accent-primary);
+  border-radius: 50%;
+  animation: dotBounce 1.4s ease-in-out infinite both;
+  box-shadow: 0 0 10px rgba(78, 234, 255, 0.5);
+}
+
+.loading-dot:nth-child(1) { animation-delay: -0.32s; }
+.loading-dot:nth-child(2) { animation-delay: -0.16s; background: var(--accent-tertiary); }
+.loading-dot:nth-child(3) { animation-delay: 0s; background: var(--accent-secondary); }
+
+.loading-status {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-size: 1rem;
+  color: var(--text-secondary);
+  opacity: 0.8;
+  font-weight: 400;
+}
+
+.status-indicator {
+  font-size: 1.4rem;
+  animation: statusSpin 3s linear infinite;
+}
+
+/* Loading Animations */
+@keyframes patternMove {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(50px, 50px); }
+}
+
+@keyframes crystalFloat {
+  0%, 100% { transform: translateY(0px) rotate(0deg); opacity: 0.6; }
+  50% { transform: translateY(-30px) rotate(180deg); opacity: 1; }
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes logoSpin {
+  0%, 100% { transform: translateY(0px) rotateY(0deg); }
+  25% { transform: translateY(-10px) rotateY(90deg); }
+  50% { transform: translateY(0px) rotateY(180deg); }
+  75% { transform: translateY(-10px) rotateY(270deg); }
+}
+
+@keyframes pulseRing {
+  0% {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes textGlow {
+  from { text-shadow: 0 0 30px rgba(78, 234, 255, 0.6); }
+  to { text-shadow: 0 0 40px rgba(78, 234, 255, 0.9), 0 0 60px rgba(78, 234, 255, 0.4); }
+}
+
+@keyframes progressAnimation {
+  0% { width: 0%; }
+  50% { width: 75%; }
+  100% { width: 100%; }
+}
+
+@keyframes shineEffect {
+  0% { left: -100px; }
+  100% { left: 400px; }
+}
+
+@keyframes dotBounce {
+  0%, 80%, 100% {
+    transform: scale(0.8);
+  }
+  40% {
+    transform: scale(1.2);
+  }
+}
+
+@keyframes statusSpin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Responsive Design for Loading Screen */
+@media (max-width: 768px) {
+  .loading-brand {
+    font-size: 2.2rem;
+  }
+  
+  .loading-logo-icon {
+    width: 80px;
+    height: 80px;
+    font-size: 36px;
+  }
+  
+  .logo-pulse-ring {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .loading-progress-wrapper {
+    width: 280px;
+  }
+  
+  .loading-tagline {
+    font-size: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .loading-brand {
+    font-size: 1.8rem;
+  }
+  
+  .loading-logo-icon {
+    width: 70px;
+    height: 70px;
+    font-size: 28px;
+  }
+  
+  .loading-progress-wrapper {
+    width: 250px;
+  }
+}

@@ -97,18 +97,47 @@ function App() {
   if (isLoading) {
     return (
       <div className="App">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'center', 
-          alignItems: 'center', 
-          height: '100vh',
-          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-          color: 'white',
-          fontSize: '1.2rem'
-        }}>
-          <div className="loading-spinner">
-            <div className="logo-icon" style={{ fontSize: '3rem', marginBottom: '1rem' }}>$</div>
-            <div>Loading HSR-Finances...</div>
+        <div className="website-loading-screen">
+          {/* Animated Background */}
+          <div className="loading-bg-pattern"></div>
+          <div className="loading-crystals">
+            <div className="crystal crystal-1"></div>
+            <div className="crystal crystal-2"></div>
+            <div className="crystal crystal-3"></div>
+          </div>
+          
+          {/* Loading Content */}
+          <div className="loading-container">
+            <div className="loading-logo-wrapper">
+              <div className="loading-logo-icon">$</div>
+              <div className="logo-pulse-ring"></div>
+              <div className="logo-pulse-ring pulse-delay"></div>
+            </div>
+            
+            <h1 className="loading-brand">HSR-Finances</h1>
+            <p className="loading-tagline">Gamified Finance Management</p>
+            
+            {/* Loading Progress Indicator */}
+            <div className="loading-progress-wrapper">
+              <div className="loading-bar">
+                <div className="loading-fill"></div>
+                <div className="loading-shine"></div>
+              </div>
+              <span className="loading-text">Loading HSR-Finances...</span>
+            </div>
+            
+            {/* Loading Animation Dots */}
+            <div className="loading-dots">
+              <span className="loading-dot"></span>
+              <span className="loading-dot"></span>
+              <span className="loading-dot"></span>
+            </div>
+            
+            {/* Status Message */}
+            <div className="loading-status">
+              <span className="status-indicator">⚡</span>
+              <span>Connecting to your financial universe</span>
+            </div>
           </div>
         </div>
       </div>
