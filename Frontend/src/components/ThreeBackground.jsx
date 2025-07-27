@@ -35,7 +35,7 @@ const ThreeBackground = () => {
     sceneRef.current = scene;
     rendererRef.current = renderer;
 
-    // Create text texture function
+    // Enhanced text texture function with special styling for currency notes
     const createTextTexture = (text, color = '#4EEAFF') => {
       const canvas = document.createElement('canvas');
       const context = canvas.getContext('2d');
@@ -45,48 +45,87 @@ const ThreeBackground = () => {
       // Clear canvas
       context.clearRect(0, 0, 256, 256);
       
-      // Style the text
-      context.fillStyle = color;
-      context.font = 'bold 150px Arial';
-      context.textAlign = 'center';
-      context.textBaseline = 'middle';
+      // Check if it's a currency note emoji
+      const isCurrencyNote = ['💵', '💴', '💶', '💷', '💳', '💰'].includes(text);
       
-      // Add glow effect
-      context.shadowColor = color;
-      context.shadowBlur = 30;
-      context.fillText(text, 128, 128);
+      if (isCurrencyNote) {
+        // Special styling for currency notes
+        context.fillStyle = color;
+        context.font = 'bold 120px Arial';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        
+        // Add enhanced green glow effect for currency notes
+        context.shadowColor = color;
+        context.shadowBlur = 35;
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 0;
+        
+        // Draw with multiple glow layers
+        context.fillText(text, 128, 128);
+        
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 45;
+        context.fillText(text, 128, 128);
+      } else {
+        // Regular styling for other symbols
+        context.fillStyle = color;
+        context.font = 'bold 150px Arial';
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        
+        // Add glow effect
+        context.shadowColor = color;
+        context.shadowBlur = 30;
+        context.fillText(text, 128, 128);
+      }
       
       const texture = new THREE.CanvasTexture(canvas);
       texture.needsUpdate = true;
       return texture;
     };
 
-    // Financial symbols to display
-    const symbols = ['$', '+', '-', '₹', '€', '¥', '100', '500', '1K', '5K', '10K'];
-    const colors = ['#4EEAFF', '#22C55E', '#EF4444', '#F59E0B', '#8B5CF6', '#EC4899'];
+    // Financial symbols including currency notes
+    const symbols = ['$', '+', '-', '₹', '€', '¥', '100', '500', '1K', '5K', '10K', '💵', '💴', '💶', '💷', '💳', '🪙', '📊', '📈', '💰'];
+    
+    // Enhanced color palette with more green variations for currency notes
+    const colors = [
+      '#4EEAFF',  // Cyan
+      '#22C55E',  // Green
+      '#16A34A',  // Dark Green (currency note green)
+      '#15803D',  // Forest Green  
+      '#166534',  // Deep Green
+      '#10B981',  // Emerald
+      '#059669',  // Emerald Dark
+      '#047857',  // Emerald Darker
+      '#EF4444',  // Red
+      '#F59E0B',  // Yellow
+      '#8B5CF6',  // Purple
+      '#EC4899'   // Pink
+    ];
     const particles = [];
 
-    // Create floating particles
-    for (let i = 0; i < 80; i++) {
+    // Create fewer floating particles for calmer effect
+    for (let i = 0; i < 40; i++) { // Reduced from 80 to 40
       const symbol = symbols[Math.floor(Math.random() * symbols.length)];
       const color = colors[Math.floor(Math.random() * colors.length)];
       const texture = createTextTexture(symbol, color);
       
-      const geometry = new THREE.PlaneGeometry(5, 5);
+      const geometry = new THREE.PlaneGeometry(4, 4); // Slightly smaller
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.8,
+        opacity: 0.6, // More transparent for subtle effect
         side: THREE.DoubleSide
       });
       
       const mesh = new THREE.Mesh(geometry, material);
       
-      // Random positioning
+      // More spread out positioning
       mesh.position.set(
-        (Math.random() - 0.5) * 100,
-        (Math.random() - 0.5) * 100,
-        (Math.random() - 0.5) * 50
+        (Math.random() - 0.5) * 120, // Wider spread
+        Math.random() * 120 - 60,    // Full height range
+        (Math.random() - 0.5) * 60   // More depth
       );
       
       // Random rotation
@@ -96,48 +135,101 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Store animation data
+      // Store animation data with slower, smoother speeds
       mesh.userData = {
-        speedY: 0.5 + Math.random() * 1.5,
-        speedX: (Math.random() - 0.5) * 0.5,
-        rotSpeed: (Math.random() - 0.5) * 0.02,
-        originalX: mesh.position.x
+        speedY: 0.08 + Math.random() * 0.12, // Much slower upward movement (was 0.5-2.0)
+        speedX: (Math.random() - 0.5) * 0.03, // Gentle horizontal drift (was 0.5)
+        rotSpeed: (Math.random() - 0.5) * 0.005, // Slow rotation (was 0.02)
+        originalX: mesh.position.x,
+        // Add smooth oscillation for more organic movement
+        oscillationSpeed: 0.01 + Math.random() * 0.02,
+        oscillationAmplitude: 1 + Math.random() * 2
       };
       
       scene.add(mesh);
       particles.push(mesh);
     }
 
+    // Create special currency note elements (larger, greener, more prominent)
+    const currencyNotes = ['💵', '💴', '💶', '💷', '💳', '💰'];
+    const greenShades = ['#22C55E', '#16A34A', '#15803D', '#166534', '#10B981', '#059669'];
+    
+    for (let i = 0; i < 15; i++) { // Add 15 currency note elements
+      const note = currencyNotes[Math.floor(Math.random() * currencyNotes.length)];
+      const greenColor = greenShades[Math.floor(Math.random() * greenShades.length)];
+      const texture = createTextTexture(note, greenColor);
+      
+      const geometry = new THREE.PlaneGeometry(6, 6); // Larger size for currency notes
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.7, // Slightly more opaque for prominence
+        side: THREE.DoubleSide
+      });
+      
+      const noteMesh = new THREE.Mesh(geometry, material);
+      
+      // Position currency notes
+      noteMesh.position.set(
+        (Math.random() - 0.5) * 100,
+        Math.random() * 120 - 60,
+        (Math.random() - 0.5) * 50
+      );
+      
+      // Random rotation
+      noteMesh.rotation.set(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
+      );
+      
+      // Slower animation for currency notes (more majestic movement)
+      noteMesh.userData = {
+        speedY: 0.05 + Math.random() * 0.08, // Even slower for currency notes
+        speedX: (Math.random() - 0.5) * 0.02,
+        rotSpeed: (Math.random() - 0.5) * 0.003, // Very slow rotation
+        originalX: noteMesh.position.x,
+        oscillationSpeed: 0.008 + Math.random() * 0.015,
+        oscillationAmplitude: 2 + Math.random() * 3,
+        isCurrencyNote: true // Flag to identify currency notes
+      };
+      
+      scene.add(noteMesh);
+      particles.push(noteMesh);
+    }
+
     particlesRef.current = particles;
-    console.log(`ThreeBackground: Created ${particles.length} floating symbols`);
+    console.log(`ThreeBackground: Created ${particles.length} floating symbols (including currency notes)`);
 
     // Set camera position
     camera.position.z = 30;
 
-    // Animation loop
+    // Animation loop with smooth, slow movements
     const animate = () => {
       animationIdRef.current = requestAnimationFrame(animate);
       
-      // Move particles
-      particles.forEach(particle => {
-        // Move upward
+      const time = Date.now() * 0.001; // Time for smooth oscillations
+      
+      // Move particles with gentle, smooth animations
+      particles.forEach((particle, index) => {
+        // Slow upward movement
         particle.position.y += particle.userData.speedY;
         
-        // Slight horizontal drift
-        particle.position.x += particle.userData.speedX;
+        // Gentle horizontal oscillation instead of linear drift
+        const oscillation = Math.sin(time * particle.userData.oscillationSpeed + index) 
+                          * particle.userData.oscillationAmplitude;
+        particle.position.x = particle.userData.originalX + oscillation;
         
-        // Rotate
+        // Very slow, smooth rotation
         particle.rotation.y += particle.userData.rotSpeed;
-        particle.rotation.x += particle.userData.rotSpeed * 0.5;
+        particle.rotation.x += particle.userData.rotSpeed * 0.3;
+        particle.rotation.z += particle.userData.rotSpeed * 0.7;
         
-        // Reset when out of bounds
+        // Reset when out of bounds with smooth transition
         if (particle.position.y > 60) {
           particle.position.y = -60;
-          particle.position.x = particle.userData.originalX + (Math.random() - 0.5) * 20;
-        }
-        
-        if (Math.abs(particle.position.x) > 50) {
-          particle.position.x = particle.userData.originalX;
+          // Keep original X position for consistent oscillation
+          particle.userData.originalX = (Math.random() - 0.5) * 80;
         }
       });
       
