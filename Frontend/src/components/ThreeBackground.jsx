@@ -45,43 +45,49 @@ const ThreeBackground = () => {
       // Clear canvas
       context.clearRect(0, 0, 256, 256);
       
-      // Check if it's a currency note emoji or golden coin
+      // Check symbol types for special styling
       const isCurrencyNote = ['💵', '💴', '💶', '💷', '💳', '💰'].includes(text);
       const isGoldenCoin = ['🪙', '🥇', '⭐', '💰', '🏆'].includes(text);
       const isDollarSymbol = text === '$';
+      const isPercentSymbol = text === '%';
       
       if (isDollarSymbol) {
         // Special styling for $ symbols (most prominent)
         context.fillStyle = color;
-        context.font = 'bold 180px Arial'; // Even larger font
+        context.font = 'bold 140px Arial'; // Normal size font
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         
-        // Ultimate golden glow for $ symbols
+        // Normal golden glow for $ symbols
         context.shadowColor = color;
-        context.shadowBlur = 100; // Maximum glow
+        context.shadowBlur = 35; // Moderate glow
         context.shadowOffsetX = 0;
         context.shadowOffsetY = 0;
         
-        // Draw with multiple ultra-intense glow layers
+        // Draw with golden glow
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 120; // Ultra bright
+        context.shadowBlur = 45;
+        context.fillText(text, 128, 128);
+      } else if (isPercentSymbol) {
+        // Special styling for % symbols (green)
+        context.fillStyle = color;
+        context.font = 'bold 140px Arial'; // Same as $ symbols
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        
+        // Green glow for % symbols
+        context.shadowColor = color;
+        context.shadowBlur = 35; // Same as $ symbols
+        context.shadowOffsetX = 0;
+        context.shadowOffsetY = 0;
+        
+        // Draw with green glow
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 60;
-        context.fillText(text, 128, 128);
-        
-        // Add extra bright layer
-        context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 30;
-        context.fillText(text, 128, 128);
-        
-        // Ultra bright center
-        context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 10;
+        context.shadowBlur = 45;
         context.fillText(text, 128, 128);
       } else if (isGoldenCoin) {
         // Special styling for golden coins
@@ -177,11 +183,11 @@ const ThreeBackground = () => {
       const goldenColor = goldenColors[Math.floor(Math.random() * goldenColors.length)];
       const texture = createTextTexture('$', goldenColor);
       
-      const geometry = new THREE.PlaneGeometry(8, 8); // Much larger size for ultimate visibility
+      const geometry = new THREE.PlaneGeometry(4.5, 4.5); // Normal size, not card-like
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 1.0, // Fully opaque for maximum prominence
+        opacity: 0.85, // Good visibility but not overwhelming
         side: THREE.DoubleSide
       });
       
@@ -214,6 +220,52 @@ const ThreeBackground = () => {
       
       scene.add(mesh);
       particles.push(mesh);
+    }
+
+    // Create green % symbols (prominent elements)
+    const greenColors = ['#22C55E', '#16A34A', '#15803D', '#10B981', '#059669', '#047857'];
+    
+    for (let i = 0; i < 20; i++) { // 20 % symbols
+      const greenColor = greenColors[Math.floor(Math.random() * greenColors.length)];
+      const texture = createTextTexture('%', greenColor);
+      
+      const geometry = new THREE.PlaneGeometry(4.5, 4.5); // Same size as $ symbols
+      const material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        opacity: 0.85, // Same opacity as $ symbols
+        side: THREE.DoubleSide
+      });
+      
+      const percentMesh = new THREE.Mesh(geometry, material);
+      
+      // Position % symbols evenly across screen
+      percentMesh.position.set(
+        (Math.random() - 0.5) * 200, // Full screen width
+        Math.random() * 160 - 80,    // Full height range
+        (Math.random() - 0.5) * 100  // Good depth
+      );
+      
+      // Random rotation
+      percentMesh.rotation.set(
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2,
+        Math.random() * Math.PI * 2
+      );
+      
+      // Animation data for % symbols
+      percentMesh.userData = {
+        speedY: 0.12 + Math.random() * 0.18, // Same speed as $ symbols
+        speedX: (Math.random() - 0.5) * 0.045,
+        rotSpeed: (Math.random() - 0.5) * 0.008,
+        originalX: percentMesh.position.x,
+        oscillationSpeed: 0.02 + Math.random() * 0.035,
+        oscillationAmplitude: 2 + Math.random() * 3.5,
+        isPercentSymbol: true
+      };
+      
+      scene.add(percentMesh);
+      particles.push(percentMesh);
     }
 
     // Create fewer floating particles for other symbols
@@ -357,7 +409,7 @@ const ThreeBackground = () => {
     }
 
     particlesRef.current = particles;
-    console.log(`ThreeBackground: Created ${particles.length} floating symbols (including currency notes)`);
+    console.log(`ThreeBackground: Created ${particles.length} floating symbols ($ symbols, % symbols, currency notes, coins, and others)`);
 
     // Set camera position for wider view
     camera.position.z = 40; // Moved back to see wider spread
