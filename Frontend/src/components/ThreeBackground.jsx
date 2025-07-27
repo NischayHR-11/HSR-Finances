@@ -53,30 +53,35 @@ const ThreeBackground = () => {
       if (isDollarSymbol) {
         // Special styling for $ symbols (most prominent)
         context.fillStyle = color;
-        context.font = 'bold 160px Arial';
+        context.font = 'bold 180px Arial'; // Even larger font
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         
-        // Maximum golden glow for $ symbols
+        // Ultimate golden glow for $ symbols
         context.shadowColor = color;
-        context.shadowBlur = 60; // Increased from 40
+        context.shadowBlur = 100; // Maximum glow
         context.shadowOffsetX = 0;
         context.shadowOffsetY = 0;
         
-        // Draw with multiple intense glow layers for maximum prominence
+        // Draw with multiple ultra-intense glow layers
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 80; // Increased from 50
+        context.shadowBlur = 120; // Ultra bright
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 40; // Increased from 25
+        context.shadowBlur = 60;
         context.fillText(text, 128, 128);
         
         // Add extra bright layer
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 20;
+        context.shadowBlur = 30;
+        context.fillText(text, 128, 128);
+        
+        // Ultra bright center
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 10;
         context.fillText(text, 128, 128);
       } else if (isGoldenCoin) {
         // Special styling for golden coins
@@ -172,11 +177,11 @@ const ThreeBackground = () => {
       const goldenColor = goldenColors[Math.floor(Math.random() * goldenColors.length)];
       const texture = createTextTexture('$', goldenColor);
       
-      const geometry = new THREE.PlaneGeometry(6, 6); // Even larger size for maximum visibility
+      const geometry = new THREE.PlaneGeometry(8, 8); // Much larger size for ultimate visibility
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.95, // Very high opacity for maximum prominence
+        opacity: 1.0, // Fully opaque for maximum prominence
         side: THREE.DoubleSide
       });
       
@@ -196,14 +201,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Animation data for $ symbols
+      // Enhanced animation data for $ symbols with increased speed
       mesh.userData = {
-        speedY: 0.06 + Math.random() * 0.10,
-        speedX: (Math.random() - 0.5) * 0.025,
-        rotSpeed: (Math.random() - 0.5) * 0.004,
+        speedY: 0.12 + Math.random() * 0.18, // Doubled speed (was 0.06-0.16)
+        speedX: (Math.random() - 0.5) * 0.045, // Increased horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.008, // Doubled rotation speed
         originalX: mesh.position.x,
-        oscillationSpeed: 0.01 + Math.random() * 0.02,
-        oscillationAmplitude: 1.5 + Math.random() * 2.5,
+        oscillationSpeed: 0.02 + Math.random() * 0.035, // Faster oscillation
+        oscillationAmplitude: 2 + Math.random() * 3.5, // More movement
         isDollarSymbol: true
       };
       
@@ -241,15 +246,15 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Store animation data with slower, smoother speeds
+      // Increased animation speeds for other symbols
       mesh.userData = {
-        speedY: 0.08 + Math.random() * 0.12, // Much slower upward movement (was 0.5-2.0)
-        speedX: (Math.random() - 0.5) * 0.03, // Gentle horizontal drift (was 0.5)
-        rotSpeed: (Math.random() - 0.5) * 0.005, // Slow rotation (was 0.02)
+        speedY: 0.14 + Math.random() * 0.20, // Increased speed
+        speedX: (Math.random() - 0.5) * 0.05, // More horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.009, // Faster rotation
         originalX: mesh.position.x,
-        // Add smooth oscillation for more organic movement
-        oscillationSpeed: 0.01 + Math.random() * 0.02,
-        oscillationAmplitude: 1 + Math.random() * 2
+        // Enhanced oscillation for more dynamic movement
+        oscillationSpeed: 0.018 + Math.random() * 0.035,
+        oscillationAmplitude: 1.5 + Math.random() * 3
       };
       
       scene.add(mesh);
@@ -288,14 +293,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Golden coin animation (slightly different for sparkle effect)
+      // Increased golden coin animation speeds
       coinMesh.userData = {
-        speedY: 0.04 + Math.random() * 0.07, // Slow majestic movement
-        speedX: (Math.random() - 0.5) * 0.02,
-        rotSpeed: (Math.random() - 0.5) * 0.006, // Slightly faster rotation for sparkle
+        speedY: 0.08 + Math.random() * 0.12, // Doubled speed (was 0.04-0.11)
+        speedX: (Math.random() - 0.5) * 0.035, // Increased horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.012, // Doubled rotation for more sparkle
         originalX: coinMesh.position.x,
-        oscillationSpeed: 0.008 + Math.random() * 0.015,
-        oscillationAmplitude: 2.5 + Math.random() * 3.5,
+        oscillationSpeed: 0.015 + Math.random() * 0.028, // Faster oscillation
+        oscillationAmplitude: 3 + Math.random() * 4.5, // More movement
         isGoldenCoin: true
       };
       
@@ -336,14 +341,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Slower animation for currency notes (more majestic movement)
+      // Increased animation for currency notes
       noteMesh.userData = {
-        speedY: 0.05 + Math.random() * 0.08, // Even slower for currency notes
-        speedX: (Math.random() - 0.5) * 0.02,
-        rotSpeed: (Math.random() - 0.5) * 0.003, // Very slow rotation
+        speedY: 0.10 + Math.random() * 0.15, // Doubled speed (was 0.05-0.13)
+        speedX: (Math.random() - 0.5) * 0.04, // Doubled horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.006, // Doubled rotation
         originalX: noteMesh.position.x,
-        oscillationSpeed: 0.008 + Math.random() * 0.015,
-        oscillationAmplitude: 2 + Math.random() * 3,
+        oscillationSpeed: 0.015 + Math.random() * 0.028, // Faster oscillation
+        oscillationAmplitude: 2.5 + Math.random() * 4, // More movement
         isCurrencyNote: true // Flag to identify currency notes
       };
       
