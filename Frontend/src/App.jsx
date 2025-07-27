@@ -14,6 +14,23 @@ function App() {
   const [lenderData, setLenderData] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  // Debug environment info
+  useEffect(() => {
+    console.log('🚀 HSR-Finances Frontend Started');
+    console.log('📊 Environment Info:', {
+      mode: import.meta.env.MODE,
+      dev: import.meta.env.DEV,
+      prod: import.meta.env.PROD,
+      apiUrl: import.meta.env.VITE_API_BASE_URL,
+      hostname: window.location.hostname
+    });
+    
+    // Test API connection
+    apiService.testConnection().catch(err => {
+      console.warn('⚠️ Initial API connection test failed:', err);
+    });
+  }, []);
+
   // Check authentication status on app load
   useEffect(() => {
     const checkAuthStatus = async () => {

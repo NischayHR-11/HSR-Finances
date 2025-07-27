@@ -1,6 +1,29 @@
 // API service for HSR-Finances backend communication
 
-const API_BASE_URL = 'http://localhost:5000/api';
+// Environment-based API URL configuration
+const getApiBaseUrl = () => {
+  // First try to use environment variable if available
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // Fallback to automatic detection
+  const isDevelopment = import.meta.env.DEV || 
+                       window.location.hostname === 'localhost' || 
+                       window.location.hostname === '127.0.0.1';
+  
+  if (isDevelopment) {
+    return 'http://localhost:5000/api';
+  } else {
+    return 'https://hsr-finances.onrender.com/api';
+  }
+};
+
+const API_BASE_URL = getApiBaseUrl();
+
+// Log the API URL for debugging
+console.log('🔗 API Base URL:', API_BASE_URL);
+console.log('🌍 Environment:', import.meta.env.MODE || 'unknown');
 
 class ApiService {
   constructor() {
@@ -38,6 +61,19 @@ class ApiService {
     }
     
     return data;
+  }
+
+  // Test API connection
+  async testConnection() {
+    try {
+      const response = await fetch(`${this.baseURL}/health`);
+      const data = await response.json();
+      console.log('✅ API Connection Test:', data);
+      return data;
+    } catch (error) {
+      console.error('❌ API Connection Failed:', error);
+      throw error;
+    }
   }
 
   // Authentication Methods
