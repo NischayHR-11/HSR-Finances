@@ -1,0 +1,315 @@
+/* Mobile Navigation Styles */
+.mobile-header {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 64px;
+  background-color: var(--bg-secondary);
+  border-bottom: 1px solid var(--border-color);
+  z-index: 1000;
+  padding: 0 20px;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-logo {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mobile-logo-icon {
+  width: 28px;
+  height: 28px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: bold;
+  color: black;
+}
+
+.mobile-logo-text {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.mobile-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-level-badge {
+  padding: 4px 8px;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  color: black;
+}
+
+.mobile-menu-toggle {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(78, 234, 255, 0.1);
+}
+
+/* Hamburger Animation */
+.hamburger {
+  display: flex;
+  flex-direction: column;
+  width: 20px;
+  height: 20px;
+  justify-content: space-around;
+  position: relative;
+}
+
+.hamburger span {
+  width: 100%;
+  height: 2px;
+  background: var(--text-primary);
+  border-radius: 1px;
+  transition: all 0.3s ease;
+  transform-origin: center;
+}
+
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg) translateY(6px);
+}
+
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg) translateY(-6px);
+}
+
+/* Mobile Menu Overlay */
+.mobile-menu-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.8);
+  z-index: 1100;
+  display: flex;
+  justify-content: flex-start;
+  animation: fadeIn 0.3s ease-out;
+}
+
+.mobile-menu {
+  width: 280px;
+  height: 100vh;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  animation: slideInLeft 0.3s ease-out;
+  overflow: hidden;
+  box-shadow: 5px 0 20px rgba(0, 0, 0, 0.3);
+}
+
+.mobile-menu-header {
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  background: rgba(78, 234, 255, 0.05);
+}
+
+.mobile-user-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mobile-user-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  color: #000;
+  font-size: 16px;
+}
+
+.mobile-user-details {
+  flex: 1;
+}
+
+.mobile-user-name {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.mobile-user-level {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+/* Mobile Navigation Menu */
+.mobile-nav-menu {
+  flex: 1;
+  padding: 20px 0;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.mobile-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 16px 20px;
+  color: var(--text-secondary);
+  text-decoration: none;
+  transition: all 0.3s ease;
+  position: relative;
+  border-right: 3px solid transparent;
+}
+
+.mobile-nav-item:hover {
+  background: rgba(78, 234, 255, 0.1);
+  color: var(--text-primary);
+  border-right-color: var(--accent-primary);
+}
+
+.mobile-nav-item.active {
+  background: rgba(78, 234, 255, 0.15);
+  color: var(--accent-primary);
+  border-right-color: var(--accent-primary);
+}
+
+.mobile-nav-icon {
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.3s ease;
+}
+
+.mobile-nav-item.active .mobile-nav-icon {
+  background: rgba(78, 234, 255, 0.2);
+  color: var(--accent-primary);
+}
+
+.mobile-nav-label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.mobile-nav-badge {
+  background: var(--accent-warning);
+  color: #000;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 10px;
+  min-width: 16px;
+  text-align: center;
+}
+
+/* Mobile Menu Footer */
+.mobile-menu-footer {
+  padding: 20px;
+  border-top: 2px solid var(--accent-danger); /* Make border more visible */
+  background: rgba(255, 34, 34, 0.1); /* Make background more visible */
+  margin-top: auto; /* Push footer to bottom */
+  flex-shrink: 0; /* Prevent footer from shrinking */
+  min-height: 80px; /* Ensure minimum height */
+}
+
+.mobile-logout-button {
+  display: flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  width: 100%;
+  padding: 16px 16px;
+  background: var(--accent-danger) !important; /* Make it solid red temporarily */
+  border: 2px solid var(--accent-danger);
+  border-radius: 12px;
+  color: white !important; /* White text on red background */
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(255, 34, 34, 0.2);
+}
+
+.mobile-logout-button:hover {
+  background: var(--accent-danger);
+  color: var(--bg-primary);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 34, 34, 0.3);
+}
+
+.mobile-logout-button:active {
+  transform: translateY(0);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideInLeft {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+/* Show mobile nav only on mobile devices */
+@media (max-width: 768px) {
+  .mobile-header {
+    display: flex;
+  }
+}
+
+/* Hide on desktop */
+@media (min-width: 769px) {
+  .mobile-header,
+  .mobile-menu-overlay,
+  .mobile-menu {
+    display: none !important;
+  }
+}

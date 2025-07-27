@@ -1,15 +1,39 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ResponsiveLine } from '@nivo/line';
+import apiService from '../services/apiService';
 import './Dashboard.css';
 
-const Dashboard = ({ userLevel = 1 }) => {
+const Dashboard = ({ userLevel = 1, lenderData }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1024);
+  const [dashboardData, setDashboardData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
   const navigate = useNavigate();
+
+  // Fetch dashboard data from API
+  useEffect(() => {
+    const fetchDashboardData = async () => {
+      try {
+        setIsLoading(true);
+        const response = await apiService.getDashboardStats();
+        if (response.success) {
+          setDashboardData(response.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch dashboard data:', error);
+        setError(error.message);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDashboardData();
+  }, []);
 
   // Trigger animations when component mounts
   useEffect(() => {
@@ -18,7 +42,7 @@ const Dashboard = ({ userLevel = 1 }) => {
     // Check if user has already seen the welcome message
     const hasSeenWelcome = localStorage.getItem('hasSeenWelcome');
     
-    if (!hasSeenWelcome) {
+    if (!hasSeenWelcome && lenderData) {
       setShowWelcome(true);
       // Mark as seen and auto-hide welcome message after 3 seconds
       const timer = setTimeout(() => {
@@ -27,7 +51,7 @@ const Dashboard = ({ userLevel = 1 }) => {
       }, 3000);
       return () => clearTimeout(timer);
     }
-  }, []);
+  }, [lenderData]);
 
   // Handle window resize for responsive chart
   useEffect(() => {
@@ -39,67 +63,86 @@ const Dashboard = ({ userLevel = 1 }) => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  const stats = [
+  // Format currency
+  const formatCurrency = (amount) => {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0
+    }).format(amount || 0);
+  };
+
+  // Generate stats from real data
+  const stats = dashboardData ? [
     {
       title: 'Total Money Lent',
-      value: '$125,000',
-      change: '+8.2% from last month',
+      value: formatCurrency(dashboardData.stats.totalMoneyLent),
+      change: dashboardData.stats.totalMoneyLent > 0 ? '+Active Lending' : 'No active loans',
+      icon: '💰',
+      positive: dashboardData.stats.totalMoneyLent > 0,
+      color: 'var(--accent-primary)'
+    },
+    {
+      title: 'Monthly Interest',
+      value: formatCurrency(dashboardData.stats.monthlyInterest),
+      change: dashboardData.stats.monthlyInterest > 0 ? '+Monthly Earning' : 'No earnings yet',
+      icon: '📈',
+      positive: dashboardData.stats.monthlyInterest > 0,
+      color: 'var(--accent-green)'
+    },
+    {
+      title: 'Active Loans',
+      value: dashboardData.stats.activeLoans.toString(),
+      change: `${dashboardData.stats.activeLoans} borrowers`,
+      icon: '🏦',
+      positive: dashboardData.stats.activeLoans > 0,
+      color: 'var(--accent-tertiary)'
+    },
+    {
+      title: 'On-Time Rate',
+      value: `${dashboardData.stats.onTimeRate}%`,
+      change: dashboardData.stats.onTimeRate > 80 ? 'Excellent!' : dashboardData.stats.onTimeRate > 60 ? 'Good' : 'Needs attention',
+      icon: '⭐',
+      positive: dashboardData.stats.onTimeRate > 60,
+      color: 'var(--accent-secondary)'
+    }
+  ] : [
+    {
+      title: 'Total Money Lent',
+      value: '$0',
+      change: 'Loading...',
       icon: '💰',
       positive: true,
       color: 'var(--accent-primary)'
     },
     {
       title: 'Monthly Interest',
-      value: '$8,750',
-      change: '+12.5% from last month',
+      value: '$0',
+      change: 'Loading...',
       icon: '📈',
+      positive: true,
+      color: 'var(--accent-green)'
+    },
+    {
+      title: 'Active Loans',
+      value: '0',
+      change: 'Loading...',
+      icon: '🏦',
       positive: true,
       color: 'var(--accent-tertiary)'
     },
     {
-      title: 'Active Loans',
-      value: '12',
-      change: '2 new this month',
-      icon: '👥',
+      title: 'On-Time Rate',
+      value: '0%',
+      change: 'Loading...',
+      icon: '⭐',
       positive: true,
       color: 'var(--accent-secondary)'
-    },
-    {
-      title: 'On-Time Rate',
-      value: '95%',
-      change: 'Excellent performance',
-      icon: '🏆',
-      positive: true,
-      color: 'var(--accent-warning)'
     }
   ];
 
-  const recentBorrowers = [
-    {
-      name: 'John Smith',
-      amount: '$25,000',
-      rate: '8.5%',
-      monthlyInterest: '$177.08',
-      progress: 65,
-      status: 'current',
-      dueDate: '2024-02-15',
-      avatar: 'JS',
-      level: 3,
-      streak: 12
-    },
-    {
-      name: 'Sarah Johnson',
-      amount: '$15,000',
-      rate: '9.2%',
-      monthlyInterest: '$115',
-      progress: 40,
-      status: 'due',
-      dueDate: '2024-02-12',
-      avatar: 'SJ',
-      level: 2,
-      streak: 5
-    }
-  ];
+  // Recent borrowers data (mix of real data from API and placeholder)
+  const recentBorrowers = dashboardData?.recentBorrowers || [];
 
   const achievements = [
     {
@@ -298,7 +341,7 @@ const Dashboard = ({ userLevel = 1 }) => {
       <div className="dashboard-header">
         <div>
           <h1>Dashboard</h1>
-          <p>Welcome John Doe !!</p>
+          <p>Welcome {lenderData?.name || 'User'} !!</p>
         </div>
         <div className="month-indicator glass-card">
           <span className="indicator-icon">📈</span> 
@@ -646,7 +689,7 @@ const Dashboard = ({ userLevel = 1 }) => {
                 <circle cx="12" cy="12" r="10"/>
               </svg>
             </div>
-            <h3>Welcome John Doe !!</h3>
+            <h3>Welcome {lenderData?.name || 'User'} !!</h3>
             <p>Ready to manage your finances</p>
           </div>
         </div>

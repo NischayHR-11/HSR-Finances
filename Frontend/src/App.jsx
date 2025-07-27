@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Login from './components/Login';
 import Dashboard from './components/Dashboard';
 import Layout from './components/Layout';
+import apiService from './services/apiService';
 import './App.css';
 import './assets/gamified-ui.css';
 
@@ -10,6 +11,36 @@ function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [userLevel, setUserLevel] = useState(1);
   const [xpPoints, setXpPoints] = useState(0);
+  const [lenderData, setLenderData] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  // Check authentication status on app load
+  useEffect(() => {
+    const checkAuthStatus = async () => {
+      try {
+        if (apiService.isAuthenticated()) {
+          // Verify token is still valid by fetching profile
+          const response = await apiService.getProfile();
+          if (response.success) {
+            setIsAuthenticated(true);
+            setLenderData(response.data.lender);
+          } else {
+            // Token is invalid, clear storage
+            apiService.logout();
+            setIsAuthenticated(false);
+          }
+        }
+      } catch (error) {
+        console.error('Auth check failed:', error);
+        apiService.logout();
+        setIsAuthenticated(false);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkAuthStatus();
+  }, []);
 
   // Simulated XP gain for gamified UI
   useEffect(() => {
@@ -32,13 +63,40 @@ function App() {
     }
   }, [isAuthenticated, userLevel]);
 
-  const handleLogin = () => {
+  const handleLogin = (lenderData) => {
     setIsAuthenticated(true);
+    setLenderData(lenderData);
   };
 
   const handleLogout = () => {
+    apiService.logout();
     setIsAuthenticated(false);
+    setLenderData(null);
+    setUserLevel(1);
+    setXpPoints(0);
   };
+
+  // Show loading screen while checking authentication
+  if (isLoading) {
+    return (
+      <div className="App">
+        <div style={{ 
+          display: 'flex', 
+          justifyContent: 'center', 
+          alignItems: 'center', 
+          height: '100vh',
+          background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+          color: 'white',
+          fontSize: '1.2rem'
+        }}>
+          <div className="loading-spinner">
+            <div className="logo-icon" style={{ fontSize: '3rem', marginBottom: '1rem' }}>$</div>
+            <div>Loading HSR-Finances...</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <Router>
@@ -68,7 +126,12 @@ function App() {
             path="/*" 
             element={
               isAuthenticated ? 
-                <Layout onLogout={handleLogout} userLevel={userLevel} xpPoints={xpPoints} /> : 
+                <Layout 
+                  onLogout={handleLogout} 
+                  userLevel={userLevel} 
+                  xpPoints={xpPoints}
+                  lenderData={lenderData}
+                /> : 
                 <Navigate to="/login" replace />
             } 
           />
