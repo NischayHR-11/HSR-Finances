@@ -207,14 +207,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Enhanced animation data for $ symbols with increased speed
+      // Enhanced animation data for $ symbols with slightly increased speed
       mesh.userData = {
-        speedY: 0.12 + Math.random() * 0.18, // Doubled speed (was 0.06-0.16)
-        speedX: (Math.random() - 0.5) * 0.045, // Increased horizontal movement
-        rotSpeed: (Math.random() - 0.5) * 0.008, // Doubled rotation speed
+        speedY: 0.16 + Math.random() * 0.22, // Increased speed (was 0.12-0.30)
+        speedX: (Math.random() - 0.5) * 0.055, // More horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.010, // Faster rotation
         originalX: mesh.position.x,
-        oscillationSpeed: 0.02 + Math.random() * 0.035, // Faster oscillation
-        oscillationAmplitude: 2 + Math.random() * 3.5, // More movement
+        oscillationSpeed: 0.025 + Math.random() * 0.045, // Faster oscillation
+        oscillationAmplitude: 2.5 + Math.random() * 4, // More movement
         isDollarSymbol: true
       };
       
@@ -253,14 +253,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Animation data for % symbols
+      // Animation data for % symbols with slightly increased speed
       percentMesh.userData = {
-        speedY: 0.12 + Math.random() * 0.18, // Same speed as $ symbols
-        speedX: (Math.random() - 0.5) * 0.045,
-        rotSpeed: (Math.random() - 0.5) * 0.008,
+        speedY: 0.16 + Math.random() * 0.22, // Increased speed to match $ symbols
+        speedX: (Math.random() - 0.5) * 0.055,
+        rotSpeed: (Math.random() - 0.5) * 0.010,
         originalX: percentMesh.position.x,
-        oscillationSpeed: 0.02 + Math.random() * 0.035,
-        oscillationAmplitude: 2 + Math.random() * 3.5,
+        oscillationSpeed: 0.025 + Math.random() * 0.045,
+        oscillationAmplitude: 2.5 + Math.random() * 4,
         isPercentSymbol: true
       };
       
@@ -298,15 +298,15 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Increased animation speeds for other symbols
+      // Slightly increased animation speeds for other symbols
       mesh.userData = {
-        speedY: 0.14 + Math.random() * 0.20, // Increased speed
-        speedX: (Math.random() - 0.5) * 0.05, // More horizontal movement
-        rotSpeed: (Math.random() - 0.5) * 0.009, // Faster rotation
+        speedY: 0.18 + Math.random() * 0.25, // Increased speed (was 0.14-0.34)
+        speedX: (Math.random() - 0.5) * 0.06, // More horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.012, // Faster rotation
         originalX: mesh.position.x,
         // Enhanced oscillation for more dynamic movement
-        oscillationSpeed: 0.018 + Math.random() * 0.035,
-        oscillationAmplitude: 1.5 + Math.random() * 3
+        oscillationSpeed: 0.022 + Math.random() * 0.042,
+        oscillationAmplitude: 2 + Math.random() * 3.5
       };
       
       scene.add(mesh);
@@ -345,14 +345,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Increased golden coin animation speeds
+      // Slightly increased golden coin animation speeds
       coinMesh.userData = {
-        speedY: 0.08 + Math.random() * 0.12, // Doubled speed (was 0.04-0.11)
-        speedX: (Math.random() - 0.5) * 0.035, // Increased horizontal movement
-        rotSpeed: (Math.random() - 0.5) * 0.012, // Doubled rotation for more sparkle
+        speedY: 0.10 + Math.random() * 0.15, // Increased speed (was 0.08-0.20)
+        speedX: (Math.random() - 0.5) * 0.042, // More horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.015, // Faster rotation for more sparkle
         originalX: coinMesh.position.x,
-        oscillationSpeed: 0.015 + Math.random() * 0.028, // Faster oscillation
-        oscillationAmplitude: 3 + Math.random() * 4.5, // More movement
+        oscillationSpeed: 0.018 + Math.random() * 0.035, // Faster oscillation
+        oscillationAmplitude: 3.5 + Math.random() * 5, // More movement
         isGoldenCoin: true
       };
       
@@ -393,14 +393,14 @@ const ThreeBackground = () => {
         Math.random() * Math.PI * 2
       );
       
-      // Increased animation for currency notes
+      // Slightly increased animation for currency notes
       noteMesh.userData = {
-        speedY: 0.10 + Math.random() * 0.15, // Doubled speed (was 0.05-0.13)
-        speedX: (Math.random() - 0.5) * 0.04, // Doubled horizontal movement
-        rotSpeed: (Math.random() - 0.5) * 0.006, // Doubled rotation
+        speedY: 0.13 + Math.random() * 0.19, // Increased speed (was 0.10-0.25)
+        speedX: (Math.random() - 0.5) * 0.048, // More horizontal movement
+        rotSpeed: (Math.random() - 0.5) * 0.008, // Faster rotation
         originalX: noteMesh.position.x,
-        oscillationSpeed: 0.015 + Math.random() * 0.028, // Faster oscillation
-        oscillationAmplitude: 2.5 + Math.random() * 4, // More movement
+        oscillationSpeed: 0.018 + Math.random() * 0.035, // Faster oscillation
+        oscillationAmplitude: 3 + Math.random() * 4.5, // More movement
         isCurrencyNote: true // Flag to identify currency notes
       };
       
