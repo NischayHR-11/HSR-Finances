@@ -1,4 +1,4 @@
-import { Routes, Route, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import Sidebar from './Sidebar';
 import Dashboard from './Dashboard';
@@ -7,7 +7,7 @@ import Notifications from './Notifications';
 import Settings from './Settings';
 import './Layout.css';
 
-const Layout = ({ onLogout, userLevel, xpPoints }) => {
+const Layout = ({ onLogout, userLevel, xpPoints, lenderData }) => {
   const location = useLocation();
   const [showLevelUp, setShowLevelUp] = useState(false);
   
@@ -22,6 +22,22 @@ const Layout = ({ onLogout, userLevel, xpPoints }) => {
       setTimeout(() => setShowLevelUp(false), 3000);
     }
   }, [userLevel, xpPoints]);
+
+  // Render the appropriate component based on current path
+  const renderCurrentComponent = () => {
+    switch (location.pathname) {
+      case '/dashboard':
+        return <Dashboard userLevel={userLevel} lenderData={lenderData} />;
+      case '/borrowers':
+        return <Borrowers userLevel={userLevel} lenderData={lenderData} />;
+      case '/notifications':
+        return <Notifications userLevel={userLevel} lenderData={lenderData} />;
+      case '/settings':
+        return <Settings userLevel={userLevel} lenderData={lenderData} />;
+      default:
+        return <Dashboard userLevel={userLevel} lenderData={lenderData} />;
+    }
+  };
 
   return (
     <div className="layout">
@@ -43,12 +59,8 @@ const Layout = ({ onLogout, userLevel, xpPoints }) => {
           </div>
         )}
         
-        <Routes>
-          <Route path="/dashboard" element={<Dashboard userLevel={userLevel} />} />
-          <Route path="/borrowers" element={<Borrowers userLevel={userLevel} />} />
-          <Route path="/notifications" element={<Notifications userLevel={userLevel} />} />
-          <Route path="/settings" element={<Settings userLevel={userLevel} />} />
-        </Routes>
+        {/* Render current component */}
+        {renderCurrentComponent()}
       </main>
     </div>
   );

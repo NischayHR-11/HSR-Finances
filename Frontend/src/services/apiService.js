@@ -139,8 +139,28 @@ class ApiService {
 
   logout() {
     this.token = null;
+    
+    // Clear all authentication data from localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('lenderData');
+    localStorage.removeItem('userData');
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('refreshToken');
+    localStorage.removeItem('user');
+    localStorage.removeItem('token');
+    localStorage.removeItem('jwt');
+    localStorage.removeItem('hasSeenWelcome');
+    
+    // Clear all authentication data from sessionStorage
+    sessionStorage.removeItem('authToken');
+    sessionStorage.removeItem('userData');
+    sessionStorage.removeItem('accessToken');
+    sessionStorage.removeItem('refreshToken');
+    sessionStorage.removeItem('user');
+    sessionStorage.removeItem('token');
+    sessionStorage.removeItem('jwt');
+    
+    console.log('User logged out successfully - All tokens cleared from web storage');
   }
 
   // Lender Methods

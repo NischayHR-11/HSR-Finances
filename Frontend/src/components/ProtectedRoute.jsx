@@ -6,8 +6,8 @@ const ProtectedRoute = ({ children }) => {
   const location = useLocation();
   
   if (!apiService.isAuthenticated()) {
-    // Redirect to login page with return url
-    return <Navigate to="/login" state={{ from: location }} replace />;
+    // Redirect to root (authentication) page with return url
+    return <Navigate to="/" state={{ from: location }} replace />;
   }
 
   return children;

@@ -11,8 +11,8 @@ const withAuth = (WrappedComponent) => {
       const checkAuth = async () => {
         try {
           if (!apiService.isAuthenticated()) {
-            // No token found, redirect to login
-            navigate('/login', { replace: true });
+            // No token found, redirect to authentication page (root)
+            navigate('/', { replace: true });
             return;
           }
 
@@ -20,9 +20,9 @@ const withAuth = (WrappedComponent) => {
           await apiService.getProfile();
         } catch (error) {
           console.error('Authentication check failed:', error);
-          // Token is invalid, logout and redirect
+          // Token is invalid, logout and redirect to authentication page (root)
           apiService.logout();
-          navigate('/login', { replace: true });
+          navigate('/', { replace: true });
         }
       };
 

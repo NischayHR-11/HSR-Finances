@@ -131,16 +131,25 @@ function App() {
         </div>
         
         <Routes>
+          {/* Root route - Authentication page */}
           <Route 
-            path="/login" 
+            path="/" 
             element={
               isAuthenticated ? 
                 <Navigate to="/dashboard" replace /> : 
                 <Login onLogin={handleLogin} />
             } 
           />
+          
+          {/* Login route - redirect to root for consistency */}
           <Route 
-            path="/*" 
+            path="/login" 
+            element={<Navigate to="/" replace />}
+          />
+          
+          {/* Protected routes */}
+          <Route 
+            path="/dashboard" 
             element={
               isAuthenticated ? 
                 <Layout 
@@ -149,10 +158,51 @@ function App() {
                   xpPoints={xpPoints}
                   lenderData={lenderData}
                 /> : 
-                <Navigate to="/login" replace />
+                <Navigate to="/" replace />
             } 
           />
-          <Route path="/" element={<Navigate to="/dashboard" replace />} />
+          <Route 
+            path="/borrowers" 
+            element={
+              isAuthenticated ? 
+                <Layout 
+                  onLogout={handleLogout} 
+                  userLevel={userLevel} 
+                  xpPoints={xpPoints}
+                  lenderData={lenderData}
+                /> : 
+                <Navigate to="/" replace />
+            } 
+          />
+          <Route 
+            path="/settings" 
+            element={
+              isAuthenticated ? 
+                <Layout 
+                  onLogout={handleLogout} 
+                  userLevel={userLevel} 
+                  xpPoints={xpPoints}
+                  lenderData={lenderData}
+                /> : 
+                <Navigate to="/" replace />
+            } 
+          />
+          <Route 
+            path="/notifications" 
+            element={
+              isAuthenticated ? 
+                <Layout 
+                  onLogout={handleLogout} 
+                  userLevel={userLevel} 
+                  xpPoints={xpPoints}
+                  lenderData={lenderData}
+                /> : 
+                <Navigate to="/" replace />
+            } 
+          />
+          
+          {/* Catch all route - redirect to root */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </div>
     </Router>

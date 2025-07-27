@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
+import apiService from '../services/apiService';
 import './MobileNavigation.css';
 
 const MobileNavigation = ({ userLevel = 1, lenderData }) => {
@@ -8,32 +9,16 @@ const MobileNavigation = ({ userLevel = 1, lenderData }) => {
   const location = useLocation();
 
   const handleLogout = () => {
-    // Clear all authentication data from localStorage
-    localStorage.removeItem('hasSeenWelcome');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userData');
-    localStorage.removeItem('accessToken');
-    localStorage.removeItem('refreshToken');
-    localStorage.removeItem('user');
-    localStorage.removeItem('token');
-    localStorage.removeItem('jwt');
-    
-    // Clear all authentication data from sessionStorage
-    sessionStorage.removeItem('authToken');
-    sessionStorage.removeItem('userData');
-    sessionStorage.removeItem('accessToken');
-    sessionStorage.removeItem('refreshToken');
-    sessionStorage.removeItem('user');
-    sessionStorage.removeItem('token');
-    sessionStorage.removeItem('jwt');
+    // Use centralized logout method
+    apiService.logout();
     
     // Close mobile menu
     setIsMobileMenuOpen(false);
     
-    // Navigate to home page
+    // Navigate to authentication page (root)
     navigate('/');
     
-    console.log('User logged out successfully - All tokens cleared from web storage');
+    console.log('User logged out successfully');
   };
 
   const handleNotificationClick = (e) => {
