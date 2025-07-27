@@ -57,21 +57,26 @@ const ThreeBackground = () => {
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         
-        // Enhanced golden glow for $ symbols
+        // Maximum golden glow for $ symbols
         context.shadowColor = color;
-        context.shadowBlur = 40;
+        context.shadowBlur = 60; // Increased from 40
         context.shadowOffsetX = 0;
         context.shadowOffsetY = 0;
         
-        // Draw with multiple glow layers for extra prominence
+        // Draw with multiple intense glow layers for maximum prominence
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 50;
+        context.shadowBlur = 80; // Increased from 50
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 25;
+        context.shadowBlur = 40; // Increased from 25
+        context.fillText(text, 128, 128);
+        
+        // Add extra bright layer
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 20;
         context.fillText(text, 128, 128);
       } else if (isGoldenCoin) {
         // Special styling for golden coins
@@ -93,34 +98,39 @@ const ThreeBackground = () => {
         context.shadowBlur = 45;
         context.fillText(text, 128, 128);
       } else if (isCurrencyNote) {
-        // Special styling for currency notes
+        // Enhanced styling for currency notes
         context.fillStyle = color;
-        context.font = 'bold 120px Arial';
+        context.font = 'bold 130px Arial'; // Larger font
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         
-        // Add enhanced green glow effect for currency notes
+        // Maximum green glow effect for currency notes
         context.shadowColor = color;
-        context.shadowBlur = 35;
+        context.shadowBlur = 55; // Increased from 35
         context.shadowOffsetX = 0;
         context.shadowOffsetY = 0;
         
-        // Draw with multiple glow layers
+        // Draw with multiple intense glow layers
         context.fillText(text, 128, 128);
         
         context.globalCompositeOperation = 'screen';
-        context.shadowBlur = 45;
+        context.shadowBlur = 70; // Increased from 45
+        context.fillText(text, 128, 128);
+        
+        // Add extra bright layer for currency notes
+        context.globalCompositeOperation = 'screen';
+        context.shadowBlur = 30;
         context.fillText(text, 128, 128);
       } else {
-        // Regular styling for other symbols
+        // Subtle styling for background elements
         context.fillStyle = color;
-        context.font = 'bold 150px Arial';
+        context.font = 'bold 120px Arial'; // Smaller font
         context.textAlign = 'center';
         context.textBaseline = 'middle';
         
-        // Add glow effect
+        // Minimal glow for background effect
         context.shadowColor = color;
-        context.shadowBlur = 30;
+        context.shadowBlur = 15; // Reduced from 30
         context.fillText(text, 128, 128);
       }
       
@@ -162,21 +172,21 @@ const ThreeBackground = () => {
       const goldenColor = goldenColors[Math.floor(Math.random() * goldenColors.length)];
       const texture = createTextTexture('$', goldenColor);
       
-      const geometry = new THREE.PlaneGeometry(5, 5); // Larger size for $ symbols
+      const geometry = new THREE.PlaneGeometry(6, 6); // Even larger size for maximum visibility
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.8, // More opaque for prominence
+        opacity: 0.95, // Very high opacity for maximum prominence
         side: THREE.DoubleSide
       });
       
       const mesh = new THREE.Mesh(geometry, material);
       
-      // Position $ symbols
+      // Position $ symbols across full screen width
       mesh.position.set(
-        (Math.random() - 0.5) * 120,
-        Math.random() * 120 - 60,
-        (Math.random() - 0.5) * 60
+        (Math.random() - 0.5) * 200, // Much wider spread across full screen
+        Math.random() * 160 - 80,    // Taller height range
+        (Math.random() - 0.5) * 100  // Greater depth for layering
       );
       
       // Random rotation
@@ -207,21 +217,21 @@ const ThreeBackground = () => {
       const color = colors[Math.floor(Math.random() * colors.length)];
       const texture = createTextTexture(symbol, color);
       
-      const geometry = new THREE.PlaneGeometry(4, 4); // Slightly smaller
+      const geometry = new THREE.PlaneGeometry(3, 3); // Much smaller for background effect
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.6, // More transparent for subtle effect
+        opacity: 0.25, // Much more transparent for background effect
         side: THREE.DoubleSide
       });
       
       const mesh = new THREE.Mesh(geometry, material);
       
-      // More spread out positioning
+      // Full screen spread positioning for other symbols
       mesh.position.set(
-        (Math.random() - 0.5) * 120, // Wider spread
-        Math.random() * 120 - 60,    // Full height range
-        (Math.random() - 0.5) * 60   // More depth
+        (Math.random() - 0.5) * 180, // Much wider spread
+        Math.random() * 150 - 75,    // Taller height range
+        (Math.random() - 0.5) * 90   // Greater depth
       );
       
       // Random rotation
@@ -254,21 +264,21 @@ const ThreeBackground = () => {
       const goldenColor = goldenColors[Math.floor(Math.random() * goldenColors.length)];
       const texture = createTextTexture(coin, goldenColor);
       
-      const geometry = new THREE.PlaneGeometry(5.5, 5.5); // Larger size for coins
+      const geometry = new THREE.PlaneGeometry(4, 4); // Smaller size for background effect
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.85, // High opacity for golden prominence
+        opacity: 0.35, // Much lower opacity for background effect
         side: THREE.DoubleSide
       });
       
       const coinMesh = new THREE.Mesh(geometry, material);
       
-      // Position golden coins
+      // Position golden coins across full screen
       coinMesh.position.set(
-        (Math.random() - 0.5) * 110,
-        Math.random() * 120 - 60,
-        (Math.random() - 0.5) * 55
+        (Math.random() - 0.5) * 190, // Wider spread for coins
+        Math.random() * 150 - 75,    // Taller range
+        (Math.random() - 0.5) * 95   // Greater depth
       );
       
       // Random rotation
@@ -302,21 +312,21 @@ const ThreeBackground = () => {
       const greenColor = greenShades[Math.floor(Math.random() * greenShades.length)];
       const texture = createTextTexture(note, greenColor);
       
-      const geometry = new THREE.PlaneGeometry(6, 6); // Larger size for currency notes
+      const geometry = new THREE.PlaneGeometry(7, 7); // Even larger size for maximum visibility
       const material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
-        opacity: 0.7, // Slightly more opaque for prominence
+        opacity: 0.9, // Very high opacity for prominence
         side: THREE.DoubleSide
       });
       
       const noteMesh = new THREE.Mesh(geometry, material);
       
-      // Position currency notes
+      // Position currency notes across full screen
       noteMesh.position.set(
-        (Math.random() - 0.5) * 100,
-        Math.random() * 120 - 60,
-        (Math.random() - 0.5) * 50
+        (Math.random() - 0.5) * 170, // Wider spread for notes
+        Math.random() * 140 - 70,    // Taller range
+        (Math.random() - 0.5) * 85   // Greater depth
       );
       
       // Random rotation
@@ -344,8 +354,8 @@ const ThreeBackground = () => {
     particlesRef.current = particles;
     console.log(`ThreeBackground: Created ${particles.length} floating symbols (including currency notes)`);
 
-    // Set camera position
-    camera.position.z = 30;
+    // Set camera position for wider view
+    camera.position.z = 40; // Moved back to see wider spread
 
     // Animation loop with smooth, slow movements
     const animate = () => {
@@ -368,11 +378,11 @@ const ThreeBackground = () => {
         particle.rotation.x += particle.userData.rotSpeed * 0.3;
         particle.rotation.z += particle.userData.rotSpeed * 0.7;
         
-        // Reset when out of bounds with smooth transition
-        if (particle.position.y > 60) {
-          particle.position.y = -60;
-          // Keep original X position for consistent oscillation
-          particle.userData.originalX = (Math.random() - 0.5) * 80;
+        // Reset when out of bounds with wider boundaries
+        if (particle.position.y > 80) { // Increased from 60 to 80
+          particle.position.y = -80; // Increased from -60 to -80
+          // Keep original X position for consistent oscillation with wider range
+          particle.userData.originalX = (Math.random() - 0.5) * 200; // Much wider range
         }
       });
       
