@@ -383,25 +383,33 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                   </div>
 
                   <div className="borrower-details">
-                    <div className="detail-row">
-                      <div className="detail-group">
-                        <span className="detail-label">Loan Amount</span>
-                        <span className="detail-value">{formatCurrency(borrower.amount)}</span>
+                    <div className="detail-row loan-interest-row">
+                      <div className="loan-interest-left">
+                        <div className="detail-group">
+                          <span className="detail-label">Loan Amount</span>
+                          <span className="detail-value">{formatCurrency(borrower.amount)}</span>
+                        </div>
+                        <div className="detail-group">
+                          <span className="detail-label">Interest Rate</span>
+                          <span className="detail-value">{formatPercentage(borrower.interestRate)}</span>
+                        </div>
                       </div>
-                      <div className="detail-group">
-                        <span className="detail-label">Interest Rate</span>
-                        <span className="detail-value">{formatPercentage(borrower.interestRate)}</span>
+                      <div className="loan-interest-right">
+                        <div className="detail-group">
+                          <span className="detail-label">Monthly Interest</span>
+                          <span className="detail-value green">{formatCurrency(borrower.monthlyInterest)}</span>
+                        </div>
+                        <div className="detail-group">
+                          <span className="detail-label">Total Earned</span>
+                          <span className="detail-value green">{formatCurrency(totalEarned)}</span>
+                        </div>
                       </div>
                     </div>
 
-                    <div className="detail-row">
+                    <div className="address-row">
                       <div className="detail-group">
-                        <span className="detail-label">Monthly Interest</span>
-                        <span className="detail-value green">{formatCurrency(borrower.monthlyInterest)}</span>
-                      </div>
-                      <div className="detail-group">
-                        <span className="detail-label">Total Earned</span>
-                        <span className="detail-value green">{formatCurrency(totalEarned)}</span>
+                        <span className="detail-label">Address</span>
+                        <span className="detail-value">{borrower.address || 'Not provided'}</span>
                       </div>
                     </div>
 

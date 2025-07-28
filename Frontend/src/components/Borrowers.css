@@ -507,6 +507,32 @@
     gap: 12px;
   }
 
+  /* Mobile layout for loan and interest section */
+  .loan-interest-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 16px;
+  }
+
+  .loan-interest-left,
+  .loan-interest-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .address-row {
+    margin-bottom: 16px;
+  }
+
+  .address-row .detail-value {
+    font-size: 13px;
+    line-height: 1.4;
+    word-break: break-word;
+  }
+
   .next-due {
     flex-direction: column;
     align-items: flex-start;
@@ -898,6 +924,32 @@
 
   .detail-label {
     font-size: 12px;
+  }
+
+  /* Mobile layout for loan and interest section */
+  .loan-interest-row {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  .loan-interest-left,
+  .loan-interest-right {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .address-row {
+    margin-bottom: 12px;
+  }
+
+  .address-row .detail-value {
+    font-size: 12px;
+    line-height: 1.3;
+    word-break: break-word;
   }
 
   .progress-label,
