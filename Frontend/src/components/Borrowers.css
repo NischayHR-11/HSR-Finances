@@ -389,15 +389,11 @@
   .borrowers-grid {
     grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
   }
-
-  .borrowers {
-    padding-top: 80px; /* Account for fixed mobile header */
-  }
 }
 
 @media (max-width: 768px) {
   .borrowers {
-    padding: 80px 16px 16px 16px; /* Top padding for mobile header */
+    padding: 70px 16px 16px 16px; /* Top padding for mobile nav bar */
   }
   
   .borrowers-header {
@@ -834,7 +830,7 @@
 /* Extra small mobile devices */
 @media (max-width: 480px) {
   .borrowers {
-    padding: 80px 12px 12px 12px;
+    padding: 70px 12px 12px 12px; /* Top padding for mobile nav bar */
   }
 
   .borrowers-header {

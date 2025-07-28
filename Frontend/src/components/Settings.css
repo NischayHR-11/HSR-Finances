@@ -288,15 +288,11 @@ input:checked + .slider:before {
     white-space: nowrap;
     min-width: fit-content;
   }
-
-  .settings {
-    padding-top: 80px; /* Account for fixed mobile header */
-  }
 }
 
 @media (max-width: 768px) {
   .settings {
-    padding: 80px 16px 16px 16px; /* Top padding for mobile header */
+    padding: 70px 16px 16px 16px; /* Top padding for mobile nav bar */
   }
 
   .settings-header {
@@ -356,5 +352,12 @@ input:checked + .slider:before {
   .tab-button {
     padding: 10px 12px;
     font-size: 13px;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .settings {
+    padding: 70px 12px 12px 12px; /* Top padding for mobile nav bar */
   }
 }

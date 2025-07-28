@@ -421,9 +421,4 @@
   .mobile-header {
     display: flex;
   }
-  
-  /* Add top padding to page content to account for fixed mobile header */
-  .page-content {
-    padding-top: 80px;
-  }
 }

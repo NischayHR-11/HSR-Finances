@@ -686,15 +686,11 @@
   .stats-grid {
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
   }
-
-  .dashboard {
-    padding-top: 80px; /* Account for fixed mobile header */
-  }
 }
 
 @media (max-width: 768px) {
   .dashboard {
-    padding: 80px 16px 16px 16px; /* Top padding for mobile header */
+    padding: 70px 16px 16px 16px; /* Top padding for mobile nav bar */
   }
   
   .dashboard-header {
