@@ -10,6 +10,16 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
+
+  // Generate user initials from name
+  const getUserInitials = (name) => {
+    if (!name) return 'JD';
+    const words = name.trim().split(' ');
+    if (words.length === 1) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
   const [windowWidth, setWindowWidth] = useState(() => {
     if (typeof window !== 'undefined') {
       return Math.max(window.innerWidth, 320); // Ensure minimum width
@@ -107,6 +117,27 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       currency: 'USD',
       minimumFractionDigits: 0
     }).format(amount || 0);
+  };
+
+  // Handle copy phone number
+  const handleCopyPhone = async (e, phoneNumber) => {
+    e.stopPropagation();
+    if (!phoneNumber) return;
+    
+    try {
+      await navigator.clipboard.writeText(phoneNumber);
+      // Could add a toast notification here
+      console.log('Phone number copied:', phoneNumber);
+    } catch (err) {
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = phoneNumber;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      console.log('Phone number copied (fallback):', phoneNumber);
+    }
   };
 
   // Generate stats from real data
@@ -287,8 +318,8 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
             </button>
             
             <div className="navbar-item profile-section">
-              <div className="user-avatar desktop-avatar">JD</div>
-              <span className="profile-name">John Doe</span>
+              <div className="user-avatar desktop-avatar">{getUserInitials(lenderData?.name)}</div>
+              <span className="profile-name">{lenderData?.name || 'John Doe'}</span>
             </div>
           </div>
         </div>
@@ -389,29 +420,59 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
                     <div className="borrower-info">
                       <div className="borrower-header">
                         <div className="borrower-avatar-container">
-                          <div className="borrower-avatar">{borrower.avatar || borrower.name?.charAt(0) || 'B'}</div>
+                          <div className="borrower-avatar">{borrower.avatar || getUserInitials(borrower.name)}</div>
                           <div className="borrower-level">Top {index + 1}</div>
                         </div>
-                        <div>
+                        <div className="borrower-main-info">
                           <h3>{borrower.name}</h3>
                           <span className={`status-badge status-${borrower.status}`}>
                             {borrower.status}
                           </span>
                         </div>
                       </div>
-                      <div className="borrower-amount">
-                        {formatCurrency(borrower.amount)} @ {borrower.interestRate}%
+                      
+                      <div className="borrower-compact-details">
+                        <div className="detail-item">
+                          <span className="detail-label">Loan</span>
+                          <span className="detail-value">{formatCurrency(borrower.amount)} @ {borrower.interestRate}%</span>
+                        </div>
+                        
+                        <div className="detail-item">
+                          <span className="detail-label">Total Earned</span>
+                          <span className="detail-value amount-green">
+                            {formatCurrency(
+                              borrower.totalEarned || 
+                              borrower.monthlyInterest || 
+                              ((borrower.amount || 0) * (borrower.interestRate || 0) / 100) ||
+                              0
+                            )}
+                          </span>
+                        </div>
+                        
+                        <div className="detail-item">
+                          <span className="detail-label">Phone</span>
+                          <div className="phone-with-copy">
+                            <span className="phone-number">{borrower.phone || 'N/A'}</span>
+                            {borrower.phone && (
+                              <button 
+                                className="copy-phone-btn-dash"
+                                onClick={(e) => handleCopyPhone(e, borrower.phone)}
+                                title="Copy phone number"
+                              >
+                                <svg className="copy-icon-dash" viewBox="0 0 24 24" fill="currentColor">
+                                  <path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/>
+                                </svg>
+                              </button>
+                            )}
+                          </div>
+                        </div>
+                        
+                        <div className="detail-item">
+                          <span className="detail-label">Due</span>
+                          <span className="detail-value">{formatDate(borrower.dueDate)}</span>
+                        </div>
                       </div>
-                      <div className="borrower-due">Due: {formatDate(borrower.dueDate)}</div>
-                      <div className="borrower-streak">
-                        <span className="streak-icon">🔥</span> {borrower.streak || 0} day streak
-                      </div>
-                    </div>
-                    
-                    <div className="borrower-details">
-                      <div className="monthly-interest">
-                        Monthly Interest: <span className="amount-green">{formatCurrency(borrower.monthlyInterest)}</span>
-                      </div>
+                      
                       <div className="progress-section">
                         <div className="progress-bar">
                           <div 

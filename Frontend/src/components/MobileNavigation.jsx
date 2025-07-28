@@ -8,6 +8,16 @@ const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
+  // Generate user initials from name
+  const getUserInitials = (name) => {
+    if (!name) return 'JD';
+    const words = name.trim().split(' ');
+    if (words.length === 1) {
+      return words[0].substring(0, 2).toUpperCase();
+    }
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  };
+
   const handleLogout = () => {
     // Close mobile menu first
     setIsMobileMenuOpen(false);
@@ -54,7 +64,7 @@ const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
             <span className="notification-badge">3</span>
           </button>
           <div className="user-avatar mobile-avatar">
-            {lenderData?.initials || 'JD'}
+            {getUserInitials(lenderData?.name)}
           </div>
         </div>
       </div>

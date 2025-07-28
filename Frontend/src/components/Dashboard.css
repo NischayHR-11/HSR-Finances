@@ -555,14 +555,122 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
+  margin-bottom: 16px;
 }
 
-.borrower-header h3 {
+.borrower-avatar-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.borrower-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 14px;
+  color: #000;
+  box-shadow: 0 0 10px rgba(78, 234, 255, 0.3);
+  transition: all 0.3s ease;
+}
+
+.borrower-avatar:hover {
+  transform: scale(1.05);
+  box-shadow: 0 0 15px rgba(78, 234, 255, 0.5);
+}
+
+.borrower-level {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+.borrower-main-info {
+  flex: 1;
+  margin-left: 12px;
+}
+
+.borrower-main-info h3 {
   font-size: 18px;
   font-weight: 600;
   color: var(--text-primary);
-  margin: 0;
+  margin: 0 0 4px 0;
+}
+
+.borrower-compact-details {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px 16px;
+  margin-bottom: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.detail-label {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-weight: 500;
+}
+
+.phone-with-copy {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.phone-number {
+  font-size: 13px;
+  color: var(--text-primary);
+  font-family: monospace;
+  font-weight: 500;
+}
+
+.copy-phone-btn-dash {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--accent-green);
+  border: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+  padding: 0;
+}
+
+.copy-phone-btn-dash:hover {
+  background: rgba(34, 197, 94, 0.2);
+  opacity: 1;
+  transform: scale(1.1);
+}
+
+.copy-phone-btn-dash:active {
+  transform: scale(0.95);
+}
+
+.copy-icon-dash {
+  width: 10px;
+  height: 10px;
 }
 
 .status-badge {
@@ -743,13 +851,70 @@
   }
 
   .borrower-card {
-    padding: 20px;
+    padding: 16px;
   }
 
   .borrower-header {
-    flex-direction: column;
-    align-items: flex-start;
+    flex-direction: row;
+    align-items: center;
     gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  .borrower-avatar {
+    width: 32px;
+    height: 32px;
+    font-size: 12px;
+  }
+
+  .borrower-level {
+    font-size: 9px;
+  }
+
+  .borrower-main-info h3 {
+    font-size: 16px;
+  }
+
+  .borrower-compact-details {
+    grid-template-columns: 1fr;
+    gap: 6px;
+    margin-bottom: 12px;
+  }
+
+  .detail-item {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .detail-label {
+    font-size: 10px;
+    min-width: 60px;
+  }
+
+  .detail-value {
+    font-size: 12px;
+    text-align: right;
+  }
+
+  .phone-with-copy {
+    gap: 4px;
+  }
+
+  .phone-number {
+    font-size: 12px;
+  }
+
+  .copy-phone-btn-dash {
+    width: 18px;
+    height: 18px;
+  }
+
+  .copy-icon-dash {
+    width: 8px;
+    height: 8px;
   }
 
   .progress-section {
