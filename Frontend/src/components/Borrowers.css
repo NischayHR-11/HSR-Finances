@@ -345,6 +345,15 @@
   color: var(--text-primary);
 }
 
+.progress-streak {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
 .progress-bar {
   height: 8px;
   background-color: var(--bg-input);

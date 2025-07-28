@@ -103,8 +103,12 @@
   gap: 12px;
 }
 
-.notification-btn {
+.notification-container {
   position: relative;
+  display: inline-block;
+}
+
+.notification-btn {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -132,8 +136,8 @@
 
 .notification-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -8px;
+  right: -8px;
   background-color: var(--accent-danger);
   color: white;
   font-size: 12px;
@@ -147,6 +151,8 @@
   justify-content: center;
   box-shadow: 0 0 8px rgba(255, 34, 34, 0.5);
   animation: pulse 2s infinite;
+  z-index: 103;
+  pointer-events: none;
 }
 
 .mobile-avatar {

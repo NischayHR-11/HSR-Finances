@@ -19,7 +19,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   });
   const [formData, setFormData] = useState({
     name: '',
-    email: '',
+    monthsPaid: '',
     phone: '',
     address: '',
     amount: '',
@@ -49,8 +49,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
         apiParams.status = filterStatus.toLowerCase();
       }
       
-      // Add search term if present
-      if (searchTerm.trim()) {
+      // Add search term if present (only send to backend for basic filtering)
+      // Client-side filtering will handle the detailed search
+      if (searchTerm.trim() && searchTerm.trim().length > 2) {
         apiParams.search = searchTerm.trim();
       }
 
@@ -86,7 +87,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   useEffect(() => {
     const debounceTimer = setTimeout(() => {
       fetchBorrowers();
-    }, 300); // Debounce search
+    }, searchTerm.trim() ? 500 : 100); // Longer debounce for search, shorter for filters
 
     return () => clearTimeout(debounceTimer);
   }, [filterStatus, searchTerm]);
@@ -105,7 +106,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     // Reset form data
     setFormData({
       name: '',
-      email: '',
+      monthsPaid: '',
       phone: '',
       address: '',
       amount: '',
@@ -118,7 +119,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     setShowAddBorrowerModal(false);
     setFormData({
       name: '',
-      email: '',
+      monthsPaid: '',
       phone: '',
       address: '',
       amount: '',
@@ -137,6 +138,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
         ...formData,
         amount: parseFloat(formData.amount),
         interestRate: parseFloat(formData.interestRate),
+        monthsPaid: parseInt(formData.monthsPaid) || 0,
         dueDate: new Date(formData.dueDate).toISOString()
       };
 
@@ -266,6 +268,24 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     }
   };
 
+  // Client-side filtering for additional search functionality
+  const filteredBorrowers = borrowers.filter(borrower => {
+    if (!searchTerm.trim()) return true;
+    
+    const searchLower = searchTerm.toLowerCase().trim();
+    
+    // Search in multiple fields
+    const searchableFields = [
+      borrower.name,
+      borrower.phone,
+      borrower.address
+    ].filter(Boolean); // Remove null/undefined values
+    
+    return searchableFields.some(field => 
+      field.toLowerCase().includes(searchLower)
+    );
+  });
+
   return (
     <div className="borrowers">
       <MobileNavigation userLevel={userLevel} lenderData={lenderData} onLogout={onLogout} />
@@ -325,7 +345,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                 </button>
               </div>
             </div>
-          ) : borrowers.length === 0 ? (
+          ) : filteredBorrowers.length === 0 ? (
             // Empty state
             <div className="empty-container">
               <div className="empty-message">
@@ -346,7 +366,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
             </div>
           ) : (
             // Borrowers list
-            borrowers.map((borrower) => {
+            filteredBorrowers.map((borrower) => {
               const totalEarned = calculateTotalEarned(borrower.amount, borrower.interestRate, borrower.progress);
               return (
                 <div key={borrower._id} className="borrower-card">
@@ -423,13 +443,13 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
 
                     <div className="progress-section">
                       <div className="progress-header">
-                        <span className="progress-label">Progress</span>
-                        <span className="progress-percentage">{borrower.progress}%</span>
+                        <span className="progress-label">{borrower.monthsPaid || 0} / 12 months</span>
+                        <span className="progress-streak">🔥 {borrower.monthsPaid || 0}</span>
                       </div>
                       <div className="progress-bar">
                         <div 
                           className="progress-fill" 
-                          style={{ width: `${borrower.progress}%` }}
+                          style={{ width: `${Math.min(((borrower.monthsPaid || 0) / 12) * 100, 100)}%` }}
                         ></div>
                       </div>
                     </div>
@@ -473,15 +493,15 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                 </div>
 
                 <div className="form-group">
-                  <label htmlFor="email">Email *</label>
+                  <label htmlFor="monthsPaid">Months Paid</label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                    type="number"
+                    id="monthsPaid"
+                    name="monthsPaid"
+                    value={formData.monthsPaid}
                     onChange={handleInputChange}
-                    placeholder="john.smith@example.com"
-                    required
+                    placeholder="0"
+                    min="0"
                   />
                 </div>
 

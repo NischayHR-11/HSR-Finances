@@ -95,8 +95,12 @@
   position: relative;
 }
 
-.notification-btn {
+.notification-container {
   position: relative;
+  display: inline-block;
+}
+
+.notification-btn {
   z-index: 100;
   padding: 10px 14px;
   border-radius: 10px;
@@ -134,8 +138,8 @@
 
 .notification-badge {
   position: absolute;
-  top: -4px;
-  right: -4px;
+  top: -8px;
+  right: -8px;
   background: linear-gradient(135deg, var(--accent-danger), #ff4444);
   color: white;
   font-size: 10px;
@@ -148,7 +152,7 @@
   animation: pulseNotification 2s infinite;
   border: 1px solid rgba(255, 255, 255, 0.3);
   pointer-events: none;
-  z-index: 102;
+  z-index: 103;
 }
 
 @keyframes pulseNotification {
@@ -716,12 +720,33 @@
 
 .progress-section {
   display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
   align-items: center;
-  gap: 12px;
+}
+
+.progress-label {
+  font-size: 12px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  font-weight: 500;
+}
+
+.progress-streak {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--accent-green);
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .progress-bar {
-  flex: 1;
   height: 8px;
   background-color: var(--bg-input);
   border-radius: 4px;
@@ -919,11 +944,17 @@
 
   .progress-section {
     flex-direction: column;
-    gap: 8px;
+    gap: 6px;
   }
 
-  .progress-text {
-    align-self: flex-end;
+  .progress-header {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .progress-label,
+  .progress-streak {
+    font-size: 12px;
   }
 
   .achievement-card {
