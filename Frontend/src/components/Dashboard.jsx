@@ -30,6 +30,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
   const [topBorrowers, setTopBorrowers] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCopyPopup, setShowCopyPopup] = useState(false);
   const navigate = useNavigate();
 
   // Fetch dashboard data from API
@@ -126,7 +127,9 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
     
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      // Could add a toast notification here
+      // Show copy popup
+      setShowCopyPopup(true);
+      setTimeout(() => setShowCopyPopup(false), 2000); // Hide after 2 seconds
       console.log('Phone number copied:', phoneNumber);
     } catch (err) {
       // Fallback for older browsers
@@ -136,6 +139,9 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
+      // Show copy popup for fallback too
+      setShowCopyPopup(true);
+      setTimeout(() => setShowCopyPopup(false), 2000);
       console.log('Phone number copied (fallback):', phoneNumber);
     }
   };
@@ -740,6 +746,16 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
             </div>
             <h3>Welcome {lenderData?.name || 'User'} !!</h3>
             <p>Ready to manage your finances</p>
+          </div>
+        </div>
+      )}
+      
+      {/* Copy Success Popup */}
+      {showCopyPopup && (
+        <div className="copy-popup">
+          <div className="copy-popup-content">
+            <span className="copy-popup-icon">✓</span>
+            <span className="copy-popup-text">Copied!</span>
           </div>
         </div>
       )}

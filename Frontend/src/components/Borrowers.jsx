@@ -26,6 +26,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     interestRate: '',
     dueDate: ''
   });
+  
+  // Copy popup state
+  const [showCopyPopup, setShowCopyPopup] = useState(false);
 
   const filterOptions = ['All', 'current', 'due', 'overdue'];
 
@@ -158,7 +161,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const handleCopyPhone = async (phoneNumber) => {
     try {
       await navigator.clipboard.writeText(phoneNumber);
-      // You could add a toast notification here
+      // Show copy popup
+      setShowCopyPopup(true);
+      setTimeout(() => setShowCopyPopup(false), 2000); // Hide after 2 seconds
       console.log('📋 Phone number copied to clipboard');
     } catch (error) {
       console.error('❌ Failed to copy phone number:', error);
@@ -169,6 +174,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
       textArea.select();
       document.execCommand('copy');
       document.body.removeChild(textArea);
+      // Show copy popup for fallback too
+      setShowCopyPopup(true);
+      setTimeout(() => setShowCopyPopup(false), 2000);
     }
   };
 
@@ -555,6 +563,16 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                 </button>
               </div>
             </form>
+          </div>
+        </div>
+      )}
+      
+      {/* Copy Success Popup */}
+      {showCopyPopup && (
+        <div className="copy-popup">
+          <div className="copy-popup-content">
+            <span className="copy-popup-icon">✓</span>
+            <span className="copy-popup-text">Copied!</span>
           </div>
         </div>
       )}
