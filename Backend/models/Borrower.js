@@ -12,11 +12,11 @@ const borrowerSchema = new mongoose.Schema({
     required: true,
     trim: true
   },
-  email: {
-    type: String,
+  monthsPaid: {
+    type: Number,
     required: true,
-    lowercase: true,
-    trim: true
+    default: 0,
+    min: 0
   },
   phone: {
     type: String,

@@ -400,7 +400,8 @@ app.get('/api/borrowers', authenticateToken, async (req, res) => {
     if (search) {
       query.$or = [
         { name: { $regex: search, $options: 'i' } },
-        { email: { $regex: search, $options: 'i' } }
+        { phone: { $regex: search, $options: 'i' } },
+        { address: { $regex: search, $options: 'i' } }
       ];
     }
 
@@ -464,7 +465,7 @@ app.get('/api/borrowers/:id', authenticateToken, async (req, res) => {
 // Create New Borrower
 app.post('/api/borrowers', authenticateToken, [
   body('name').notEmpty().withMessage('Name is required'),
-  body('email').isEmail().withMessage('Please provide a valid email'),
+  body('monthsPaid').optional().isNumeric().withMessage('Months paid must be a number'),
   body('phone').notEmpty().withMessage('Phone is required'),
   body('amount').isNumeric().withMessage('Amount must be a number'),
   body('interestRate').isNumeric().withMessage('Interest rate must be a number'),
@@ -480,7 +481,7 @@ app.post('/api/borrowers', authenticateToken, [
       });
     }
 
-    const { name, email, phone, address, amount, interestRate, dueDate } = req.body;
+    const { name, monthsPaid, phone, address, amount, interestRate, dueDate } = req.body;
 
     // Calculate monthly interest
     const monthlyInterest = (amount * interestRate) / 100 / 12;
@@ -489,7 +490,7 @@ app.post('/api/borrowers', authenticateToken, [
     const borrower = new Borrower({
       lenderId: req.lender._id,
       name,
-      email,
+      monthsPaid: monthsPaid || 0,
       phone,
       address,
       amount,
@@ -518,7 +519,7 @@ app.post('/api/borrowers', authenticateToken, [
 // Update Borrower
 app.put('/api/borrowers/:id', authenticateToken, [
   body('name').optional().notEmpty().withMessage('Name cannot be empty'),
-  body('email').optional().isEmail().withMessage('Please provide a valid email'),
+  body('monthsPaid').optional().isNumeric().withMessage('Months paid must be a number'),
   body('phone').optional().notEmpty().withMessage('Phone cannot be empty'),
   body('amount').optional().isNumeric().withMessage('Amount must be a number'),
   body('interestRate').optional().isNumeric().withMessage('Interest rate must be a number'),
