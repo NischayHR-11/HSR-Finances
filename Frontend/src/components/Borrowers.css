@@ -132,7 +132,57 @@
 .borrower-info p {
   font-size: 14px;
   color: var(--text-secondary);
-  margin: 0;
+  margin: 0 0 8px 0;
+}
+
+.borrower-phone {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 4px;
+}
+
+.phone-number {
+  font-size: 14px;
+  color: var(--text-secondary);
+  font-family: monospace;
+}
+
+.copy-phone-btn {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--accent-green);
+  border: none;
+  width: auto;
+  height: 28px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  transition: all 0.2s ease;
+  opacity: 0.7;
+}
+
+.copy-phone-btn:hover {
+  background: rgba(34, 197, 94, 0.2);
+  opacity: 1;
+  transform: scale(1.05);
+}
+
+.copy-phone-btn:active {
+  transform: scale(0.95);
+}
+
+.copy-icon {
+  width: 12px;
+  height: 12px;
+}
+
+.copy-text {
+  font-size: 12px;
+  font-weight: 500;
 }
 
 .status-badge {
@@ -156,6 +206,84 @@
 .status-overdue {
   background-color: rgba(239, 68, 68, 0.1);
   color: var(--accent-red);
+}
+
+.borrower-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.delete-borrower-btn {
+  background: linear-gradient(135deg, #ff4757, #ff3742);
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  padding: 4px;
+  box-shadow: 
+    0 4px 8px rgba(255, 71, 87, 0.3),
+    0 0 0 0 rgba(255, 71, 87, 0.4),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2);
+  position: relative;
+  overflow: hidden;
+}
+
+.delete-borrower-btn::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s ease;
+}
+
+.delete-borrower-btn:hover {
+  background: linear-gradient(135deg, #ff3742, #ff2d39);
+  transform: scale(1.1) rotate(5deg);
+  box-shadow: 
+    0 8px 16px rgba(255, 71, 87, 0.4),
+    0 0 0 4px rgba(255, 71, 87, 0.2),
+    inset 0 1px 0 rgba(255, 255, 255, 0.3);
+  animation: gamePulse 0.6s ease-in-out;
+}
+
+.delete-borrower-btn:hover::before {
+  left: 100%;
+}
+
+.delete-borrower-btn:active {
+  transform: scale(0.9) rotate(-2deg);
+  background: linear-gradient(135deg, #ff2d39, #e63946);
+  box-shadow: 
+    0 2px 4px rgba(255, 71, 87, 0.3),
+    inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  animation: gameShake 0.3s ease-in-out;
+}
+
+@keyframes gamePulse {
+  0%, 100% { box-shadow: 0 8px 16px rgba(255, 71, 87, 0.4), 0 0 0 4px rgba(255, 71, 87, 0.2); }
+  50% { box-shadow: 0 8px 20px rgba(255, 71, 87, 0.6), 0 0 0 8px rgba(255, 71, 87, 0.3); }
+}
+
+@keyframes gameShake {
+  0%, 100% { transform: scale(0.9) rotate(-2deg); }
+  25% { transform: scale(0.9) rotate(-4deg); }
+  75% { transform: scale(0.9) rotate(0deg); }
+}
+
+.trash-icon {
+  width: 18px;
+  height: 22px;
+  color: white;
 }
 
 .borrower-details {
@@ -301,9 +429,77 @@
   }
 
   .borrower-header {
-    flex-direction: column;
+    flex-direction: row;
     align-items: flex-start;
+    justify-content: space-between;
     gap: 8px;
+  }
+
+  .borrower-info {
+    flex: 1;
+  }
+
+  .borrower-info h3 {
+    font-size: 18px;
+    margin-bottom: 8px;
+  }
+
+  .borrower-header-actions {
+    flex-direction: row;
+    justify-content: flex-end;
+    align-items: center;
+    flex-shrink: 0;
+    gap: 6px;
+  }
+
+  .delete-borrower-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    box-shadow: 
+      0 3px 6px rgba(255, 71, 87, 0.3),
+      0 0 0 0 rgba(255, 71, 87, 0.4);
+  }
+
+  .delete-borrower-btn:hover {
+    transform: scale(1.08) rotate(3deg);
+    box-shadow: 
+      0 6px 12px rgba(255, 71, 87, 0.4),
+      0 0 0 3px rgba(255, 71, 87, 0.2);
+  }
+
+  .trash-icon {
+    width: 16px;
+    height: 18px;
+  }
+
+  .borrower-phone {
+    flex-direction: row;
+    align-items: center;
+    gap: 0px;
+  }
+
+  .phone-number {
+    font-size: 14px;
+    word-break: break-all;
+    margin-right: 15px;
+  }
+
+  .copy-phone-btn {
+    width: 28px;
+    height: 28px;
+    padding: 4px;
+    font-size: 14px;
+    margin-left: 8px;
+  }
+
+  .copy-icon {
+    width: 14px;
+    height: 14px;
+  }
+
+  .copy-text {
+    display: none; /* Hide text on mobile */
   }
 
   .detail-row {
@@ -596,4 +792,121 @@
 @keyframes spin {
   0% { transform: rotate(0deg); }
   100% { transform: rotate(360deg); }
+}
+
+/* Medium-small mobile devices */
+@media (max-width: 550px) {
+  .borrower-phone {
+    gap: 0px;
+  }
+
+  .copy-phone-btn {
+    margin-left: -8px;
+  }
+}
+
+/* Extra small mobile devices */
+@media (max-width: 480px) {
+  .borrowers {
+    padding: 80px 12px 12px 12px;
+  }
+
+  .borrowers-header {
+    margin-bottom: 16px;
+  }
+
+  .borrowers-header h1 {
+    font-size: 22px;
+  }
+
+  .borrowers-controls {
+    flex-direction: column;
+    gap: 12px;
+    align-items: stretch;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .filter-buttons {
+    justify-content: center;
+  }
+
+  .filter-btn {
+    padding: 6px 10px;
+    font-size: 11px;
+  }
+
+  .borrower-card {
+    padding: 12px;
+  }
+
+  .borrower-info h3 {
+    font-size: 16px;
+  }
+
+  .phone-number {
+    font-size: 13px;
+  }
+
+  .copy-phone-btn {
+    width: 26px;
+    height: 26px;
+    padding: 3px;
+    margin-left: -8px;
+  }
+
+  .copy-text {
+    display: none; /* Ensure text is hidden on small screens */
+  }
+
+  .copy-icon {
+    width: 12px;
+    height: 12px;
+  }
+
+  .status-badge {
+    font-size: 10px;
+    padding: 2px 6px;
+  }
+
+  .delete-borrower-btn {
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    box-shadow: 
+      0 2px 4px rgba(255, 71, 87, 0.3),
+      0 0 0 0 rgba(255, 71, 87, 0.4);
+  }
+
+  .delete-borrower-btn:hover {
+    transform: scale(1.05) rotate(2deg);
+    box-shadow: 
+      0 4px 8px rgba(255, 71, 87, 0.4),
+      0 0 0 2px rgba(255, 71, 87, 0.2);
+  }
+
+  .trash-icon {
+    width: 12px;
+    height: 14px;
+  }
+
+  .detail-value {
+    font-size: 14px;
+  }
+
+  .detail-label {
+    font-size: 12px;
+  }
+
+  .progress-label,
+  .progress-percentage {
+    font-size: 12px;
+  }
+
+  .due-label,
+  .due-date {
+    font-size: 12px;
+  }
 }

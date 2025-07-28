@@ -154,6 +154,49 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     }
   };
 
+  // Handle copy phone number
+  const handleCopyPhone = async (phoneNumber) => {
+    try {
+      await navigator.clipboard.writeText(phoneNumber);
+      // You could add a toast notification here
+      console.log('📋 Phone number copied to clipboard');
+    } catch (error) {
+      console.error('❌ Failed to copy phone number:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = phoneNumber;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+    }
+  };
+
+  // Handle delete borrower
+  const handleDeleteBorrower = async (borrowerId, borrowerName) => {
+    const isConfirmed = window.confirm(`Are you sure you want to delete ${borrowerName}? This action cannot be undone.`);
+    
+    if (!isConfirmed) {
+      return;
+    }
+
+    try {
+      const response = await apiService.deleteBorrower(borrowerId);
+      
+      if (response.success) {
+        console.log('✅ Borrower deleted successfully');
+        // Refresh borrowers list
+        await fetchBorrowers();
+      } else {
+        console.error('❌ Failed to delete borrower:', response.message);
+        alert('Failed to delete borrower. Please try again.');
+      }
+    } catch (error) {
+      console.error('❌ Error deleting borrower:', error);
+      alert('Error deleting borrower. Please try again.');
+    }
+  };
+
   // Format currency values
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('en-US', {
@@ -302,11 +345,41 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                   <div className="borrower-header">
                     <div className="borrower-info">
                       <h3>{borrower.name}</h3>
-                      <p>{borrower.email}</p>
+                      <div className="borrower-phone">
+                        <span className="phone-number">📞 {borrower.phone}</span>
+                        <button 
+                          className="copy-phone-btn"
+                          onClick={() => handleCopyPhone(borrower.phone)}
+                          title="Copy phone number"
+                        >
+                          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="copy-icon">
+                            {/* Back document */}
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor"/>
+                            {/* Front document */}
+                            <rect x="2" y="2" width="13" height="13" rx="2" ry="2" fill="currentColor" stroke="currentColor"/>
+                            {/* Lines on front document */}
+                            <line x1="4" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1"/>
+                            <line x1="4" y1="9" x2="11" y2="9" stroke="white" strokeWidth="1"/>
+                            <line x1="4" y1="12" x2="8" y2="12" stroke="white" strokeWidth="1"/>
+                          </svg>
+                          <span className="copy-text">Copy</span>
+                        </button>
+                      </div>
                     </div>
-                    <span className={`status-badge ${getStatusClass(borrower.status)}`}>
-                      {getStatusDisplay(borrower.status)}
-                    </span>
+                    <div className="borrower-header-actions">
+                      <span className={`status-badge ${getStatusClass(borrower.status)}`}>
+                        {getStatusDisplay(borrower.status)}
+                      </span>
+                      <button 
+                        className="delete-borrower-btn"
+                        onClick={() => handleDeleteBorrower(borrower._id, borrower.name)}
+                        title={`Delete ${borrower.name}`}
+                      >
+                        <svg viewBox="0 0 24 28" fill="currentColor" className="trash-icon">
+                          <path d="M8 2V4H4V6H6V24C6 25.1 6.9 26 8 26H18C19.1 26 20 25.1 20 24V6H22V4H18V2C18 0.9 17.1 0 16 0H10C8.9 0 8 0.9 8 2ZM10 2H16V4H10V2ZM8 6H18V24H8V6ZM10 8V22H12V8H10ZM14 8V22H16V8H14Z"/>
+                        </svg>
+                      </button>
+                    </div>
                   </div>
 
                   <div className="borrower-details">
