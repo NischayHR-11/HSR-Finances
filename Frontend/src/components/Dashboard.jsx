@@ -10,6 +10,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
   const [animateStats, setAnimateStats] = useState(false);
   const [activeAchievement, setActiveAchievement] = useState(null);
   const [showWelcome, setShowWelcome] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
 
   // Generate user initials from name
   const getUserInitials = (name) => {
@@ -51,6 +52,30 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
     };
 
     fetchDashboardData();
+  }, []);
+
+  // Fetch notification count
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await apiService.getDueNotifications();
+      if (response.success) {
+        const urgentCount = response.data.notifications.filter(
+          n => ['overdue', 'due_today', 'due_soon'].includes(n.status)
+        ).length;
+        setNotificationCount(urgentCount);
+      }
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+    }
+  };
+
+  // Load notification count on component mount and refresh periodically
+  useEffect(() => {
+    fetchNotificationCount();
+    
+    // Refresh notification count every 5 minutes
+    const interval = setInterval(fetchNotificationCount, 5 * 60 * 1000);
+    return () => clearInterval(interval);
   }, []);
 
   // Fetch top 2 borrowers by loan amount
@@ -322,7 +347,9 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
                 </span>
                 <span className="navbar-tooltip">Notifications</span>
               </button>
-              <span className="notification-badge">3</span>
+              {notificationCount > 0 && (
+                <span className="notification-badge">{notificationCount}</span>
+              )}
             </div>            <div className="navbar-item profile-section">
               <div className="user-avatar desktop-avatar">{getUserInitials(lenderData?.name)}</div>
               <span className="profile-name">{lenderData?.name || 'John Doe'}</span>

@@ -136,6 +136,32 @@
   margin: 0;
 }
 
+.refresh-btn {
+  background-color: var(--bg-secondary);
+  color: var(--text-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.refresh-btn:hover:not(:disabled) {
+  background-color: var(--hover-bg);
+  color: var(--text-primary);
+  border-color: var(--accent-primary);
+}
+
+.refresh-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
 .mark-all-read-btn {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
@@ -299,14 +325,18 @@
   color: var(--text-primary);
 }
 
-.mark-read-btn {
+.mark-read-btn,
+.paid-btn {
   background-color: var(--accent-green);
   color: white;
   border-color: var(--accent-green);
 }
 
-.mark-read-btn:hover {
+.mark-read-btn:hover,
+.paid-btn:hover {
   background-color: var(--accent-green-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
 }
 
 .dismiss-btn {
@@ -410,4 +440,76 @@
   .notifications {
     padding: 80px 12px 12px 12px; /* Extra top padding for mobile nav bar */
   }
+}
+
+/* Loading, Error, and Empty States */
+.loading-container,
+.error-container,
+.empty-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 200px;
+  padding: 40px 20px;
+}
+
+.loading-message,
+.error-message,
+.empty-message {
+  text-align: center;
+  color: var(--text-secondary);
+}
+
+.loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid var(--border-color);
+  border-top: 3px solid var(--accent-primary);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 16px;
+}
+
+.error-icon,
+.empty-icon {
+  font-size: 48px;
+  display: block;
+  margin-bottom: 16px;
+}
+
+.error-message h3,
+.empty-message h3 {
+  font-size: 20px;
+  color: var(--text-primary);
+  margin-bottom: 8px;
+}
+
+.error-message p,
+.empty-message p {
+  font-size: 14px;
+  margin-bottom: 20px;
+  line-height: 1.5;
+}
+
+.retry-btn {
+  background: linear-gradient(135deg, var(--accent-primary), var(--accent-tertiary));
+  color: black;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 4px 12px rgba(78, 234, 255, 0.3);
+}
+
+.retry-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(78, 234, 255, 0.4);
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
 }

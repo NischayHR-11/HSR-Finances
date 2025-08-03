@@ -324,6 +324,36 @@ class ApiService {
     const data = localStorage.getItem('lenderData');
     return data ? JSON.parse(data) : null;
   }
+
+  // ===== NOTIFICATION METHODS =====
+
+  async getDueNotifications() {
+    try {
+      const response = await fetch(`${this.baseURL}/notifications/due`, {
+        method: 'GET',
+        headers: this.getHeaders(true),
+      });
+
+      return await this.handleResponse(response);
+    } catch (error) {
+      console.error('Get due notifications error:', error);
+      throw error;
+    }
+  }
+
+  async markPaymentAsPaid(borrowerId) {
+    try {
+      const response = await fetch(`${this.baseURL}/notifications/paid/${borrowerId}`, {
+        method: 'PUT',
+        headers: this.getHeaders(true),
+      });
+
+      return await this.handleResponse(response);
+    } catch (error) {
+      console.error('Mark payment as paid error:', error);
+      throw error;
+    }
+  }
 }
 
 // Create and export a singleton instance

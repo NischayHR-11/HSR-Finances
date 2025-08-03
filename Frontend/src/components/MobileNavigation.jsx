@@ -1,12 +1,37 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import apiService from '../services/apiService';
 import './MobileNavigation.css';
 
 const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   const navigate = useNavigate();
   const location = useLocation();
+
+  // Fetch notification count
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await apiService.getDueNotifications();
+      if (response.success) {
+        const urgentCount = response.data.notifications.filter(
+          n => ['overdue', 'due_today', 'due_soon'].includes(n.status)
+        ).length;
+        setNotificationCount(urgentCount);
+      }
+    } catch (error) {
+      console.error('Error fetching notification count:', error);
+    }
+  };
+
+  // Load notification count on component mount
+  useEffect(() => {
+    fetchNotificationCount();
+    
+    // Refresh notification count every 5 minutes
+    const interval = setInterval(fetchNotificationCount, 5 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   // Generate user initials from name
   const getUserInitials = (name) => {
@@ -63,7 +88,9 @@ const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
                 </svg>
               </span>
             </button>
-            <span className="notification-badge">3</span>
+            {notificationCount > 0 && (
+              <span className="notification-badge">{notificationCount}</span>
+            )}
           </div>
           <div className="user-avatar mobile-avatar">
             {getUserInitials(lenderData?.name)}

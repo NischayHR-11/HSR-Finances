@@ -1,91 +1,92 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
+import apiService from '../services/apiService';
 import './Notifications.css';
 
 const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
+  const [notifications, setNotifications] = useState([]);
+  const [notificationSummary, setNotificationSummary] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState(null);
 
-  const notificationSummary = [
-    {
-      title: 'Due Today',
-      count: 2,
-      description: 'Payments requiring attention',
-      icon: '⚠️',
-      color: 'warning'
-    },
-    {
-      title: 'Overdue',
-      count: 1,
-      description: 'Immediate action needed',
-      icon: '⚠️',
-      color: 'danger'
-    },
-    {
-      title: 'This Week',
-      count: 4,
-      description: 'Upcoming payments',
-      icon: '📅',
-      color: 'info'
+  // Fetch due notifications
+  const fetchNotifications = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const response = await apiService.getDueNotifications();
+      
+      if (response.success) {
+        setNotifications(response.data.notifications);
+        
+        // Set summary data
+        const summary = response.data.summary;
+        setNotificationSummary([
+          {
+            title: 'Due Today',
+            count: summary.dueToday,
+            description: 'Payments requiring attention',
+            icon: '⚠️',
+            color: 'warning'
+          },
+          {
+            title: 'Overdue',
+            count: summary.overdue,
+            description: 'Immediate action needed',
+            icon: '🚨',
+            color: 'danger'
+          },
+          {
+            title: 'This Week',
+            count: summary.thisWeek,
+            description: 'Upcoming payments',
+            icon: '📅',
+            color: 'info'
+          }
+        ]);
+      } else {
+        setError(response.message || 'Failed to fetch notifications');
+      }
+    } catch (error) {
+      console.error('Error fetching notifications:', error);
+      setError('Unable to load notifications. Please try again.');
+    } finally {
+      setIsLoading(false);
     }
-  ];
+  };
 
-  const recentNotifications = [
-    {
-      id: 1,
-      name: 'Sarah Johnson',
-      type: 'Payment Due',
-      message: 'Monthly interest payment is due in 2 days',
-      amount: '$115',
-      date: '2024-02-12',
-      time: '2 hours ago',
-      priority: 'high',
-      status: 'unread'
-    },
-    {
-      id: 2,
-      name: 'Emily Wilson',
-      type: 'Overdue Payment',
-      message: 'Payment is 2 days overdue',
-      amount: '$133.33',
-      date: '2024-02-10',
-      time: '1 day ago',
-      priority: 'urgent',
-      status: 'unread'
-    },
-    {
-      id: 3,
-      name: 'John Smith',
-      type: 'Payment Received',
-      message: 'Monthly payment received successfully',
-      amount: '$177.08',
-      date: '2024-02-15',
-      time: '3 hours ago',
-      priority: 'normal',
-      status: 'read'
-    },
-    {
-      id: 4,
-      name: 'Mike Davis',
-      type: 'Payment Reminder',
-      message: 'Payment due in 5 days',
-      amount: '$195',
-      date: '2024-02-20',
-      time: '1 day ago',
-      priority: 'normal',
-      status: 'unread'
-    },
-    {
-      id: 5,
-      name: 'David Brown',
-      type: 'Payment Received',
-      message: 'Monthly payment received successfully',
-      amount: '$123',
-      date: '2024-02-18',
-      time: '2 days ago',
-      priority: 'normal',
-      status: 'read'
+  // Load notifications on component mount
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  const formatDate = (dateString) => {
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric'
+    });
+  };
+
+  const getTimeAgo = (dateString) => {
+    const date = new Date(dateString);
+    const now = new Date();
+    const diffTime = now - date;
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    
+    if (diffDays === 0) {
+      return 'Today';
+    } else if (diffDays === 1) {
+      return 'Yesterday';
+    } else if (diffDays > 0) {
+      return `${diffDays} days ago`;
+    } else {
+      const futureDays = Math.abs(diffDays);
+      return `In ${futureDays} day${futureDays > 1 ? 's' : ''}`;
     }
-  ];
+  };
 
   const getPriorityClass = (priority) => {
     switch (priority) {
@@ -113,14 +114,29 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
     }
   };
 
-  const markAsRead = (id) => {
-    // Implementation for marking notification as read
-    console.log('Mark as read:', id);
+  const markAsPaid = async (notification) => {
+    try {
+      const response = await apiService.markPaymentAsPaid(notification.borrowerId);
+      
+      if (response.success) {
+        // Refresh notifications to update the list
+        await fetchNotifications();
+        
+        // Show success message (you can add a toast notification here)
+        console.log('Payment marked as paid successfully');
+      } else {
+        setError(response.message || 'Failed to mark payment as paid');
+      }
+    } catch (error) {
+      console.error('Error marking payment as paid:', error);
+      setError('Unable to mark payment as paid. Please try again.');
+    }
   };
 
   const dismissNotification = (id) => {
-    // Implementation for dismissing notification
-    console.log('Dismiss notification:', id);
+    // For now, just remove from local state
+    // In a real app, you might want to store dismissed notifications
+    setNotifications(prev => prev.filter(n => n.id !== id));
   };
 
   return (
@@ -131,83 +147,112 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
         <div className="notifications-header">
           <div>
             <h1>Notifications</h1>
-            <p>Stay updated on payment schedules and activities</p>
-          </div>
-          <div className="unread-count">
-            3 unread
+            <p>Stay updated with payment due dates and reminders</p>
           </div>
         </div>
 
-      <div className="notification-summary">
-        {notificationSummary.map((item, index) => (
-          <div key={index} className={`summary-card summary-${item.color}`}>
-            <div className="summary-icon">{item.icon}</div>
-            <div className="summary-content">
-              <div className="summary-header">
-                <span className="summary-title">{item.title}</span>
-                <span className="summary-count">{item.count}</span>
-              </div>
-              <p className="summary-description">{item.description}</p>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      <div className="notifications-section">
-        <div className="section-header">
-          <h2>🔔 Recent Notifications</h2>
-          <button className="mark-all-read-btn">Mark All Read</button>
-        </div>
-
-        <div className="notifications-list">
-          {recentNotifications.map((notification) => (
-            <div 
-              key={notification.id} 
-              className={`notification-card ${notification.status === 'unread' ? 'unread' : ''} ${getPriorityClass(notification.priority)}`}
-            >
-              <div className="notification-priority">
-                {getPriorityIcon(notification.priority)}
-              </div>
-              
-              <div className="notification-content">
-                <div className="notification-header">
-                  <div className="notification-info">
-                    <h3>{notification.name}</h3>
-                    <span className="notification-type">{notification.type}</span>
-                  </div>
-                  <div className="notification-meta">
-                    <span className="notification-amount">{notification.amount}</span>
-                    <span className="notification-time">{notification.time}</span>
-                  </div>
-                </div>
-                
-                <p className="notification-message">{notification.message}</p>
-                
-                <div className="notification-details">
-                  <span className="notification-date">📅 {notification.date}</span>
-                </div>
-              </div>
-              
-              <div className="notification-actions">
-                {notification.status === 'unread' && (
-                  <button 
-                    className="action-btn mark-read-btn"
-                    onClick={() => markAsRead(notification.id)}
-                  >
-                    Mark Read
-                  </button>
-                )}
-                <button 
-                  className="action-btn dismiss-btn"
-                  onClick={() => dismissNotification(notification.id)}
-                >
-                  ✕
-                </button>
+        <div className="notification-summary">
+          {notificationSummary.map((item, index) => (
+            <div key={index} className={`summary-card ${item.color}`}>
+              <div className="summary-icon">{item.icon}</div>
+              <div className="summary-content">
+                <h3>{item.count}</h3>
+                <p className="summary-title">{item.title}</p>
+                <p className="summary-description">{item.description}</p>
               </div>
             </div>
           ))}
         </div>
-      </div>
+
+        <div className="notifications-section">
+          <div className="section-header">
+            <h2>🔔 Recent Notifications</h2>
+            <button className="refresh-btn" onClick={fetchNotifications} disabled={isLoading}>
+              {isLoading ? '🔄' : '↻'} Refresh
+            </button>
+          </div>
+
+          {isLoading ? (
+            <div className="loading-container">
+              <div className="loading-message">
+                <div className="loading-spinner"></div>
+                <p>Loading notifications...</p>
+              </div>
+            </div>
+          ) : error ? (
+            <div className="error-container">
+              <div className="error-message">
+                <span className="error-icon">⚠️</span>
+                <p>{error}</p>
+                <button className="retry-btn" onClick={fetchNotifications}>
+                  Try Again
+                </button>
+              </div>
+            </div>
+          ) : notifications.length === 0 ? (
+            <div className="empty-container">
+              <div className="empty-message">
+                <span className="empty-icon">🎉</span>
+                <h3>All caught up!</h3>
+                <p>No pending payment notifications at the moment.</p>
+              </div>
+            </div>
+          ) : (
+            <div className="notifications-list">
+              {notifications.map((notification) => (
+                <div 
+                  key={notification.id} 
+                  className={`notification-card ${getPriorityClass(notification.priority)}`}
+                >
+                  <div className="notification-priority">
+                    {getPriorityIcon(notification.priority)}
+                  </div>
+                  
+                  <div className="notification-content">
+                    <div className="notification-header">
+                      <div className="notification-info">
+                        <h3>{notification.name}</h3>
+                        <span className="notification-type">{notification.type}</span>
+                      </div>
+                      <div className="notification-meta">
+                        <span className="notification-amount">{notification.amount}</span>
+                        <span className="notification-time">{getTimeAgo(notification.dueDate)}</span>
+                      </div>
+                    </div>
+                    
+                    <p className="notification-message">{notification.message}</p>
+                    
+                    <div className="notification-details">
+                      <span className="notification-date">📅 Due: {formatDate(notification.dueDate)}</span>
+                      {notification.phone && (
+                        <span className="notification-contact">📞 {notification.phone}</span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div className="notification-actions">
+                    {['overdue', 'due_today', 'due_soon'].includes(notification.status) && (
+                      <button 
+                        className="action-btn paid-btn"
+                        onClick={() => markAsPaid(notification)}
+                        title="Mark payment as paid"
+                      >
+                        ✓ Paid
+                      </button>
+                    )}
+                    <button 
+                      className="action-btn dismiss-btn"
+                      onClick={() => dismissNotification(notification.id)}
+                      title="Dismiss notification"
+                    >
+                      ✕
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
