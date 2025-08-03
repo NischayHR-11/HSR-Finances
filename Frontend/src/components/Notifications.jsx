@@ -31,18 +31,18 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
             color: 'warning'
           },
           {
-            title: 'Overdue',
-            count: summary.overdue,
-            description: 'Immediate action needed',
-            icon: '🚨',
-            color: 'danger'
+            title: 'Due This Month',
+            count: summary.due,
+            description: 'Overdue payments (1-30 days)',
+            icon: '�',
+            color: 'info'
           },
           {
-            title: 'This Week',
-            count: summary.thisWeek,
-            description: 'Upcoming payments',
-            icon: '📅',
-            color: 'info'
+            title: 'Overdue',
+            count: summary.overdue,
+            description: 'Critical overdue (30+ days)',
+            icon: '�',
+            color: 'danger'
           }
         ]);
       } else {

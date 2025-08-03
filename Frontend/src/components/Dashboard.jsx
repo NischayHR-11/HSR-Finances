@@ -60,7 +60,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       const response = await apiService.getDueNotifications();
       if (response.success) {
         const urgentCount = response.data.notifications.filter(
-          n => ['overdue', 'due_today', 'due_soon'].includes(n.status)
+          n => ['overdue', 'due', 'due_soon'].includes(n.status)
         ).length;
         setNotificationCount(urgentCount);
       }

@@ -317,9 +317,14 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
               <button
                 key={option}
                 className={`filter-btn ${filterStatus === option ? 'active' : ''}`}
-                onClick={() => setFilterStatus(option)}
+                onClick={() => {
+                  console.log('🔄 Filter clicked:', option);
+                  setFilterStatus(option);
+                }}
               >
-                {option}
+                {option === 'current' ? 'Current' : 
+                 option === 'due' ? 'Due' : 
+                 option === 'overdue' ? 'Overdue' : option}
               </button>
             ))}
           </div>

@@ -82,7 +82,7 @@ const authenticateToken = async (req, res, next) => {
   }
 };
 
-// ===== UTILITY FUNCTIONS =====
+//===== UTILITY FUNCTIONS =====
 
 // Generate JWT Token
 const generateToken = (id) => {
@@ -100,6 +100,59 @@ const hashPassword = async (password) => {
 // Compare Password
 const comparePassword = async (password, hashedPassword) => {
   return await bcrypt.compare(password, hashedPassword);
+};
+
+// Update Borrower Statuses Based on Due Dates
+const updateBorrowerStatuses = async (lenderId = null) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+
+    // Get borrowers (all or for specific lender)
+    const query = lenderId ? { lenderId } : {};
+    const borrowers = await Borrower.find(query);
+
+    let updatedCount = 0;
+
+    for (const borrower of borrowers) {
+      const dueDate = new Date(borrower.dueDate);
+      const timeDiff = dueDate - today;
+      const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      
+      let newStatus = borrower.status;
+      
+      if (daysDiff < -30) {
+        // More than 1 month overdue
+        newStatus = 'overdue';
+      } else if (daysDiff < 0) {
+        // Up to 1 month overdue (due section)
+        newStatus = 'due';
+      } else {
+        // Current or future payments
+        newStatus = 'current';
+      }
+
+      // Update status if it has changed
+      if (newStatus !== borrower.status) {
+        await Borrower.findByIdAndUpdate(borrower._id, {
+          status: newStatus,
+          updatedAt: Date.now()
+        });
+        updatedCount++;
+      }
+    }
+
+    if (lenderId) {
+      console.log(`✅ Updated ${updatedCount} borrower statuses for lender ${lenderId}`);
+    } else {
+      console.log(`✅ Updated ${updatedCount} borrower statuses globally`);
+    }
+    
+    return updatedCount;
+  } catch (error) {
+    console.error('❌ Error updating borrower statuses:', error);
+    throw error;
+  }
 };
 
 // ===== ROUTES =====
@@ -343,6 +396,9 @@ app.put('/api/lender/profile', authenticateToken, [
 // Get Dashboard Statistics
 app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
   try {
+    // Update borrower statuses for this lender first
+    await updateBorrowerStatuses(req.lender._id);
+    
     const borrowers = await Borrower.find({ lenderId: req.lender._id });
     
     // Calculate statistics
@@ -388,6 +444,9 @@ app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
 // Get All Borrowers for Lender
 app.get('/api/borrowers', authenticateToken, async (req, res) => {
   try {
+    // Update borrower statuses for this lender before fetching
+    await updateBorrowerStatuses(req.lender._id);
+
     const { page = 1, limit = 10, status, search } = req.query;
     const query = { lenderId: req.lender._id };
 
@@ -609,76 +668,104 @@ app.delete('/api/borrowers/:id', authenticateToken, async (req, res) => {
 
 // ===== NOTIFICATION ROUTES =====
 
+// Update Borrower Statuses
+app.put('/api/borrowers/update-statuses', authenticateToken, async (req, res) => {
+  try {
+    await updateBorrowerStatuses();
+    res.json({
+      success: true,
+      message: 'Borrower statuses updated successfully'
+    });
+  } catch (error) {
+    console.error('Update statuses error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while updating borrower statuses'
+    });
+  }
+});
+
 // Get Due Date Notifications
 app.get('/api/notifications/due', authenticateToken, async (req, res) => {
   try {
+    // Update borrower statuses for this lender first
+    await updateBorrowerStatuses(req.lender._id);
+
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    
-    const sevenDaysFromNow = new Date(today);
-    sevenDaysFromNow.setDate(today.getDate() + 7);
 
-    // Find borrowers with due dates within the next 7 days or overdue
+    // Get all borrowers for this lender
     const borrowers = await Borrower.find({
       lenderId: req.lender._id,
-      status: { $in: ['current', 'due', 'overdue'] },
-      dueDate: { $lte: sevenDaysFromNow }
+      status: { $in: ['current', 'due', 'overdue'] }
     }).sort({ dueDate: 1 });
 
-    const notifications = borrowers.map(borrower => {
+    const notifications = [];
+
+    for (const borrower of borrowers) {
       const dueDate = new Date(borrower.dueDate);
       const timeDiff = dueDate - today;
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
-      let status, message, priority, type;
+      let status, message, priority, type, shouldNotify = false;
       
-      if (daysDiff < 0) {
-        // Overdue
-        const overdueDays = Math.abs(daysDiff);
+      if (borrower.status === 'overdue') {
+        // More than 1 month overdue
         status = 'overdue';
         type = 'Overdue Payment';
-        message = `Payment is ${overdueDays} day${overdueDays > 1 ? 's' : ''} overdue`;
+        const monthsOverdue = Math.ceil(Math.abs(daysDiff) / 30);
+        message = `Payment is ${monthsOverdue} month${monthsOverdue > 1 ? 's' : ''} overdue`;
         priority = 'urgent';
-      } else if (daysDiff === 0) {
-        // Due today
-        status = 'due_today';
-        type = 'Payment Due Today';
-        message = 'Monthly interest payment is due today';
+        shouldNotify = true;
+      } else if (borrower.status === 'due') {
+        // Up to 1 month overdue (due section)
+        status = 'due';
+        type = 'Payment Due';
+        const daysOverdue = Math.abs(daysDiff);
+        if (daysOverdue === 0) {
+          message = 'Monthly payment is due today';
+        } else {
+          message = `Payment is ${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue`;
+        }
         priority = 'high';
-      } else if (daysDiff <= 2) {
-        // Due soon
+        shouldNotify = true;
+      } else if (borrower.status === 'current' && daysDiff <= 7) {
+        // Due this week (current month payment)
         status = 'due_soon';
-        type = 'Payment Due Soon';
-        message = `Monthly interest payment is due in ${daysDiff} day${daysDiff > 1 ? 's' : ''}`;
+        type = 'Monthly Payment Due';
+        if (daysDiff === 0) {
+          message = 'Monthly payment is due today';
+        } else {
+          message = `Monthly payment due in ${daysDiff} day${daysDiff > 1 ? 's' : ''}`;
+        }
         priority = 'high';
-      } else {
-        // Upcoming
-        status = 'upcoming';
-        type = 'Upcoming Payment';
-        message = `Payment due in ${daysDiff} days`;
-        priority = 'normal';
+        shouldNotify = true;
       }
 
-      return {
-        id: borrower._id,
-        borrowerId: borrower._id,
-        name: borrower.name,
-        type,
-        message,
-        amount: `$${borrower.monthlyInterest?.toFixed(2) || '0.00'}`,
-        dueDate: borrower.dueDate,
-        priority,
-        status,
-        phone: borrower.phone,
-        address: borrower.address
-      };
-    });
+      // Only add to notifications if it should be notified
+      if (shouldNotify) {
+        notifications.push({
+          id: borrower._id,
+          borrowerId: borrower._id,
+          name: borrower.name,
+          type,
+          message,
+          amount: `$${borrower.monthlyInterest?.toFixed(2) || '0.00'}`,
+          dueDate: borrower.dueDate,
+          priority,
+          status,
+          phone: borrower.phone,
+          address: borrower.address
+        });
+      }
+    }
 
     // Calculate summary statistics
     const summary = {
-      dueToday: notifications.filter(n => n.status === 'due_today').length,
+      dueToday: notifications.filter(n => n.status === 'due_soon' && n.message.includes('today')).length,
+      due: notifications.filter(n => n.status === 'due').length,
       overdue: notifications.filter(n => n.status === 'overdue').length,
-      thisWeek: notifications.filter(n => ['due_today', 'due_soon', 'upcoming'].includes(n.status)).length
+      thisMonth: notifications.filter(n => ['due_soon', 'due'].includes(n.status)).length
     };
 
     res.json({
