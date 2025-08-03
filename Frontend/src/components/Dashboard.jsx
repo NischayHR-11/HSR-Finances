@@ -190,11 +190,11 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       color: 'var(--accent-green)'
     },
     {
-      title: 'Upfront Profits',
-      value: formatCurrency(dashboardData.stats.totalUpfrontProfit),
-      change: dashboardData.stats.totalUpfrontProfit > 0 ? '+Immediate Earnings' : 'No profits yet',
+      title: 'Total Profit',
+      value: formatCurrency(dashboardData.stats.totalProfit),
+      change: dashboardData.stats.totalProfit > 0 ? '+Profit Earned' : 'No profits yet',
       icon: '💎',
-      positive: dashboardData.stats.totalUpfrontProfit > 0,
+      positive: dashboardData.stats.totalProfit > 0,
       color: 'var(--accent-tertiary)'
     },
     {
@@ -231,7 +231,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       color: 'var(--accent-green)'
     },
     {
-      title: 'Upfront Profits',
+      title: 'Total Profit',
       value: '$0',
       change: 'Loading...',
       icon: '💎',

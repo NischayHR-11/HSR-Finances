@@ -404,7 +404,7 @@ app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
     // Calculate statistics
     const totalMoneyLent = borrowers.reduce((sum, borrower) => sum + borrower.amount, 0);
     const monthlyInterest = borrowers.reduce((sum, borrower) => sum + borrower.monthlyInterest, 0);
-    const totalUpfrontProfit = borrowers.reduce((sum, borrower) => sum + (borrower.upfrontProfit || 0), 0);
+    const totalProfit = borrowers.reduce((sum, borrower) => sum + (borrower.amount * 0.20), 0);
     const activeLoans = borrowers.filter(b => b.status === 'current' || b.status === 'due').length;
     const onTimePayments = borrowers.filter(b => b.status === 'current').length;
     const onTimeRate = borrowers.length > 0 ? Math.round((onTimePayments / borrowers.length) * 100) : 0;
@@ -424,7 +424,7 @@ app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
         stats: {
           totalMoneyLent,
           monthlyInterest,
-          totalUpfrontProfit,
+          totalProfit,
           activeLoans,
           onTimeRate
         },
