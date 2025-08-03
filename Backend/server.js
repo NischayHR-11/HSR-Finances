@@ -105,35 +105,61 @@ const comparePassword = async (password, hashedPassword) => {
 // Update Borrower Statuses Based on Due Dates
 const updateBorrowerStatuses = async (lenderId = null) => {
   try {
+    const now = new Date(); // Use current time for minute calculations
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); // Only for day calculations
 
     // Get borrowers (all or for specific lender)
     const query = lenderId ? { lenderId } : {};
     const borrowers = await Borrower.find(query);
 
     let updatedCount = 0;
+    console.log(`🔄 Updating statuses for ${borrowers.length} borrowers...`);
 
     for (const borrower of borrowers) {
       const dueDate = new Date(borrower.dueDate);
+      const createdDate = new Date(borrower.createdAt);
       const timeDiff = dueDate - today;
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
+      // Calculate expected minutes paid based on account age (FOR TESTING - MINUTES INSTEAD OF MONTHS)
+      const accountAgeMinutes = Math.ceil((now - createdDate) / (1000 * 60)); // Use 'now' instead of 'today'
+      const expectedMinutesPaid = Math.max(0, accountAgeMinutes - 1); // -1 because first minute is grace period
+      const actualMinutesPaid = borrower.monthsPaid || 0; // Using monthsPaid field but treating as minutes
+      const paymentsBehind = expectedMinutesPaid - actualMinutesPaid;
+      
+      console.log(`📊 ${borrower.name}: Age ${accountAgeMinutes}min, Expected ${expectedMinutesPaid}, Actual ${actualMinutesPaid}, Behind ${paymentsBehind}`);
+      
       let newStatus = borrower.status;
       
-      if (daysDiff < -30) {
-        // More than 1 month overdue
+      // Skip status updates for completed borrowers (10/10 months paid)
+      if ((borrower.monthsPaid || 0) >= 10) {
+        if (borrower.status !== 'paid') {
+          // Update to 'paid' status if not already
+          await Borrower.findByIdAndUpdate(borrower._id, {
+            status: 'paid',
+            updatedAt: Date.now()
+          });
+          updatedCount++;
+          console.log(`🎉 ${borrower.name} marked as PAID (completed 10/10 months)`);
+        }
+        continue; // Skip further processing for completed borrowers
+      }
+      
+      if (paymentsBehind > 2) {
+        // More than 2 minutes behind
         newStatus = 'overdue';
-      } else if (daysDiff < 0) {
-        // Up to 1 month overdue (due section)
+      } else if (paymentsBehind > 0) {
+        // 1-2 minutes behind  
         newStatus = 'due';
       } else {
-        // Current or future payments
+        // On track or ahead
         newStatus = 'current';
       }
 
       // Update status if it has changed
       if (newStatus !== borrower.status) {
+        console.log(`🔄 Updating ${borrower.name} status: ${borrower.status} → ${newStatus}`);
         await Borrower.findByIdAndUpdate(borrower._id, {
           status: newStatus,
           updatedAt: Date.now()
@@ -709,56 +735,81 @@ app.put('/api/borrowers/update-statuses', authenticateToken, async (req, res) =>
 // Get Due Date Notifications
 app.get('/api/notifications/due', authenticateToken, async (req, res) => {
   try {
+    console.log('🔔 GET /api/notifications/due called');
     // Update borrower statuses for this lender first
     await updateBorrowerStatuses(req.lender._id);
 
+    const now = new Date(); // Use current time for minute calculations
     const today = new Date();
-    today.setHours(0, 0, 0, 0);
+    today.setHours(0, 0, 0, 0); // Only for day calculations
 
-    // Get all borrowers for this lender
+    // Get all borrowers for this lender (exclude completed borrowers with 10/10 payments)
     const borrowers = await Borrower.find({
       lenderId: req.lender._id,
-      status: { $in: ['current', 'due', 'overdue'] }
+      status: { $in: ['current', 'due', 'overdue'] }, // Exclude 'paid' status (completed borrowers)
+      $or: [
+        { monthsPaid: { $lt: 10 } }, // Less than 10 months paid
+        { monthsPaid: { $exists: false } } // Or monthsPaid field doesn't exist
+      ]
     }).sort({ dueDate: 1 });
 
+    console.log(`📊 Found ${borrowers.length} borrowers for notifications check`);
     const notifications = [];
 
     for (const borrower of borrowers) {
+      console.log(`\n🔍 Checking borrower: ${borrower.name}`);
       const dueDate = new Date(borrower.dueDate);
+      const createdDate = new Date(borrower.createdAt);
       const timeDiff = dueDate - today;
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
-      // Skip notifications for borrowers created in the last 3 days to avoid immediate notifications
-      const createdDate = new Date(borrower.createdAt);
-      const daysSinceCreation = Math.ceil((today - createdDate) / (1000 * 60 * 60 * 24));
-      if (daysSinceCreation < 3) {
+      // Calculate expected minutes paid based on account age (FOR TESTING - MINUTES INSTEAD OF MONTHS)
+      const accountAgeMinutes = Math.ceil((now - createdDate) / (1000 * 60)); // Use 'now' instead of 'today'
+      const expectedMinutesPaid = Math.max(0, accountAgeMinutes - 1); // -1 because first minute is grace period
+      const actualMinutesPaid = borrower.monthsPaid || 0; // Using monthsPaid field but treating as minutes
+      
+      console.log(`   📅 Created: ${createdDate.toISOString()}`);
+      console.log(`   ⏰ Account age: ${accountAgeMinutes} minutes`);
+      console.log(`   💰 Expected payments: ${expectedMinutesPaid}, Actual: ${actualMinutesPaid}`);
+      
+      // Skip notifications for borrowers created in the last 30 seconds to avoid immediate notifications (FOR TESTING)
+      const secondsSinceCreation = Math.ceil((now - createdDate) / (1000));
+      if (secondsSinceCreation < 30) {
+        console.log(`⏳ Skipping ${borrower.name} - only ${secondsSinceCreation} seconds old (grace period: 30s)`);
+        continue; // Skip this borrower
+      }
+
+      // Skip notifications for completed borrowers (10/10 months paid)
+      if ((borrower.monthsPaid || 0) >= 10) {
+        console.log(`🎉 Skipping ${borrower.name} - completed all 10 payments (no more notifications)`);
         continue; // Skip this borrower
       }
       
       let status, message, priority, type, shouldNotify = false;
       
-      if (borrower.status === 'overdue') {
-        // More than 1 month overdue
+      // Check if payments are behind schedule (TESTING WITH MINUTES)
+      const paymentsBehind = expectedMinutesPaid - actualMinutesPaid;
+      
+      console.log(`   📊 Payments behind: ${paymentsBehind}`);
+      
+      if (paymentsBehind > 2) {
+        // More than 2 minutes behind
         status = 'overdue';
         type = 'Overdue Payment';
-        const monthsOverdue = Math.ceil(Math.abs(daysDiff) / 30);
-        message = `Payment is ${monthsOverdue} month${monthsOverdue > 1 ? 's' : ''} overdue`;
+        message = `${paymentsBehind} minutes behind on payments`;
         priority = 'urgent';
         shouldNotify = true;
-      } else if (borrower.status === 'due') {
-        // Up to 1 month overdue (due section)
+        console.log(`   🚨 OVERDUE: ${borrower.name} is ${paymentsBehind} minutes behind`);
+      } else if (paymentsBehind > 0) {
+        // 1-2 minutes behind
         status = 'due';
         type = 'Payment Due';
-        const daysOverdue = Math.abs(daysDiff);
-        if (daysOverdue === 0) {
-          message = 'Monthly payment is due today';
-        } else {
-          message = `Payment is ${daysOverdue} day${daysOverdue > 1 ? 's' : ''} overdue`;
-        }
+        message = `${paymentsBehind} minute${paymentsBehind > 1 ? 's' : ''} behind on payments`;
         priority = 'high';
         shouldNotify = true;
-      } else if (borrower.status === 'current' && daysDiff <= 7) {
-        // Due this week (current month payment)
+        console.log(`   ⚠️ DUE: ${borrower.name} is ${paymentsBehind} minute(s) behind`);
+      } else if (daysDiff <= 7 && daysDiff >= 0) {
+        // Due this week (upcoming payment) - keeping original day logic for now
         status = 'due_soon';
         type = 'Monthly Payment Due';
         if (daysDiff === 0) {
@@ -830,26 +881,32 @@ app.put('/api/notifications/paid/:id', authenticateToken, async (req, res) => {
       });
     }
 
-    // Update borrower's months paid and due date
+    // Update borrower's months paid (keep original dueDate as account start date)
     const currentMonthsPaid = borrower.monthsPaid || 0;
-    const newDueDate = new Date(borrower.dueDate);
-    newDueDate.setMonth(newDueDate.getMonth() + 1);
+    const newMonthsPaid = currentMonthsPaid + 1;
 
+    // Update borrower with new months paid
     const updatedBorrower = await Borrower.findByIdAndUpdate(
       borrowerId,
       {
-        monthsPaid: currentMonthsPaid + 1,
-        dueDate: newDueDate,
-        status: 'current',
+        monthsPaid: newMonthsPaid,
+        status: newMonthsPaid >= 10 ? 'paid' : 'current', // Mark as 'paid' if completed
         updatedAt: Date.now()
       },
       { new: true, runValidators: true }
     );
 
+    const message = newMonthsPaid >= 10 
+      ? 'Payment marked as paid successfully. Borrower has completed all 10 payments!'
+      : 'Payment marked as paid successfully';
+
     res.json({
       success: true,
-      message: 'Payment marked as paid successfully',
-      data: { borrower: updatedBorrower }
+      message: message,
+      data: { 
+        borrower: updatedBorrower,
+        completed: newMonthsPaid >= 10
+      }
     });
 
   } catch (error) {

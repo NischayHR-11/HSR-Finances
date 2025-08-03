@@ -146,8 +146,13 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
         // Refresh notifications to update the list
         await fetchNotifications();
         
-        // Show success message (you can add a toast notification here)
-        console.log('Payment marked as paid successfully');
+        // Show different messages based on completion status
+        if (response.data.completed) {
+          console.log('🎉 Borrower completed all 10 payments! No more notifications will be sent.');
+          // You could add a toast notification here for completion
+        } else {
+          console.log('✅ Payment marked as paid successfully');
+        }
       } else {
         setError(response.message || 'Failed to mark payment as paid');
       }

@@ -30,7 +30,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   // Copy popup state
   const [showCopyPopup, setShowCopyPopup] = useState(false);
 
-  const filterOptions = ['All', 'current', 'due', 'overdue'];
+  const filterOptions = ['All', 'current', 'due', 'overdue', 'paid'];
 
   // Fetch borrowers from API
   const fetchBorrowers = async (params = {}) => {
@@ -95,29 +95,36 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   // Form handling functions
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
+    let updatedFormData = {
+      ...formData,
       [name]: value
-    }));
+    };
+    
+    // Auto-calculate months paid when due date changes
+    if (name === 'dueDate' && value) {
+      const monthsPaid = calculateMonthsPaid(value);
+      updatedFormData.monthsPaid = monthsPaid.toString();
+    }
+    
+    setFormData(updatedFormData);
   };
 
   const handleAddBorrower = () => {
     setShowAddBorrowerModal(true);
     
-    // Set default due date to next month
-    const nextMonth = new Date();
-    nextMonth.setMonth(nextMonth.getMonth() + 1);
-    const defaultDueDate = nextMonth.toISOString().slice(0, 16); // Format for datetime-local input
+    // Set default start date to today
+    const today = new Date();
+    const defaultStartDate = today.toISOString().slice(0, 16); // Format for datetime-local input
     
-    // Reset form data with default due date
+    // Reset form data with default start date
     setFormData({
       name: '',
-      monthsPaid: '',
+      monthsPaid: '0',
       phone: '',
       address: '',
       amount: '',
       interestRate: '',
-      dueDate: defaultDueDate
+      dueDate: defaultStartDate
     });
   };
 
@@ -252,6 +259,41 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     return upfrontProfit + (monthlyPayment * monthsElapsed);
   };
 
+  // Calculate months paid based on account start date vs today
+  const calculateMonthsPaid = (startDate) => {
+    if (!startDate) return 0;
+    
+    const today = new Date();
+    const accountStart = new Date(startDate);
+    
+    // If account starts in the future, return 0
+    if (accountStart > today) return 0;
+    
+    // Calculate difference in months
+    const yearDiff = today.getFullYear() - accountStart.getFullYear();
+    const monthDiff = today.getMonth() - accountStart.getMonth();
+    const dayDiff = today.getDate() - accountStart.getDate();
+    
+    let totalMonths = yearDiff * 12 + monthDiff;
+    
+    // If we haven't reached the day of the month yet, subtract one month
+    if (dayDiff < 0) {
+      totalMonths -= 1;
+    }
+    
+    // Ensure it's not negative and not more than 10 (max loan term)
+    return Math.max(0, Math.min(totalMonths, 10));
+  };
+
+  // Calculate next due date (start date + months paid + 1 for next payment)
+  const calculateNextDueDate = (startDate, monthsPaid = 0) => {
+    const accountStart = new Date(startDate);
+    const nextDue = new Date(accountStart);
+    // Add months paid + 1 to get the next payment due date
+    nextDue.setMonth(nextDue.getMonth() + monthsPaid + 1);
+    return nextDue;
+  };
+
   const getStatusClass = (status) => {
     switch (status?.toLowerCase()) {
       case 'current':
@@ -276,7 +318,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
       case 'overdue':
         return 'Overdue';
       case 'paid':
-        return 'Paid';
+        return 'Completed';
       default:
         return status;
     }
@@ -338,7 +380,8 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
               >
                 {option === 'current' ? 'Current' : 
                  option === 'due' ? 'Due' : 
-                 option === 'overdue' ? 'Overdue' : option}
+                 option === 'overdue' ? 'Overdue' : 
+                 option === 'paid' ? 'Completed' : option}
               </button>
             ))}
           </div>
@@ -387,6 +430,8 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
             // Borrowers list
             filteredBorrowers.map((borrower) => {
               const totalEarned = calculateTotalEarned(borrower.amount, borrower.interestRate, borrower.progress);
+              // Use borrower.dueDate as the account start date, not the next due date
+              const nextDueDate = calculateNextDueDate(borrower.dueDate, borrower.monthsPaid);
               return (
                 <div key={borrower._id} className="borrower-card">
                   <div className="borrower-header">
@@ -474,8 +519,17 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                     </div>
 
                     <div className="next-due">
-                      <span className="due-label">Next Due:</span>
-                      <span className="due-date">📅 {formatDate(borrower.dueDate)}</span>
+                      {borrower.monthsPaid >= 10 ? (
+                        <>
+                          <span className="due-label">Status:</span>
+                          <span className="due-date completed">🎉 Loan Completed!</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="due-label">Next Due:</span>
+                          <span className="due-date">📅 {formatDate(nextDueDate)}</span>
+                        </>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -508,19 +562,6 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                     onChange={handleInputChange}
                     placeholder="John Smith"
                     required
-                  />
-                </div>
-
-                <div className="form-group">
-                  <label htmlFor="monthsPaid">Months Paid</label>
-                  <input
-                    type="number"
-                    id="monthsPaid"
-                    name="monthsPaid"
-                    value={formData.monthsPaid}
-                    onChange={handleInputChange}
-                    placeholder="0"
-                    min="0"
                   />
                 </div>
 
@@ -581,7 +622,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                 </div>
 
                 <div className="form-group full-width">
-                  <label htmlFor="dueDate">Due Date *</label>
+                  <label htmlFor="dueDate">Account Start Date *</label>
                   <input
                     type="datetime-local"
                     id="dueDate"
@@ -590,6 +631,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                     onChange={handleInputChange}
                     required
                   />
+                  <small style={{ color: '#666', fontSize: '12px', marginTop: '4px', display: 'block' }}>
+                    This determines when the borrowing account started and auto-calculates months paid
+                  </small>
                 </div>
               </div>
 
