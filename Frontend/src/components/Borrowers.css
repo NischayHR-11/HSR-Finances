@@ -298,10 +298,29 @@
   gap: 16px;
 }
 
+/* Desktop loan-interest layout */
+.loan-interest-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 24px;
+}
+
+.loan-interest-left,
+.loan-interest-right {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.address-row {
+  grid-column: 1 / -1;
+}
+
 .detail-group {
   display: flex;
   flex-direction: column;
   gap: 4px;
+  align-items: flex-start;
 }
 
 .detail-label {
@@ -309,12 +328,14 @@
   color: var(--text-muted);
   text-transform: uppercase;
   font-weight: 500;
+  margin-bottom: 2px;
 }
 
 .detail-value {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
+  line-height: 1.3;
 }
 
 .detail-value.green {
@@ -518,6 +539,7 @@
     justify-content: space-between;
     gap: 16px;
     margin-bottom: 16px;
+    grid-column: 1 / -1;
   }
 
   .loan-interest-left,
@@ -525,7 +547,7 @@
     flex: 1;
     display: flex;
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
 
   .address-row {
