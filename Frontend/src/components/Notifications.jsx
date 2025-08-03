@@ -9,6 +9,7 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
   const [notificationSummary, setNotificationSummary] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showCopyPopup, setShowCopyPopup] = useState(false);
 
   // Fetch due notifications
   const fetchNotifications = async () => {
@@ -34,14 +35,14 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
             title: 'Due This Month',
             count: summary.due,
             description: 'Overdue payments (1-30 days)',
-            icon: '�',
+            icon: '📅',
             color: 'info'
           },
           {
             title: 'Overdue',
             count: summary.overdue,
             description: 'Critical overdue (30+ days)',
-            icon: '�',
+            icon: '🚨',
             color: 'danger'
           }
         ]);
@@ -60,6 +61,29 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
   useEffect(() => {
     fetchNotifications();
   }, []);
+
+  // Handle copy phone number
+  const handleCopyPhone = async (phoneNumber) => {
+    try {
+      await navigator.clipboard.writeText(phoneNumber);
+      // Show copy popup
+      setShowCopyPopup(true);
+      setTimeout(() => setShowCopyPopup(false), 2000); // Hide after 2 seconds
+      console.log('📋 Phone number copied to clipboard');
+    } catch (error) {
+      console.error('❌ Failed to copy phone number:', error);
+      // Fallback for older browsers
+      const textArea = document.createElement('textarea');
+      textArea.value = phoneNumber;
+      document.body.appendChild(textArea);
+      textArea.select();
+      document.execCommand('copy');
+      document.body.removeChild(textArea);
+      // Show copy popup for fallback too
+      setShowCopyPopup(true);
+      setTimeout(() => setShowCopyPopup(false), 2000);
+    }
+  };
 
   const formatDate = (dateString) => {
     const date = new Date(dateString);
@@ -225,13 +249,32 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
                     <div className="notification-details">
                       <span className="notification-date">📅 Due: {formatDate(notification.dueDate)}</span>
                       {notification.phone && (
-                        <span className="notification-contact">📞 {notification.phone}</span>
+                        <div className="borrower-phone">
+                          <span className="phone-number">📞 {notification.phone}</span>
+                          <button 
+                            className="copy-phone-btn"
+                            onClick={() => handleCopyPhone(notification.phone)}
+                            title="Copy phone number"
+                          >
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="copy-icon">
+                              {/* Back document */}
+                              <rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor"/>
+                              {/* Front document */}
+                              <rect x="2" y="2" width="13" height="13" rx="2" ry="2" fill="currentColor" stroke="currentColor"/>
+                              {/* Lines on front document */}
+                              <line x1="4" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1"/>
+                              <line x1="4" y1="9" x2="11" y2="9" stroke="white" strokeWidth="1"/>
+                              <line x1="4" y1="12" x2="8" y2="12" stroke="white" strokeWidth="1"/>
+                            </svg>
+                            <span className="copy-text">Copy</span>
+                          </button>
+                        </div>
                       )}
                     </div>
                   </div>
                   
                   <div className="notification-actions">
-                    {['overdue', 'due_today', 'due_soon'].includes(notification.status) && (
+                    {['overdue', 'due', 'due_soon'].includes(notification.status) && (
                       <button 
                         className="action-btn paid-btn"
                         onClick={() => markAsPaid(notification)}
@@ -254,6 +297,16 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
           )}
         </div>
       </div>
+
+      {/* Copy Success Popup */}
+      {showCopyPopup && (
+        <div className="copy-popup">
+          <div className="copy-popup-content">
+            <span className="copy-popup-icon">✓</span>
+            <span className="copy-popup-text">Copied!</span>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
