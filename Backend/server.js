@@ -550,6 +550,16 @@ app.post('/api/borrowers', authenticateToken, [
     // Calculate monthly payment (original amount / 10 months)
     const monthlyPayment = amount / 10;
 
+    // Set due date to next month from today if not provided or if provided date is in the past/today
+    let finalDueDate = new Date(dueDate);
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    
+    // If due date is today or in the past, automatically set it to next month
+    if (finalDueDate <= today) {
+      finalDueDate = nextMonth;
+    }
+
     // Create borrower
     const borrower = new Borrower({
       lenderId: req.lender._id,
@@ -561,7 +571,7 @@ app.post('/api/borrowers', authenticateToken, [
       interestRate,
       monthlyInterest: monthlyPayment, // Keep field name for compatibility, but it's now monthly payment
       upfrontProfit,
-      dueDate: new Date(dueDate)
+      dueDate: finalDueDate
     });
 
     await borrower.save();
@@ -717,6 +727,13 @@ app.get('/api/notifications/due', authenticateToken, async (req, res) => {
       const dueDate = new Date(borrower.dueDate);
       const timeDiff = dueDate - today;
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      
+      // Skip notifications for borrowers created in the last 3 days to avoid immediate notifications
+      const createdDate = new Date(borrower.createdAt);
+      const daysSinceCreation = Math.ceil((today - createdDate) / (1000 * 60 * 60 * 24));
+      if (daysSinceCreation < 3) {
+        continue; // Skip this borrower
+      }
       
       let status, message, priority, type, shouldNotify = false;
       

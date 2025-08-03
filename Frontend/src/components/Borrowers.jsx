@@ -103,7 +103,13 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
 
   const handleAddBorrower = () => {
     setShowAddBorrowerModal(true);
-    // Reset form data
+    
+    // Set default due date to next month
+    const nextMonth = new Date();
+    nextMonth.setMonth(nextMonth.getMonth() + 1);
+    const defaultDueDate = nextMonth.toISOString().slice(0, 16); // Format for datetime-local input
+    
+    // Reset form data with default due date
     setFormData({
       name: '',
       monthsPaid: '',
@@ -111,7 +117,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
       address: '',
       amount: '',
       interestRate: '',
-      dueDate: ''
+      dueDate: defaultDueDate
     });
   };
 
