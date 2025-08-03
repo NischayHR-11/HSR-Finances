@@ -182,12 +182,20 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       color: 'var(--accent-primary)'
     },
     {
-      title: 'Monthly Interest',
+      title: 'Monthly Payments',
       value: formatCurrency(dashboardData.stats.monthlyInterest),
-      change: dashboardData.stats.monthlyInterest > 0 ? '+Monthly Earning' : 'No earnings yet',
+      change: dashboardData.stats.monthlyInterest > 0 ? '+Monthly Income' : 'No income yet',
       icon: '📈',
       positive: dashboardData.stats.monthlyInterest > 0,
       color: 'var(--accent-green)'
+    },
+    {
+      title: 'Upfront Profits',
+      value: formatCurrency(dashboardData.stats.totalUpfrontProfit),
+      change: dashboardData.stats.totalUpfrontProfit > 0 ? '+Immediate Earnings' : 'No profits yet',
+      icon: '💎',
+      positive: dashboardData.stats.totalUpfrontProfit > 0,
+      color: 'var(--accent-tertiary)'
     },
     {
       title: 'Active Loans',
@@ -195,7 +203,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       change: `${dashboardData.stats.activeLoans} borrowers`,
       icon: '🏦',
       positive: dashboardData.stats.activeLoans > 0,
-      color: 'var(--accent-tertiary)'
+      color: 'var(--accent-secondary)'
     },
     {
       title: 'On-Time Rate',
@@ -203,7 +211,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       change: dashboardData.stats.onTimeRate > 80 ? 'Excellent!' : dashboardData.stats.onTimeRate > 60 ? 'Good' : 'Needs attention',
       icon: '⭐',
       positive: dashboardData.stats.onTimeRate > 60,
-      color: 'var(--accent-secondary)'
+      color: 'var(--accent-yellow)'
     }
   ] : [
     {
@@ -215,7 +223,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       color: 'var(--accent-primary)'
     },
     {
-      title: 'Monthly Interest',
+      title: 'Monthly Payments',
       value: '$0',
       change: 'Loading...',
       icon: '📈',
@@ -223,12 +231,20 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       color: 'var(--accent-green)'
     },
     {
+      title: 'Upfront Profits',
+      value: '$0',
+      change: 'Loading...',
+      icon: '💎',
+      positive: true,
+      color: 'var(--accent-tertiary)'
+    },
+    {
       title: 'Active Loans',
       value: '0',
       change: 'Loading...',
       icon: '🏦',
       positive: true,
-      color: 'var(--accent-tertiary)'
+      color: 'var(--accent-secondary)'
     },
     {
       title: 'On-Time Rate',
@@ -236,7 +252,7 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
       change: 'Loading...',
       icon: '⭐',
       positive: true,
-      color: 'var(--accent-secondary)'
+      color: 'var(--accent-yellow)'
     }
   ];
 

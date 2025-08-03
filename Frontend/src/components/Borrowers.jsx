@@ -231,11 +231,19 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     });
   };
 
-  // Calculate total earned (this would ideally come from backend)
+  // Calculate total earned with new logic (upfront profit + monthly payments received)
   const calculateTotalEarned = (amount, interestRate, progress) => {
-    const monthlyInterest = (amount * interestRate) / 100 / 12;
-    const monthsElapsed = Math.floor((progress / 100) * 12); // Assuming 1 year term
-    return monthlyInterest * monthsElapsed;
+    // 20% upfront profit
+    const upfrontProfit = amount * 0.20;
+    
+    // Monthly payment (original amount / 10 months)
+    const monthlyPayment = amount / 10;
+    
+    // Months elapsed based on progress (now out of 10 months, not 12)
+    const monthsElapsed = Math.floor((progress / 100) * 10);
+    
+    // Total earned = upfront profit + (monthly payments * months elapsed)
+    return upfrontProfit + (monthlyPayment * monthsElapsed);
   };
 
   const getStatusClass = (status) => {
@@ -429,7 +437,7 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                       </div>
                       <div className="loan-interest-right">
                         <div className="detail-group">
-                          <span className="detail-label">Monthly Interest</span>
+                          <span className="detail-label">Monthly Payment</span>
                           <span className="detail-value green">{formatCurrency(borrower.monthlyInterest)}</span>
                         </div>
                         <div className="detail-group">
@@ -448,13 +456,13 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
 
                     <div className="progress-section">
                       <div className="progress-header">
-                        <span className="progress-label">{borrower.monthsPaid || 0} / 12 months</span>
+                        <span className="progress-label">{borrower.monthsPaid || 0} / 10 months</span>
                         <span className="progress-streak">🔥 {borrower.monthsPaid || 0}</span>
                       </div>
                       <div className="progress-bar">
                         <div 
                           className="progress-fill" 
-                          style={{ width: `${Math.min(((borrower.monthsPaid || 0) / 12) * 100, 100)}%` }}
+                          style={{ width: `${Math.min(((borrower.monthsPaid || 0) / 10) * 100, 100)}%` }}
                         ></div>
                       </div>
                     </div>

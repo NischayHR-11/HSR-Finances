@@ -39,6 +39,10 @@ const borrowerSchema = new mongoose.Schema({
     type: Number,
     required: true
   },
+  upfrontProfit: {
+    type: Number,
+    default: 0
+  },
   progress: {
     type: Number,
     default: 0,

@@ -404,6 +404,7 @@ app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
     // Calculate statistics
     const totalMoneyLent = borrowers.reduce((sum, borrower) => sum + borrower.amount, 0);
     const monthlyInterest = borrowers.reduce((sum, borrower) => sum + borrower.monthlyInterest, 0);
+    const totalUpfrontProfit = borrowers.reduce((sum, borrower) => sum + (borrower.upfrontProfit || 0), 0);
     const activeLoans = borrowers.filter(b => b.status === 'current' || b.status === 'due').length;
     const onTimePayments = borrowers.filter(b => b.status === 'current').length;
     const onTimeRate = borrowers.length > 0 ? Math.round((onTimePayments / borrowers.length) * 100) : 0;
@@ -423,6 +424,7 @@ app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
         stats: {
           totalMoneyLent,
           monthlyInterest,
+          totalUpfrontProfit,
           activeLoans,
           onTimeRate
         },
@@ -542,8 +544,11 @@ app.post('/api/borrowers', authenticateToken, [
 
     const { name, monthsPaid, phone, address, amount, interestRate, dueDate } = req.body;
 
-    // Calculate monthly interest
-    const monthlyInterest = (amount * interestRate) / 100 / 12;
+    // Calculate upfront profit (20% of loan amount)
+    const upfrontProfit = amount * 0.20;
+    
+    // Calculate monthly payment (original amount / 10 months)
+    const monthlyPayment = amount / 10;
 
     // Create borrower
     const borrower = new Borrower({
@@ -554,7 +559,8 @@ app.post('/api/borrowers', authenticateToken, [
       address,
       amount,
       interestRate,
-      monthlyInterest,
+      monthlyInterest: monthlyPayment, // Keep field name for compatibility, but it's now monthly payment
+      upfrontProfit,
       dueDate: new Date(dueDate)
     });
 
@@ -609,11 +615,16 @@ app.put('/api/borrowers/:id', authenticateToken, [
 
     const updateData = { ...req.body, updatedAt: Date.now() };
 
-    // Recalculate monthly interest if amount or interest rate changed
+    // Recalculate monthly payment and upfront profit if amount or interest rate changed
     if (updateData.amount || updateData.interestRate) {
       const amount = updateData.amount || borrower.amount;
       const interestRate = updateData.interestRate || borrower.interestRate;
-      updateData.monthlyInterest = (amount * interestRate) / 100 / 12;
+      
+      // Calculate upfront profit (20% of loan amount)
+      updateData.upfrontProfit = amount * 0.20;
+      
+      // Calculate monthly payment (original amount / 10 months)
+      updateData.monthlyInterest = amount / 10; // Keep field name for compatibility
     }
 
     const updatedBorrower = await Borrower.findByIdAndUpdate(
