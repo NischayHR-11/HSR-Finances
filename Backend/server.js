@@ -607,6 +607,145 @@ app.delete('/api/borrowers/:id', authenticateToken, async (req, res) => {
   }
 });
 
+// ===== NOTIFICATION ROUTES =====
+
+// Get Due Date Notifications
+app.get('/api/notifications/due', authenticateToken, async (req, res) => {
+  try {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    const sevenDaysFromNow = new Date(today);
+    sevenDaysFromNow.setDate(today.getDate() + 7);
+
+    // Find borrowers with due dates within the next 7 days or overdue
+    const borrowers = await Borrower.find({
+      lenderId: req.lender._id,
+      status: { $in: ['current', 'due', 'overdue'] },
+      dueDate: { $lte: sevenDaysFromNow }
+    }).sort({ dueDate: 1 });
+
+    const notifications = borrowers.map(borrower => {
+      const dueDate = new Date(borrower.dueDate);
+      const timeDiff = dueDate - today;
+      const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
+      
+      let status, message, priority, type;
+      
+      if (daysDiff < 0) {
+        // Overdue
+        const overdueDays = Math.abs(daysDiff);
+        status = 'overdue';
+        type = 'Overdue Payment';
+        message = `Payment is ${overdueDays} day${overdueDays > 1 ? 's' : ''} overdue`;
+        priority = 'urgent';
+      } else if (daysDiff === 0) {
+        // Due today
+        status = 'due_today';
+        type = 'Payment Due Today';
+        message = 'Monthly interest payment is due today';
+        priority = 'high';
+      } else if (daysDiff <= 2) {
+        // Due soon
+        status = 'due_soon';
+        type = 'Payment Due Soon';
+        message = `Monthly interest payment is due in ${daysDiff} day${daysDiff > 1 ? 's' : ''}`;
+        priority = 'high';
+      } else {
+        // Upcoming
+        status = 'upcoming';
+        type = 'Upcoming Payment';
+        message = `Payment due in ${daysDiff} days`;
+        priority = 'normal';
+      }
+
+      return {
+        id: borrower._id,
+        borrowerId: borrower._id,
+        name: borrower.name,
+        type,
+        message,
+        amount: `$${borrower.monthlyInterest?.toFixed(2) || '0.00'}`,
+        dueDate: borrower.dueDate,
+        priority,
+        status,
+        phone: borrower.phone,
+        address: borrower.address
+      };
+    });
+
+    // Calculate summary statistics
+    const summary = {
+      dueToday: notifications.filter(n => n.status === 'due_today').length,
+      overdue: notifications.filter(n => n.status === 'overdue').length,
+      thisWeek: notifications.filter(n => ['due_today', 'due_soon', 'upcoming'].includes(n.status)).length
+    };
+
+    res.json({
+      success: true,
+      data: {
+        notifications,
+        summary
+      }
+    });
+
+  } catch (error) {
+    console.error('Get notifications error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while fetching notifications'
+    });
+  }
+});
+
+// Mark Payment as Paid
+app.put('/api/notifications/paid/:id', authenticateToken, async (req, res) => {
+  try {
+    const borrowerId = req.params.id;
+    
+    const borrower = await Borrower.findOne({
+      _id: borrowerId,
+      lenderId: req.lender._id
+    });
+
+    if (!borrower) {
+      return res.status(404).json({
+        success: false,
+        message: 'Borrower not found'
+      });
+    }
+
+    // Update borrower's months paid and due date
+    const currentMonthsPaid = borrower.monthsPaid || 0;
+    const newDueDate = new Date(borrower.dueDate);
+    newDueDate.setMonth(newDueDate.getMonth() + 1);
+
+    const updatedBorrower = await Borrower.findByIdAndUpdate(
+      borrowerId,
+      {
+        monthsPaid: currentMonthsPaid + 1,
+        dueDate: newDueDate,
+        status: 'current',
+        updatedAt: Date.now()
+      },
+      { new: true, runValidators: true }
+    );
+
+    res.json({
+      success: true,
+      message: 'Payment marked as paid successfully',
+      data: { borrower: updatedBorrower }
+    });
+
+  } catch (error) {
+    console.error('Mark paid error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while marking payment as paid'
+    });
+  }
+});
+
 // ===== ERROR HANDLING =====
 
 // 404 Handler
