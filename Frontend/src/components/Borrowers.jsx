@@ -281,6 +281,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
       totalMonths -= 1;
     }
     
+    // Debug logging for troubleshooting
+    console.log(`📅 Month calculation: start=${accountStart.toISOString()}, today=${today.toISOString()}, result=${totalMonths}`);
+    
     // Ensure it's not negative and not more than 10 (max loan term)
     return Math.max(0, Math.min(totalMonths, 10));
   };
@@ -289,7 +292,8 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const calculateNextDueDate = (startDate, monthsPaid = 0) => {
     const accountStart = new Date(startDate);
     const nextDue = new Date(accountStart);
-    // Add months paid + 1 to get the next payment due date
+    // For new borrowers (0 months paid), next due is start date + 1 month
+    // For 1 month paid, next due is start date + 2 months, etc.
     nextDue.setMonth(nextDue.getMonth() + monthsPaid + 1);
     return nextDue;
   };

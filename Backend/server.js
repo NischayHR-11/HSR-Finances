@@ -123,8 +123,8 @@ const updateBorrowerStatuses = async (lenderId = null) => {
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
       // Calculate expected minutes paid based on account age (FOR TESTING - MINUTES INSTEAD OF MONTHS)
-      const accountAgeMinutes = Math.ceil((now - createdDate) / (1000 * 60)); // Use 'now' instead of 'today'
-      const expectedMinutesPaid = Math.max(0, accountAgeMinutes - 1); // -1 because first minute is grace period
+      const accountAgeMinutes = Math.floor((now - createdDate) / (1000 * 60)); // Use Math.floor to count only complete minutes
+      const expectedMinutesPaid = Math.max(0, accountAgeMinutes); // No grace period - start expecting payments after complete minutes
       const actualMinutesPaid = borrower.monthsPaid || 0; // Using monthsPaid field but treating as minutes
       const paymentsBehind = expectedMinutesPaid - actualMinutesPaid;
       
@@ -146,14 +146,14 @@ const updateBorrowerStatuses = async (lenderId = null) => {
         continue; // Skip further processing for completed borrowers
       }
       
-      if (paymentsBehind > 2) {
-        // More than 2 minutes behind
+      if (paymentsBehind >= 2) {
+        // 2 or more minutes behind = overdue
         newStatus = 'overdue';
-      } else if (paymentsBehind > 0) {
-        // 1-2 minutes behind  
+      } else if (paymentsBehind >= 1) {
+        // Exactly 1 minute behind = due
         newStatus = 'due';
       } else {
-        // On track or ahead
+        // On track (0 minutes behind)
         newStatus = 'current';
       }
 
@@ -764,18 +764,18 @@ app.get('/api/notifications/due', authenticateToken, async (req, res) => {
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
       // Calculate expected minutes paid based on account age (FOR TESTING - MINUTES INSTEAD OF MONTHS)
-      const accountAgeMinutes = Math.ceil((now - createdDate) / (1000 * 60)); // Use 'now' instead of 'today'
-      const expectedMinutesPaid = Math.max(0, accountAgeMinutes - 1); // -1 because first minute is grace period
+      const accountAgeMinutes = Math.floor((now - createdDate) / (1000 * 60)); // Use Math.floor to count only complete minutes
+      const expectedMinutesPaid = Math.max(0, accountAgeMinutes); // No grace period - start expecting payments after complete minutes
       const actualMinutesPaid = borrower.monthsPaid || 0; // Using monthsPaid field but treating as minutes
       
       console.log(`   📅 Created: ${createdDate.toISOString()}`);
       console.log(`   ⏰ Account age: ${accountAgeMinutes} minutes`);
       console.log(`   💰 Expected payments: ${expectedMinutesPaid}, Actual: ${actualMinutesPaid}`);
       
-      // Skip notifications for borrowers created in the last 30 seconds to avoid immediate notifications (FOR TESTING)
+      // Skip notifications for borrowers created in the last 5 seconds to avoid immediate notifications (FOR TESTING)
       const secondsSinceCreation = Math.ceil((now - createdDate) / (1000));
-      if (secondsSinceCreation < 30) {
-        console.log(`⏳ Skipping ${borrower.name} - only ${secondsSinceCreation} seconds old (grace period: 30s)`);
+      if (secondsSinceCreation < 5) {
+        console.log(`⏳ Skipping ${borrower.name} - only ${secondsSinceCreation} seconds old (grace period: 5s)`);
         continue; // Skip this borrower
       }
 
@@ -792,19 +792,19 @@ app.get('/api/notifications/due', authenticateToken, async (req, res) => {
       
       console.log(`   📊 Payments behind: ${paymentsBehind}`);
       
-      if (paymentsBehind > 2) {
-        // More than 2 minutes behind
+      if (paymentsBehind >= 2) {
+        // 2 or more minutes behind = overdue
         status = 'overdue';
         type = 'Overdue Payment';
         message = `${paymentsBehind} minutes behind on payments`;
         priority = 'urgent';
         shouldNotify = true;
         console.log(`   🚨 OVERDUE: ${borrower.name} is ${paymentsBehind} minutes behind`);
-      } else if (paymentsBehind > 0) {
-        // 1-2 minutes behind
+      } else if (paymentsBehind >= 1) {
+        // Exactly 1 minute behind = due
         status = 'due';
         type = 'Payment Due';
-        message = `${paymentsBehind} minute${paymentsBehind > 1 ? 's' : ''} behind on payments`;
+        message = `${paymentsBehind} minute behind on payments`;
         priority = 'high';
         shouldNotify = true;
         console.log(`   ⚠️ DUE: ${borrower.name} is ${paymentsBehind} minute(s) behind`);
