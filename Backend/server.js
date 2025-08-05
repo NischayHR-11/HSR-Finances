@@ -431,9 +431,9 @@ app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
     const totalMoneyLent = borrowers.reduce((sum, borrower) => sum + borrower.amount, 0);
     const monthlyInterest = borrowers.reduce((sum, borrower) => sum + borrower.monthlyInterest, 0);
     const totalProfit = borrowers.reduce((sum, borrower) => sum + (borrower.amount * 0.20), 0);
-    const activeLoans = borrowers.filter(b => b.status === 'current' || b.status === 'due').length;
+    const activeLoans = borrowers.filter(b => (b.monthsPaid || 0) < 10).length; // Exclude borrowers who completed 10 payments
     const onTimePayments = borrowers.filter(b => b.status === 'current').length;
-    const onTimeRate = borrowers.length > 0 ? Math.round((onTimePayments / borrowers.length) * 100) : 0;
+    const onTimeRate = activeLoans > 0 ? Math.round((onTimePayments / activeLoans) * 100) : 0; // Current accounts / active loans
 
     // Update lender statistics
     await Lender.findByIdAndUpdate(req.lender._id, {
