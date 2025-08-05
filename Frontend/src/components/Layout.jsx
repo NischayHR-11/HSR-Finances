@@ -5,15 +5,33 @@ import Dashboard from './Dashboard';
 import Borrowers from './Borrowers';
 import Notifications from './Notifications';
 import Settings from './Settings';
+import apiService from '../services/apiService';
 import './Layout.css';
 
 const Layout = ({ onLogout, userLevel, xpPoints, lenderData }) => {
   const location = useLocation();
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
   
   // XP percentage calculation
   const maxXp = userLevel * 100;
   const xpPercentage = (xpPoints / maxXp) * 100;
+  
+  // Fetch notification count
+  const fetchNotificationCount = async () => {
+    try {
+      const response = await apiService.getDueNotifications();
+      if (response.success) {
+        const totalCount = response.data.summary.dueToday + 
+                          response.data.summary.due + 
+                          response.data.summary.overdue;
+        setNotificationCount(totalCount);
+      }
+    } catch (error) {
+      console.error('Failed to fetch notification count:', error);
+      setNotificationCount(0);
+    }
+  };
   
   // Check for level up
   useEffect(() => {
@@ -22,6 +40,21 @@ const Layout = ({ onLogout, userLevel, xpPoints, lenderData }) => {
       setTimeout(() => setShowLevelUp(false), 3000);
     }
   }, [userLevel, xpPoints]);
+
+  // Fetch notification count on component mount and periodically
+  useEffect(() => {
+    fetchNotificationCount();
+    
+    // Refresh notification count every 30 seconds
+    const interval = setInterval(fetchNotificationCount, 30000);
+    
+    return () => clearInterval(interval);
+  }, []);
+
+  // Refresh notification count when user navigates to different pages
+  useEffect(() => {
+    fetchNotificationCount();
+  }, [location.pathname]);
 
   // Render the appropriate component based on current path
   const renderCurrentComponent = () => {
@@ -45,6 +78,7 @@ const Layout = ({ onLogout, userLevel, xpPoints, lenderData }) => {
         currentPath={location.pathname} 
         onLogout={onLogout} 
         userLevel={userLevel}
+        notificationCount={notificationCount}
       />
       
       <main className="main-content">

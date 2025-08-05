@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
 
-const Sidebar = ({ currentPath, onLogout, userLevel }) => {
+const Sidebar = ({ currentPath, onLogout, userLevel, notificationCount = 0 }) => {
   const [menuExpanded, setMenuExpanded] = useState(null);
   const [activeEffects, setActiveEffects] = useState({});
   
@@ -38,7 +38,7 @@ const Sidebar = ({ currentPath, onLogout, userLevel }) => {
         </svg>
       ),
       label: 'Notifications',
-      badge: 3,
+      badge: notificationCount > 0 ? notificationCount : null, // Only show badge if there are notifications
       isActive: currentPath === '/notifications',
       color: 'var(--accent-warning)'
     },
