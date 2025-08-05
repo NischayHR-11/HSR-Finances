@@ -247,6 +247,7 @@ input:checked + .slider:before {
   justify-content: space-between;
   align-items: flex-start;
   margin-bottom: 1rem;
+  width: 100%;
 }
 
 .security-item h3 {
@@ -382,15 +383,23 @@ input:checked + .slider:before {
   background-color: var(--bg-secondary);
   color: var(--text-primary);
   border: 1px solid var(--border-color);
-  padding: 8px 16px;
-  border-radius: 6px;
+  padding: 10px 16px;
+  border-radius: 8px;
   font-size: 14px;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.2s ease;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: fit-content;
 }
 
 .btn-secondary:hover {
   background-color: var(--hover-bg);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
 }
 
 @media (max-width: 1024px) {
@@ -456,14 +465,26 @@ input:checked + .slider:before {
     gap: 16px;
     padding: 16px;
   }
+
+  .security-item-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 12px;
+    width: 100%;
+  }
   
   .toggle {
     align-self: flex-end;
   }
 
   .btn-secondary {
-    align-self: stretch;
+    align-self: flex-end;
     text-align: center;
+    padding: 10px 32px;
+    font-size: 13px;
+    min-width: 160px;
+    max-width: 200px;
+    white-space: nowrap;
   }
 
   .settings-tabs {
@@ -480,6 +501,21 @@ input:checked + .slider:before {
 @media (max-width: 480px) {
   .settings {
     padding: 70px 12px 12px 12px; /* Top padding for mobile nav bar */
+  }
+
+  .btn-secondary {
+    padding: 12px 28px;
+    font-size: 12px;
+    min-width: 140px;
+    max-width: 170px;
+  }
+
+  .security-item-header {
+    gap: 8px;
+  }
+
+  .security-item {
+    padding: 12px;
   }
 }
 
