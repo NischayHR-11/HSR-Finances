@@ -158,6 +158,8 @@
 .mobile-avatar {
   width: 36px;
   height: 36px;
+  min-width: 36px;
+  min-height: 36px;
   background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
   border: 2px solid var(--accent-primary);
   border-radius: 50%;
@@ -170,6 +172,11 @@
   transition: all 0.3s ease;
   position: relative;
   overflow: hidden;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
 }
 
 .mobile-avatar:hover {

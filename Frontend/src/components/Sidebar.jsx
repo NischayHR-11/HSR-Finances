@@ -1,10 +1,11 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
 
 const Sidebar = ({ currentPath, onLogout, userLevel, notificationCount = 0 }) => {
   const [menuExpanded, setMenuExpanded] = useState(null);
   const [activeEffects, setActiveEffects] = useState({});
+  const navigate = useNavigate();
   
   // Animated menu items with gamified effects
   const menuItems = [
@@ -140,7 +141,13 @@ const Sidebar = ({ currentPath, onLogout, userLevel, notificationCount = 0 }) =>
           <span className="level-text">Level {userLevel}</span>
         </div>
         <div className="user-profile">
-          <div className="user-avatar">JD</div>
+          <button 
+            className="user-avatar" 
+            onClick={() => navigate('/settings')}
+            title="Go to Settings"
+          >
+            JD
+          </button>
           <div className="notification-dot"></div>
         </div>
       </div>

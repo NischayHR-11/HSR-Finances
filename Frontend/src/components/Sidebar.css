@@ -258,6 +258,8 @@
 .user-avatar {
   width: 40px;
   height: 40px;
+  min-width: 40px;
+  min-height: 40px;
   background: linear-gradient(135deg, var(--accent-secondary), var(--accent-primary));
   border-radius: 50%;
   display: flex;
@@ -270,8 +272,14 @@
   overflow: hidden;
   border: 2px solid transparent;
   transition: all 0.3s ease;
+  cursor: pointer;
+  outline: none;
+  padding: 0;
+  box-sizing: border-box;
+  aspect-ratio: 1 / 1;
 }
 
+.user-avatar:hover,
 .user-profile:hover .user-avatar {
   border-color: var(--accent-primary);
   box-shadow: var(--neon-shadow);
@@ -289,6 +297,7 @@
   transform: rotate(45deg) translateX(-100%);
 }
 
+.user-avatar:hover::after,
 .user-profile:hover .user-avatar::after {
   transform: rotate(45deg) translateX(100%);
 }

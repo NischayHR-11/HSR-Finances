@@ -92,9 +92,13 @@ const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
               <span className="notification-badge">{notificationCount}</span>
             )}
           </div>
-          <div className="user-avatar mobile-avatar">
+          <button 
+            className="user-avatar mobile-avatar" 
+            onClick={() => navigate('/settings')}
+            title="Go to Settings"
+          >
             {getUserInitials(lenderData?.name)}
-          </div>
+          </button>
         </div>
       </div>
 
@@ -156,7 +160,9 @@ const MobileNavigation = ({ userLevel = 1, lenderData, onLogout }) => {
                   </svg>
                 </span>
                 <span>Notifications</span>
-                <span className="nav-badge">3</span>
+                {notificationCount > 0 && (
+                  <span className="nav-badge">{notificationCount}</span>
+                )}
               </Link>
               <Link 
                 to="/settings" 
