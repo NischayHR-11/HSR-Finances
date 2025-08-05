@@ -419,6 +419,67 @@ app.put('/api/lender/profile', authenticateToken, [
   }
 });
 
+// Change Password
+app.put('/api/lender/change-password', authenticateToken, [
+  body('currentPassword').notEmpty().withMessage('Current password is required'),
+  body('newPassword').isLength({ min: 6 }).withMessage('New password must be at least 6 characters long'),
+], async (req, res) => {
+  try {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({
+        success: false,
+        message: 'Validation failed',
+        errors: errors.array()
+      });
+    }
+
+    const { currentPassword, newPassword } = req.body;
+
+    // Get the current lender with password
+    const lender = await Lender.findById(req.lender._id);
+    if (!lender) {
+      return res.status(404).json({
+        success: false,
+        message: 'Lender not found'
+      });
+    }
+
+    // Verify current password
+    const isCurrentPasswordValid = await comparePassword(currentPassword, lender.password);
+    if (!isCurrentPasswordValid) {
+      return res.status(400).json({
+        success: false,
+        message: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const hashedNewPassword = await hashPassword(newPassword);
+
+    // Update password
+    await Lender.findByIdAndUpdate(
+      req.lender._id,
+      { 
+        password: hashedNewPassword,
+        updatedAt: Date.now()
+      }
+    );
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+
+  } catch (error) {
+    console.error('Password change error:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Server error while changing password'
+    });
+  }
+});
+
 // Get Dashboard Statistics
 app.get('/api/lender/dashboard', authenticateToken, async (req, res) => {
   try {

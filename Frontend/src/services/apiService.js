@@ -182,6 +182,21 @@ class ApiService {
     }
   }
 
+  async changePassword(passwordData) {
+    try {
+      const response = await fetch(`${this.baseURL}/lender/change-password`, {
+        method: 'PUT',
+        headers: this.getHeaders(true),
+        body: JSON.stringify(passwordData),
+      });
+
+      return await this.handleResponse(response);
+    } catch (error) {
+      console.error('Change password error:', error);
+      throw error;
+    }
+  }
+
   async getDashboardStats() {
     try {
       const response = await fetch(`${this.baseURL}/lender/dashboard`, {

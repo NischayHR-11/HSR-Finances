@@ -112,9 +112,10 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const handleAddBorrower = () => {
     setShowAddBorrowerModal(true);
     
-    // Set default start date to today
+    // Set default start date to next month from today
     const today = new Date();
-    const defaultStartDate = today.toISOString().slice(0, 16); // Format for datetime-local input
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
+    const defaultStartDate = nextMonth.toISOString().slice(0, 16); // Format for datetime-local input
     
     // Reset form data with default start date
     setFormData({
@@ -288,13 +289,13 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     return Math.max(0, Math.min(totalMonths, 10));
   };
 
-  // Calculate next due date (start date + months paid + 1 for next payment)
+  // Calculate next due date (start date + months paid for next payment)
   const calculateNextDueDate = (startDate, monthsPaid = 0) => {
     const accountStart = new Date(startDate);
     const nextDue = new Date(accountStart);
-    // For new borrowers (0 months paid), next due is start date + 1 month
-    // For 1 month paid, next due is start date + 2 months, etc.
-    nextDue.setMonth(nextDue.getMonth() + monthsPaid + 1);
+    // For new borrowers (0 months paid), next due is start date (same month)
+    // For 1 month paid, next due is start date + 1 month, etc.
+    nextDue.setMonth(nextDue.getMonth() + monthsPaid);
     return nextDue;
   };
 

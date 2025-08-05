@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import MobileNavigation from './MobileNavigation';
+import apiService from '../services/apiService';
 import './Settings.css';
+import '../assets/gamified-ui.css';
 
 const Settings = ({ userLevel = 1, lenderData, onLogout }) => {
   const [activeTab, setActiveTab] = useState('Profile');
@@ -16,6 +18,18 @@ const Settings = ({ userLevel = 1, lenderData, onLogout }) => {
     taxId: 'XX-XXXXXXX',
     businessAddress: '123 Business St, City, State 12345'
   });
+
+  // Password change state
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: '',
+    newPassword: '',
+    confirmPassword: ''
+  });
+  const [showPasswordForm, setShowPasswordForm] = useState(false);
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [showAchievementPopup, setShowAchievementPopup] = useState(false);
 
   const tabs = [
     { 
@@ -68,6 +82,90 @@ const Settings = ({ userLevel = 1, lenderData, onLogout }) => {
       ...prev,
       [field]: value
     }));
+  };
+
+  // Password change handlers
+  const handlePasswordChange = (field, value) => {
+    setPasswordData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    // Clear messages when user starts typing
+    if (passwordMessage) setPasswordMessage('');
+    if (passwordError) setPasswordError('');
+  };
+
+  const handleShowPasswordForm = () => {
+    setShowPasswordForm(true);
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordMessage('');
+    setPasswordError('');
+  };
+
+  const handleCancelPasswordChange = () => {
+    setShowPasswordForm(false);
+    setPasswordData({
+      currentPassword: '',
+      newPassword: '',
+      confirmPassword: ''
+    });
+    setPasswordMessage('');
+    setPasswordError('');
+  };
+
+  const handleChangePassword = async (e) => {
+    e.preventDefault();
+    
+    // Validation
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setPasswordError('New passwords do not match');
+      return;
+    }
+
+    if (passwordData.newPassword.length < 6) {
+      setPasswordError('New password must be at least 6 characters long');
+      return;
+    }
+
+    if (passwordData.currentPassword === passwordData.newPassword) {
+      setPasswordError('New password must be different from current password');
+      return;
+    }
+
+    setIsChangingPassword(true);
+    setPasswordError('');
+
+    try {
+      const response = await apiService.changePassword({
+        currentPassword: passwordData.currentPassword,
+        newPassword: passwordData.newPassword
+      });
+
+      if (response.success) {
+        // Don't set regular message, only show gamified popup
+        setShowPasswordForm(false);
+        setPasswordData({
+          currentPassword: '',
+          newPassword: '',
+          confirmPassword: ''
+        });
+        
+        // Show achievement popup
+        setShowAchievementPopup(true);
+        setTimeout(() => setShowAchievementPopup(false), 3000); // Hide after 3 seconds
+      } else {
+        setPasswordError(response.message || 'Failed to change password');
+      }
+    } catch (error) {
+      console.error('Password change error:', error);
+      setPasswordError('Failed to change password. Please try again.');
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   const handleSavePersonal = () => {
@@ -239,17 +337,114 @@ const Settings = ({ userLevel = 1, lenderData, onLogout }) => {
             <div className="security-settings">
               <div className="settings-section">
                 <h2>Security Settings</h2>
-                <div className="security-options">
-                  <div className="security-item">
-                    <h3>Change Password</h3>
-                    <p>Update your account password</p>
-                    <button className="btn-secondary">Change Password</button>
+                
+                {/* Password Change Section */}
+                <div className="security-item">
+                  <div className="security-item-header">
+                    <div>
+                      <h3>Change Password</h3>
+                      <p>Update your account password for better security</p>
+                    </div>
+                    {!showPasswordForm && (
+                      <button className="btn-secondary" onClick={handleShowPasswordForm}>
+                        Change Password
+                      </button>
+                    )}
                   </div>
-                  
-                  <div className="security-item">
-                    <h3>Two-Factor Authentication</h3>
-                    <p>Add an extra layer of security to your account</p>
-                    <button className="btn-secondary">Enable 2FA</button>
+
+                  {/* Password Change Form */}
+                  {showPasswordForm && (
+                    <div className="password-form-container">
+                      <form onSubmit={handleChangePassword} className="password-form">
+                        <div className="form-group">
+                          <label htmlFor="currentPassword">Current Password *</label>
+                          <input
+                            type="password"
+                            id="currentPassword"
+                            value={passwordData.currentPassword}
+                            onChange={(e) => handlePasswordChange('currentPassword', e.target.value)}
+                            required
+                            placeholder="Enter your current password"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="newPassword">New Password *</label>
+                          <input
+                            type="password"
+                            id="newPassword"
+                            value={passwordData.newPassword}
+                            onChange={(e) => handlePasswordChange('newPassword', e.target.value)}
+                            required
+                            placeholder="Enter your new password (min 6 characters)"
+                            minLength="6"
+                          />
+                        </div>
+
+                        <div className="form-group">
+                          <label htmlFor="confirmPassword">Confirm New Password *</label>
+                          <input
+                            type="password"
+                            id="confirmPassword"
+                            value={passwordData.confirmPassword}
+                            onChange={(e) => handlePasswordChange('confirmPassword', e.target.value)}
+                            required
+                            placeholder="Confirm your new password"
+                            minLength="6"
+                          />
+                        </div>
+
+                        {passwordError && (
+                          <div className="error-message">
+                            <span className="error-icon">⚠️</span>
+                            {passwordError}
+                          </div>
+                        )}
+
+                        <div className="form-actions">
+                          <button 
+                            type="button" 
+                            className="btn-secondary" 
+                            onClick={handleCancelPasswordChange}
+                            disabled={isChangingPassword}
+                          >
+                            Cancel
+                          </button>
+                          <button 
+                            type="submit" 
+                            className="btn-primary" 
+                            disabled={isChangingPassword}
+                          >
+                            {isChangingPassword ? 'Changing...' : 'Change Password'}
+                          </button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
+                </div>
+
+                {/* Other Security Options */}
+                <div className="security-item">
+                  <div className="security-item-header">
+                    <div>
+                      <h3>Two-Factor Authentication</h3>
+                      <p>Add an extra layer of security to your account</p>
+                    </div>
+                    <button className="btn-secondary" disabled>
+                      Coming Soon
+                    </button>
+                  </div>
+                </div>
+
+                <div className="security-item">
+                  <div className="security-item-header">
+                    <div>
+                      <h3>Login History</h3>
+                      <p>View your recent login activity</p>
+                    </div>
+                    <button className="btn-secondary" disabled>
+                      Coming Soon
+                    </button>
                   </div>
                 </div>
               </div>
@@ -288,6 +483,30 @@ const Settings = ({ userLevel = 1, lenderData, onLogout }) => {
           )}
         </div>
       </div>
+
+      {/* Achievement Popup for Password Change */}
+      {showAchievementPopup && (
+        <div className="achievement-popup">
+          <div className="achievement-popup-content">
+            <div className="achievement-icon">
+              <span className="achievement-emoji">�️</span>
+            </div>
+            <div className="achievement-details">
+              <h3 className="achievement-title">Security Guardian!</h3>
+              <p className="achievement-description">Password successfully updated</p>
+              <div className="achievement-xp">+100 XP 🌟</div>
+            </div>
+            <div className="achievement-effects">
+              <div className="particle"></div>
+              <div className="particle"></div>
+              <div className="particle"></div>
+              <div className="particle"></div>
+              <div className="particle"></div>
+              <div className="particle"></div>
+            </div>
+          </div>
+        </div>
+      )}
       </div>
     </div>
   );
