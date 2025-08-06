@@ -105,7 +105,7 @@ const comparePassword = async (password, hashedPassword) => {
 // Update Borrower Statuses Based on Due Dates
 const updateBorrowerStatuses = async (lenderId = null) => {
   try {
-    const now = new Date(); // Use current time for minute calculations
+    const now = new Date();
     const today = new Date();
     today.setHours(0, 0, 0, 0); // Only for day calculations
 
@@ -122,13 +122,17 @@ const updateBorrowerStatuses = async (lenderId = null) => {
       const timeDiff = dueDate - today;
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
-      // Calculate expected minutes paid based on account age (FOR TESTING - MINUTES INSTEAD OF MONTHS)
-      const accountAgeMinutes = Math.floor((now - createdDate) / (1000 * 60)); // Use Math.floor to count only complete minutes
-      const expectedMinutesPaid = Math.max(0, accountAgeMinutes); // No grace period - start expecting payments after complete minutes
-      const actualMinutesPaid = borrower.monthsPaid || 0; // Using monthsPaid field but treating as minutes
-      const paymentsBehind = expectedMinutesPaid - actualMinutesPaid;
+      // Calculate expected months paid based on account age (MONTHLY LOGIC)
+      const createdMonth = new Date(createdDate.getFullYear(), createdDate.getMonth(), 1);
+      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const accountAgeMonths = Math.max(0, (currentMonth.getFullYear() - createdMonth.getFullYear()) * 12 + (currentMonth.getMonth() - createdMonth.getMonth()));
       
-      console.log(`📊 ${borrower.name}: Age ${accountAgeMinutes}min, Expected ${expectedMinutesPaid}, Actual ${actualMinutesPaid}, Behind ${paymentsBehind}`);
+      // Expected payments start from the next month after creation
+      const expectedMonthsPaid = Math.max(0, accountAgeMonths);
+      const actualMonthsPaid = borrower.monthsPaid || 0;
+      const paymentsBehind = expectedMonthsPaid - actualMonthsPaid;
+      
+      console.log(`📊 ${borrower.name}: Age ${accountAgeMonths} months, Expected ${expectedMonthsPaid}, Actual ${actualMonthsPaid}, Behind ${paymentsBehind}`);
       
       let newStatus = borrower.status;
       
@@ -147,13 +151,13 @@ const updateBorrowerStatuses = async (lenderId = null) => {
       }
       
       if (paymentsBehind >= 2) {
-        // 2 or more minutes behind = overdue
+        // 2 or more months behind = overdue
         newStatus = 'overdue';
       } else if (paymentsBehind >= 1) {
-        // Exactly 1 minute behind = due
+        // Exactly 1 month behind = due
         newStatus = 'due';
       } else {
-        // On track (0 minutes behind)
+        // On track (0 months behind)
         newStatus = 'current';
       }
 
@@ -637,15 +641,15 @@ app.post('/api/borrowers', authenticateToken, [
     // Calculate monthly payment (original amount / 10 months)
     const monthlyPayment = amount / 10;
 
-    // Set due date to next month from today if not provided or if provided date is in the past/today
+    // Use the provided due date as-is (allow past dates for testing/data entry)
     let finalDueDate = new Date(dueDate);
-    const today = new Date();
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
     
-    // If due date is today or in the past, automatically set it to next month
-    if (finalDueDate <= today) {
-      finalDueDate = nextMonth;
-    }
+    // Debug logging to track date handling
+    console.log('📅 Backend date handling:', {
+      receivedDueDate: dueDate,
+      parsedDate: finalDueDate.toISOString(),
+      today: new Date().toISOString()
+    });
 
     // Create borrower
     const borrower = new Borrower({
@@ -824,19 +828,22 @@ app.get('/api/notifications/due', authenticateToken, async (req, res) => {
       const timeDiff = dueDate - today;
       const daysDiff = Math.ceil(timeDiff / (1000 * 60 * 60 * 24));
       
-      // Calculate expected minutes paid based on account age (FOR TESTING - MINUTES INSTEAD OF MONTHS)
-      const accountAgeMinutes = Math.floor((now - createdDate) / (1000 * 60)); // Use Math.floor to count only complete minutes
-      const expectedMinutesPaid = Math.max(0, accountAgeMinutes); // No grace period - start expecting payments after complete minutes
-      const actualMinutesPaid = borrower.monthsPaid || 0; // Using monthsPaid field but treating as minutes
+      // Calculate expected months paid based on account age (MONTHLY LOGIC)
+      const createdMonth = new Date(createdDate.getFullYear(), createdDate.getMonth(), 1);
+      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const accountAgeMonths = Math.max(0, (currentMonth.getFullYear() - createdMonth.getFullYear()) * 12 + (currentMonth.getMonth() - createdMonth.getMonth()));
+      
+      // Expected payments start from the next month after creation
+      const expectedMonthsPaid = Math.max(0, accountAgeMonths);
+      const actualMonthsPaid = borrower.monthsPaid || 0;
       
       console.log(`   📅 Created: ${createdDate.toISOString()}`);
-      console.log(`   ⏰ Account age: ${accountAgeMinutes} minutes`);
-      console.log(`   💰 Expected payments: ${expectedMinutesPaid}, Actual: ${actualMinutesPaid}`);
+      console.log(`   ⏰ Account age: ${accountAgeMonths} months`);
+      console.log(`   💰 Expected payments: ${expectedMonthsPaid}, Actual: ${actualMonthsPaid}, PaidThisMonth: ${borrower.paidThisMonth}, Effective: ${borrower.paidThisMonth ? actualMonthsPaid : actualMonthsPaid}`);
       
-      // Skip notifications for borrowers created in the last 5 seconds to avoid immediate notifications (FOR TESTING)
-      const secondsSinceCreation = Math.ceil((now - createdDate) / (1000));
-      if (secondsSinceCreation < 5) {
-        console.log(`⏳ Skipping ${borrower.name} - only ${secondsSinceCreation} seconds old (grace period: 5s)`);
+      // Skip notifications for borrowers created in the current month to avoid immediate notifications
+      if (accountAgeMonths === 0) {
+        console.log(`⏳ Skipping ${borrower.name} - created in current month (grace period)`);
         continue; // Skip this borrower
       }
 
@@ -846,29 +853,29 @@ app.get('/api/notifications/due', authenticateToken, async (req, res) => {
         continue; // Skip this borrower
       }
       
-      let status, message, priority, type, shouldNotify = false;
+      let status, message, priority, type, shouldNotify = true; // Default to true for borrowers with paidThisMonth=false
       
-      // Check if payments are behind schedule (TESTING WITH MINUTES)
-      const paymentsBehind = expectedMinutesPaid - actualMinutesPaid;
+      // Check if payments are behind schedule (MONTHLY LOGIC)
+      const paymentsBehind = expectedMonthsPaid - actualMonthsPaid;
       
       console.log(`   📊 Payments behind: ${paymentsBehind}`);
       
       if (paymentsBehind >= 2) {
-        // 2 or more minutes behind = overdue
+        // 2 or more months behind = overdue
         status = 'overdue';
         type = 'Overdue Payment';
-        message = `${paymentsBehind} minutes behind on payments`;
+        message = `${paymentsBehind} months behind on payments`;
         priority = 'urgent';
         shouldNotify = true;
-        console.log(`   🚨 OVERDUE: ${borrower.name} is ${paymentsBehind} minutes behind`);
+        console.log(`   🚨 OVERDUE: ${borrower.name} is ${paymentsBehind} months behind`);
       } else if (paymentsBehind >= 1) {
-        // Exactly 1 minute behind = due
+        // Exactly 1 month behind = due
         status = 'due';
         type = 'Payment Due';
-        message = `${paymentsBehind} minute behind on payments`;
+        message = `${paymentsBehind} month behind on payments`;
         priority = 'high';
         shouldNotify = true;
-        console.log(`   ⚠️ DUE: ${borrower.name} is ${paymentsBehind} minute(s) behind`);
+        console.log(`   ⚠️ DUE: ${borrower.name} is ${paymentsBehind} month(s) behind`);
       } else if (daysDiff <= 7 && daysDiff >= 0) {
         // Due this week (upcoming payment) - keeping original day logic for now
         status = 'due_soon';
@@ -880,6 +887,17 @@ app.get('/api/notifications/due', authenticateToken, async (req, res) => {
         }
         priority = 'high';
         shouldNotify = true;
+      } else if (!borrower.paidThisMonth) {
+        // If borrower hasn't paid this month, show notification regardless of timing
+        status = 'payment_required';
+        type = 'Monthly Payment Required';
+        message = 'Monthly payment not yet received';
+        priority = 'medium';
+        shouldNotify = true;
+        console.log(`   💰 PAYMENT REQUIRED: ${borrower.name} hasn't paid this month`);
+      } else {
+        // Borrower is current and has paid this month
+        shouldNotify = false;
       }
 
       // Only add to notifications if it should be notified

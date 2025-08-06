@@ -34,14 +34,14 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
           {
             title: 'Due This Month',
             count: summary.due,
-            description: 'Overdue payments (1-30 days)',
+            description: 'Payments 1 month behind',
             icon: '📅',
             color: 'info'
           },
           {
             title: 'Overdue',
             count: summary.overdue,
-            description: 'Critical overdue (30+ days)',
+            description: 'Payments 2+ months behind',
             icon: '🚨',
             color: 'danger'
           }

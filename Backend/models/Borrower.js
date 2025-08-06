@@ -43,6 +43,10 @@ const borrowerSchema = new mongoose.Schema({
     type: Number,
     default: 0
   },
+  paidThisMonth: {
+    type: Boolean,
+    default: false
+  },
   progress: {
     type: Number,
     default: 0,

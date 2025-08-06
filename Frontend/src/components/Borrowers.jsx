@@ -112,10 +112,9 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
   const handleAddBorrower = () => {
     setShowAddBorrowerModal(true);
     
-    // Set default start date to next month from today
+    // Set default start date to today (not next month) to make it easier to set past dates
     const today = new Date();
-    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, today.getDate());
-    const defaultStartDate = nextMonth.toISOString().slice(0, 16); // Format for datetime-local input
+    const defaultStartDate = today.toISOString().slice(0, 16); // Format for datetime-local input
     
     // Reset form data with default start date
     setFormData({
@@ -148,13 +147,31 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
 
     try {
       // Convert amount and interestRate to numbers
+      // For dueDate, ensure we preserve the exact date selected without timezone conversion
+      const selectedDate = new Date(formData.dueDate);
+      // Create a new date in UTC with the same year, month, day, hour, minute
+      const utcDate = new Date(Date.UTC(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        selectedDate.getDate(),
+        selectedDate.getHours(),
+        selectedDate.getMinutes()
+      ));
+      
       const borrowerData = {
         ...formData,
         amount: parseFloat(formData.amount),
         interestRate: parseFloat(formData.interestRate),
         monthsPaid: parseInt(formData.monthsPaid) || 0,
-        dueDate: new Date(formData.dueDate).toISOString()
+        dueDate: utcDate.toISOString()
       };
+
+      console.log('📅 Form date handling:', {
+        originalInput: formData.dueDate,
+        selectedDate: selectedDate.toString(),
+        utcDate: utcDate.toISOString(),
+        localDateString: selectedDate.toLocaleDateString()
+      });
 
       const response = await apiService.createBorrower(borrowerData);
       
@@ -289,13 +306,45 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     return Math.max(0, Math.min(totalMonths, 10));
   };
 
-  // Calculate next due date (start date + months paid for next payment)
-  const calculateNextDueDate = (startDate, monthsPaid = 0) => {
+  // Calculate next due date based on payment status
+  const calculateNextDueDate = (startDate, monthsPaid = 0, paidThisMonth = false) => {
     const accountStart = new Date(startDate);
+    const now = new Date();
+    
+    // Calculate months since account creation
+    const startMonth = new Date(accountStart.getFullYear(), accountStart.getMonth(), 1);
+    const currentMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+    const monthsSinceStart = Math.max(0, (currentMonth.getFullYear() - startMonth.getFullYear()) * 12 + (currentMonth.getMonth() - startMonth.getMonth()));
+    
+    // Determine target month for next due date
+    let targetMonth;
+    
+    if (monthsSinceStart === 0) {
+      // Still in the creation month - next due is creation month (same month as account start)
+      targetMonth = 0;
+    } else if (!paidThisMonth) {
+      // Haven't paid this month - show current month's due date
+      // The due date should be the same day as account creation but in current month
+      targetMonth = monthsSinceStart;
+    } else {
+      // Paid this month - show next month's due date
+      targetMonth = monthsSinceStart + 1;
+    }
+    
+    // Create next due date: keep the same day as account creation, but in the target month
     const nextDue = new Date(accountStart);
-    // For new borrowers (0 months paid), next due is start date (same month)
-    // For 1 month paid, next due is start date + 1 month, etc.
-    nextDue.setMonth(nextDue.getMonth() + monthsPaid);
+    nextDue.setMonth(accountStart.getMonth() + targetMonth);
+    
+    // Debug logging
+    console.log(`📅 Next Due Calculation:`, {
+      accountStart: accountStart.toDateString(),
+      now: now.toDateString(),
+      monthsSinceStart,
+      paidThisMonth,
+      targetMonth,
+      nextDue: nextDue.toDateString()
+    });
+    
     return nextDue;
   };
 
@@ -435,13 +484,27 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
             // Borrowers list
             filteredBorrowers.map((borrower) => {
               const totalEarned = calculateTotalEarned(borrower.amount, borrower.interestRate, borrower.progress);
-              // Use borrower.dueDate as the account start date, not the next due date
-              const nextDueDate = calculateNextDueDate(borrower.dueDate, borrower.monthsPaid);
+              // Calculate next due date based on payment status
+              const nextDueDate = calculateNextDueDate(
+                borrower.dueDate, 
+                borrower.monthsPaid, 
+                borrower.paidThisMonth || false // Default to false if not present
+              );
+              
+              // Debug log the borrower data
+              console.log(`🔍 Borrower ${borrower.name} (ID: ${borrower._id?.slice(-6)}):`, {
+                dueDate: borrower.dueDate,
+                createdAt: borrower.createdAt,
+                monthsPaid: borrower.monthsPaid,
+                paidThisMonth: borrower.paidThisMonth,
+                status: borrower.status,
+                fullBorrowerObject: borrower
+              });
               return (
                 <div key={borrower._id} className="borrower-card">
                   <div className="borrower-header">
                     <div className="borrower-info">
-                      <h3>{borrower.name}</h3>
+                      <h3>{borrower.name} <small style={{color: '#666', fontSize: '12px'}}>({borrower._id?.slice(-6)})</small></h3>
                       <div className="borrower-phone">
                         <span className="phone-number">📞 {borrower.phone}</span>
                         <button 
@@ -533,6 +596,10 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                         <>
                           <span className="due-label">Next Due:</span>
                           <span className="due-date">📅 {formatDate(nextDueDate)}</span>
+                          <br />
+                          <small style={{color: '#666', fontSize: '11px'}}>
+                            Account created: {formatDate(borrower.dueDate)} | Current date used: {formatDate(borrower.createdAt || borrower.dueDate)}
+                          </small>
                         </>
                       )}
                     </div>
