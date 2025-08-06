@@ -166,13 +166,6 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
         dueDate: utcDate.toISOString()
       };
 
-      console.log('📅 Form date handling:', {
-        originalInput: formData.dueDate,
-        selectedDate: selectedDate.toString(),
-        utcDate: utcDate.toISOString(),
-        localDateString: selectedDate.toLocaleDateString()
-      });
-
       const response = await apiService.createBorrower(borrowerData);
       
       if (response.success) {
@@ -299,9 +292,6 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
       totalMonths -= 1;
     }
     
-    // Debug logging for troubleshooting
-    console.log(`📅 Month calculation: start=${accountStart.toISOString()}, today=${today.toISOString()}, result=${totalMonths}`);
-    
     // Ensure it's not negative and not more than 10 (max loan term)
     return Math.max(0, Math.min(totalMonths, 10));
   };
@@ -334,16 +324,6 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     // Create next due date: keep the same day as account creation, but in the target month
     const nextDue = new Date(accountStart);
     nextDue.setMonth(accountStart.getMonth() + targetMonth);
-    
-    // Debug logging
-    console.log(`📅 Next Due Calculation:`, {
-      accountStart: accountStart.toDateString(),
-      now: now.toDateString(),
-      monthsSinceStart,
-      paidThisMonth,
-      targetMonth,
-      nextDue: nextDue.toDateString()
-    });
     
     return nextDue;
   };
@@ -491,20 +471,11 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                 borrower.paidThisMonth || false // Default to false if not present
               );
               
-              // Debug log the borrower data
-              console.log(`🔍 Borrower ${borrower.name} (ID: ${borrower._id?.slice(-6)}):`, {
-                dueDate: borrower.dueDate,
-                createdAt: borrower.createdAt,
-                monthsPaid: borrower.monthsPaid,
-                paidThisMonth: borrower.paidThisMonth,
-                status: borrower.status,
-                fullBorrowerObject: borrower
-              });
               return (
                 <div key={borrower._id} className="borrower-card">
                   <div className="borrower-header">
                     <div className="borrower-info">
-                      <h3>{borrower.name} <small style={{color: '#666', fontSize: '12px'}}>({borrower._id?.slice(-6)})</small></h3>
+                      <h3>{borrower.name}</h3>
                       <div className="borrower-phone">
                         <span className="phone-number">📞 {borrower.phone}</span>
                         <button 
@@ -596,10 +567,6 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
                         <>
                           <span className="due-label">Next Due:</span>
                           <span className="due-date">📅 {formatDate(nextDueDate)}</span>
-                          <br />
-                          <small style={{color: '#666', fontSize: '11px'}}>
-                            Account created: {formatDate(borrower.dueDate)} | Current date used: {formatDate(borrower.createdAt || borrower.dueDate)}
-                          </small>
                         </>
                       )}
                     </div>
