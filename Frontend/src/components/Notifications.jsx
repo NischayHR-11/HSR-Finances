@@ -6,8 +6,11 @@ import './Notifications.css';
 
 const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
   const [notifications, setNotifications] = useState([]);
+  const [upcomingNotifications, setUpcomingNotifications] = useState([]);
   const [notificationSummary, setNotificationSummary] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isLoadingUpcoming, setIsLoadingUpcoming] = useState(false);
+  const [showUpcoming, setShowUpcoming] = useState(false);
   const [error, setError] = useState(null);
   const [showCopyPopup, setShowCopyPopup] = useState(false);
 
@@ -54,6 +57,83 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
       setError('Unable to load notifications. Please try again.');
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  // Fetch upcoming notifications based on borrowers' due dates
+  const fetchUpcomingNotifications = async () => {
+    try {
+      setIsLoadingUpcoming(true);
+      setError(null);
+      
+      // Get all borrowers and calculate upcoming due dates
+      const response = await apiService.getBorrowers({ limit: 100 });
+      
+      if (response.success) {
+        const borrowers = response.data.borrowers || [];
+        const today = new Date();
+        const upcomingList = [];
+
+        borrowers.forEach(borrower => {
+          // Skip completed loans
+          if (borrower.monthsPaid >= 10) return;
+
+          // Calculate next due date using the same logic as in Borrowers component
+          const accountStart = new Date(borrower.dueDate);
+          const startMonth = new Date(accountStart.getFullYear(), accountStart.getMonth(), 1);
+          const currentMonth = new Date(today.getFullYear(), today.getMonth(), 1);
+          const monthsSinceStart = Math.max(0, (currentMonth.getFullYear() - startMonth.getFullYear()) * 12 + (currentMonth.getMonth() - startMonth.getMonth()));
+          
+          let targetMonth;
+          if (monthsSinceStart === 0) {
+            targetMonth = 0;
+          } else if (!borrower.paidThisMonth) {
+            targetMonth = monthsSinceStart;
+          } else {
+            targetMonth = monthsSinceStart + 1;
+          }
+          
+          const nextDue = new Date(accountStart);
+          nextDue.setMonth(accountStart.getMonth() + targetMonth);
+          
+          // Calculate days until due
+          const timeDiff = nextDue.getTime() - today.getTime();
+          const daysDiff = Math.ceil(timeDiff / (1000 * 3600 * 24));
+          
+          // Only include upcoming notifications (next 30 days)
+          if (daysDiff >= 0 && daysDiff <= 30) {
+            upcomingList.push({
+              id: borrower._id,
+              borrowerId: borrower._id,
+              name: borrower.name,
+              phone: borrower.phone,
+              amount: `$${(borrower.amount / 10).toFixed(0)}`, // Monthly payment
+              dueDate: nextDue.toISOString(),
+              daysDiff,
+              type: daysDiff === 0 ? 'Due Today' : 
+                    daysDiff <= 3 ? 'Due Soon' : 
+                    daysDiff <= 7 ? 'Due This Week' : 'Due This Month',
+              priority: daysDiff === 0 ? 'urgent' : 
+                       daysDiff <= 3 ? 'high' : 'normal',
+              monthsPaid: borrower.monthsPaid,
+              paidThisMonth: borrower.paidThisMonth
+            });
+          }
+        });
+
+        // Sort by due date (closest first)
+        upcomingList.sort((a, b) => a.daysDiff - b.daysDiff);
+        
+        setUpcomingNotifications(upcomingList);
+        setShowUpcoming(true);
+      } else {
+        setError(response.message || 'Failed to fetch upcoming notifications');
+      }
+    } catch (error) {
+      console.error('Error fetching upcoming notifications:', error);
+      setError('Unable to load upcoming notifications. Please try again.');
+    } finally {
+      setIsLoadingUpcoming(false);
     }
   };
 
@@ -196,9 +276,24 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
         <div className="notifications-section">
           <div className="section-header">
             <h2>🔔 Recent Notifications</h2>
-            <button className="refresh-btn" onClick={fetchNotifications} disabled={isLoading}>
-              {isLoading ? '🔄' : '↻'} Refresh
-            </button>
+            <div className="header-buttons">
+              <button 
+                className="upcoming-btn" 
+                onClick={() => {
+                  if (showUpcoming) {
+                    setShowUpcoming(false);
+                  } else {
+                    fetchUpcomingNotifications();
+                  }
+                }}
+                disabled={isLoadingUpcoming}
+              >
+                {isLoadingUpcoming ? '🔄' : '📅'} {showUpcoming ? 'Hide Upcoming' : 'Show Upcoming'}
+              </button>
+              <button className="refresh-btn" onClick={fetchNotifications} disabled={isLoading}>
+                {isLoading ? '🔄' : '↻'} Refresh
+              </button>
+            </div>
           </div>
 
           {isLoading ? (
@@ -301,6 +396,110 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
             </div>
           )}
         </div>
+
+        {/* Upcoming Notifications Section */}
+        {showUpcoming && (
+          <div className="notifications-section upcoming-section">
+            <div className="section-header">
+              <h2>📅 Upcoming Due Dates (Next 30 Days)</h2>
+              <span className="upcoming-count">
+                {upcomingNotifications.length} upcoming
+              </span>
+            </div>
+
+            {isLoadingUpcoming ? (
+              <div className="loading-container">
+                <div className="loading-message">
+                  <div className="loading-spinner"></div>
+                  <p>Loading upcoming notifications...</p>
+                </div>
+              </div>
+            ) : upcomingNotifications.length === 0 ? (
+              <div className="empty-container">
+                <div className="empty-message">
+                  <span className="empty-icon">📅</span>
+                  <h3>No upcoming due dates</h3>
+                  <p>All borrowers are up to date or have no payments due in the next 30 days.</p>
+                </div>
+              </div>
+            ) : (
+              <div className="notifications-list upcoming-list">
+                {upcomingNotifications.map((notification) => (
+                  <div 
+                    key={notification.id} 
+                    className={`notification-card upcoming-card ${getPriorityClass(notification.priority)}`}
+                  >
+                    <div className="notification-priority">
+                      {getPriorityIcon(notification.priority)}
+                    </div>
+                    
+                    <div className="notification-content">
+                      <div className="notification-header">
+                        <div className="notification-info">
+                          <h3>{notification.name}</h3>
+                          <span className="notification-type">{notification.type}</span>
+                        </div>
+                        <div className="notification-meta">
+                          <span className="notification-amount">{notification.amount}</span>
+                          <span className="notification-time">
+                            {notification.daysDiff === 0 ? 'Today' : 
+                             notification.daysDiff === 1 ? 'Tomorrow' : 
+                             `In ${notification.daysDiff} days`}
+                          </span>
+                        </div>
+                      </div>
+                      
+                      <p className="notification-message">
+                        Monthly payment due {notification.daysDiff === 0 ? 'today' : 
+                                           notification.daysDiff === 1 ? 'tomorrow' : 
+                                           `in ${notification.daysDiff} days`}
+                        {notification.paidThisMonth && ' (Already paid this month)'}
+                      </p>
+                      
+                      <div className="notification-details">
+                        <span className="notification-date">📅 Due: {formatDate(notification.dueDate)}</span>
+                        <span className="progress-info">
+                          📊 Progress: {notification.monthsPaid}/10 months
+                        </span>
+                        {notification.phone && (
+                          <div className="borrower-phone">
+                            <span className="phone-number">📞 {notification.phone}</span>
+                            <button 
+                              className="copy-phone-btn"
+                              onClick={() => handleCopyPhone(notification.phone)}
+                              title="Copy phone number"
+                            >
+                              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="copy-icon">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2" fill="none" stroke="currentColor"/>
+                                <rect x="2" y="2" width="13" height="13" rx="2" ry="2" fill="currentColor" stroke="currentColor"/>
+                                <line x1="4" y1="6" x2="11" y2="6" stroke="white" strokeWidth="1"/>
+                                <line x1="4" y1="9" x2="11" y2="9" stroke="white" strokeWidth="1"/>
+                                <line x1="4" y1="12" x2="8" y2="12" stroke="white" strokeWidth="1"/>
+                              </svg>
+                              <span className="copy-text">Copy</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <div className="notification-actions">
+                      {!notification.paidThisMonth && (
+                        <button 
+                          className="action-btn paid-btn"
+                          onClick={() => markAsPaid(notification)}
+                          title="Mark payment as paid"
+                        >
+                          ✓ Mark Paid
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Copy Success Popup */}

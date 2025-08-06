@@ -756,3 +756,118 @@
     text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
   }
 }
+
+/* Upcoming Notifications Styling */
+.upcoming-section {
+  margin-top: 32px;
+  border-top: 2px solid var(--border-color);
+  padding-top: 32px;
+}
+
+.upcoming-section .section-header {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white;
+  padding: 16px 24px;
+  border-radius: 12px;
+  margin-bottom: 24px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.upcoming-section .section-header h2 {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.upcoming-count {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 4px 12px;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+.upcoming-card {
+  border-left: 4px solid var(--accent-blue);
+  background: linear-gradient(135deg, var(--bg-card), rgba(52, 152, 219, 0.05));
+}
+
+.upcoming-card.priority-urgent {
+  border-left-color: var(--accent-red);
+  background: linear-gradient(135deg, var(--bg-card), rgba(231, 76, 60, 0.05));
+}
+
+.upcoming-card.priority-high {
+  border-left-color: var(--accent-orange);
+  background: linear-gradient(135deg, var(--bg-card), rgba(243, 156, 18, 0.05));
+}
+
+.upcoming-list .notification-card {
+  margin-bottom: 16px;
+}
+
+.progress-info {
+  color: var(--text-secondary);
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.header-buttons {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+}
+
+.upcoming-btn {
+  background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.upcoming-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(52, 152, 219, 0.3);
+}
+
+.upcoming-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.upcoming-btn:active {
+  transform: translateY(0);
+}
+
+/* Mobile responsiveness for header buttons */
+@media (max-width: 768px) {
+  .header-buttons {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .upcoming-btn,
+  .refresh-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .upcoming-section .section-header {
+    flex-direction: column;
+    gap: 8px;
+    text-align: center;
+  }
+}
