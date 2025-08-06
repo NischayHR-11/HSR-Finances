@@ -964,11 +964,12 @@ app.put('/api/notifications/paid/:id', authenticateToken, async (req, res) => {
     const currentMonthsPaid = borrower.monthsPaid || 0;
     const newMonthsPaid = currentMonthsPaid + 1;
 
-    // Update borrower with new months paid
+    // Update borrower with new months paid and mark as paid for this month
     const updatedBorrower = await Borrower.findByIdAndUpdate(
       borrowerId,
       {
         monthsPaid: newMonthsPaid,
+        paidThisMonth: true, // Mark as paid for this month to prevent duplicate notifications
         status: newMonthsPaid >= 10 ? 'paid' : 'current', // Mark as 'paid' if completed
         updatedAt: Date.now()
       },

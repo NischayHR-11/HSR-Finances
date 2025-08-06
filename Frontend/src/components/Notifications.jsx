@@ -223,8 +223,24 @@ const Notifications = ({ userLevel = 1, lenderData, onLogout }) => {
       const response = await apiService.markPaymentAsPaid(notification.borrowerId);
       
       if (response.success) {
-        // Refresh notifications to update the list
+        // Refresh regular notifications to update the list
         await fetchNotifications();
+        
+        // If this notification came from upcoming notifications, update that list too
+        if (showUpcoming && upcomingNotifications.length > 0) {
+          // Remove the paid notification from upcoming notifications
+          setUpcomingNotifications(prev => 
+            prev.filter(n => n.borrowerId !== notification.borrowerId)
+          );
+          
+          // Optionally refresh upcoming notifications to get updated data
+          // This will recalculate due dates based on the new payment status
+          setTimeout(() => {
+            if (showUpcoming) {
+              fetchUpcomingNotifications();
+            }
+          }, 1000); // Small delay to allow backend to process the payment
+        }
         
         // Show different messages based on completion status
         if (response.data.completed) {
