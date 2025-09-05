@@ -79,6 +79,7 @@ const Layout = ({ onLogout, userLevel, xpPoints, lenderData }) => {
         onLogout={onLogout} 
         userLevel={userLevel}
         notificationCount={notificationCount}
+        lenderData={lenderData}
       />
       
       <main className="main-content">

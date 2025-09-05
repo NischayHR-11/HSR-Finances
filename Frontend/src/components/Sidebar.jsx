@@ -2,7 +2,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import './Sidebar.css';
 
-const Sidebar = ({ currentPath, onLogout, userLevel, notificationCount = 0 }) => {
+const Sidebar = ({ currentPath, onLogout, userLevel, notificationCount = 0, lenderData }) => {
   const [menuExpanded, setMenuExpanded] = useState(null);
   const [activeEffects, setActiveEffects] = useState({});
   const navigate = useNavigate();
@@ -146,7 +146,9 @@ const Sidebar = ({ currentPath, onLogout, userLevel, notificationCount = 0 }) =>
             onClick={() => navigate('/settings')}
             title="Go to Settings"
           >
-            JD
+            {lenderData?.name 
+              ? lenderData.name.slice(0, 2).toUpperCase()
+              : 'JD'}
           </button>
           <div className="notification-dot"></div>
         </div>
