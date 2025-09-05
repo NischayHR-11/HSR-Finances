@@ -310,11 +310,16 @@ const Borrowers = ({ userLevel = 1, lenderData, onLogout }) => {
     let targetMonth;
     
     if (monthsSinceStart === 0) {
-      // Still in the creation month - next due is creation month (same month as account start)
-      targetMonth = 0;
+      // Still in the creation month
+      if (now.getDate() < accountStart.getDate()) {
+        // Today is before account creation day, next due is creation day this month
+        targetMonth = 0;
+      } else {
+        // Today is after or on account creation day, next due is next month
+        targetMonth = 1;
+      }
     } else if (!paidThisMonth) {
       // Haven't paid this month - show current month's due date
-      // The due date should be the same day as account creation but in current month
       targetMonth = monthsSinceStart;
     } else {
       // Paid this month - show next month's due date
