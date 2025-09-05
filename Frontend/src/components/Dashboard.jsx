@@ -366,7 +366,8 @@ const Dashboard = ({ userLevel = 1, lenderData, onLogout }) => {
               {notificationCount > 0 && (
                 <span className="notification-badge">{notificationCount}</span>
               )}
-            </div>            <div className="navbar-item profile-section">
+            </div>
+            <div className="navbar-item profile-section" style={{cursor: 'pointer'}} onClick={() => navigate('/settings')}>
               <div className="user-avatar desktop-avatar">{getUserInitials(lenderData?.name)}</div>
               <span className="profile-name">{lenderData?.name || 'John Doe'}</span>
             </div>
